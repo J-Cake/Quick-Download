@@ -33,7 +33,7 @@ http.createServer(async (req, res) => {
         }
     }
 
-}).listen(1080, e => {
+}).listen(1080, () => {
     console.log("Listening")
 });
 
