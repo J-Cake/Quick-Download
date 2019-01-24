@@ -1,7 +1,7 @@
 {
-  "name": "website-title",
+  "name": "quick_download",
   "version": "1.0.0",
-  "description": "Insert Description Here",
+  "description": "We download things quickly. ",
   "main": "server.js",
   "scripts": {
 	 "start": "node server.js",
@@ -9,12 +9,12 @@
   },
   "repository": {
 	"type": "git",
-	"url": "git+https://github.com/J-Cake/Personal-Website.git"
+	"url": "git+https://github.com/jbis9051/quick_download"
   },
   "author": "Author",
   "license": "ISC",
   "bugs": {
-	"url": "https://github.com/J-Cake/Personal-Website/issues"
+	"url": "https://github.com/jbis9051/quick_download/issues"
   },
-  "homepage": "https://github.com/J-Cake/Personal-Website#readme"
+  "homepage": "https://github.com/jbis9051/quick_download#readme"
 }
