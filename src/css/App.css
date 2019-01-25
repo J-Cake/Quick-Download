@@ -1,0 +1,30 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #3e444b;
+}
+
+header {
+    display: flex;
+    background: #24282c;
+    padding: 7px;
+    box-shadow: 0 0 5px 0 #181b1e;
+}
+
+.tool {
+    font-family: FontAwesome;
+    color: #eee;
+    font-size: 13pt;
+    border: 2px solid #7e8999;
+    border-radius: 9px;
+    background: rgba(102, 112, 123, 0.55);
+    margin: 3px;
+    width: 30px;
+    text-align: center;
+    line-height: 28px;
+    height: 30px;
+}
