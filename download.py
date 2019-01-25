@@ -2,12 +2,13 @@ import requests
 import tempfile
 
 url_to_check = ''
+path_to_save = ''
 parts = []
 
 
 def download_bytes(url, from_byte, to_byte):  # https://stackoverflow.com/a/16696317/7886229
-    local_filename = tempfile.NamedTemporaryFile()
-    r = requests.get(url, {'Range', 'bytes=%d-%d' % (from_byte, to_byte)}, stream=True)
+    local_filename = tempfile.NamedTemporaryFile(delete=False)
+    r = requests.get(url, {'Range': 'bytes=%d-%d' % (from_byte, to_byte)}, stream=True)
     for chunk in r.iter_content(chunk_size=1024):
         if chunk:  # filter out keep-alive new chunks
             local_filename.write(chunk)
