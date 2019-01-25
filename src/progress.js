@@ -2,6 +2,7 @@ import React from 'react';
 
 export default class Progress extends React.Component {
 	render() {
+		console.log(this.props.value);
 		return (
 			<div className="progress-bar">
 				<div className="progress-bar-wrapper">
