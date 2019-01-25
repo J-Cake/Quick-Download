@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Title</title>
+
+		<script>
+			const {ipcRenderer} = require('electron');
+			ipcRenderer.on('getPage', e => {
+				window.location.href = "http://localhost:3000";
+			})
+		</script>
+
+		<style>
+			@keyframes a1 {
+				0% {
+					left: 0;
+				}
+				50% {
+					left: 3.75cm;
+				}
+				100% {
+					left: 0;
+				}
+			}
+
+			@keyframes a2 {
+				0% {
+					left: 0;
+				}
+				50% {
+					left: 1.25cm;
+				}
+				100% {
+					left: 0;
+				}
+			}
+
+			@keyframes a3 {
+				0% {
+					right: 0;
+				}
+				50% {
+					right: 1.25cm;
+				}
+				100% {
+					right: 0;
+				}
+			}
+
+			@keyframes a4 {
+				0% {
+					right: 0;
+				}
+				50% {
+					right: 3.75cm;
+				}
+				100% {
+					right: 0;
+				}
+			}
+
+			@keyframes rotate {
+				0% {
+					transform: rotate(0deg);
+				}
+				37.5% {
+					transform: rotate(180deg);
+				}
+				50% {
+					transform: rotate(180deg);
+				}
+				87.5% {
+					transform: rotate(360deg);
+				}
+				100% {
+					transform: rotate(360deg);
+				}
+			}
+
+		</style>
+
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			body {
+				background: #3c434b;
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.dot {
+				width: 0.25cm;
+				height: 0.25cm;
+				background: aliceblue;
+				display: block;
+				border-radius: 100px;
+				float: left;
+				margin: 0.25cm;
+				animation-iteration-count: infinite !important;
+				position: relative;
+			}
+			.loading {
+				position: fixed;
+				transform-origin: 50% 50%;
+				animation: rotate 2s ease;
+				animation-iteration-count: infinite !important;
+			}
+
+			.dot1 {
+				animation: a1 1s ease;
+			}
+			.dot2 {
+				animation: a2 1s ease;
+			}
+			.dot3 {
+				animation: a3 1s ease;
+			}
+			.dot4 {
+				animation: a4 1s ease;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="loading">
+			<span class="dot dot1"></span>
+			<span class="dot dot2"></span>
+			<span class="dot dot3"></span>
+			<span class="dot dot4"></span>
+		</div>
+	</body>
+</html>

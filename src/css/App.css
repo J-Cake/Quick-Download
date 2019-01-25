@@ -2,6 +2,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+
+    outline: none;
 }
 
 body {
@@ -26,5 +28,83 @@ header {
     width: 30px;
     text-align: center;
     line-height: 28px;
+
     height: 30px;
+    transition: 0.15s ease;
+}
+.tool:focus {
+    border: 2px solid cornflowerblue;
+}
+.tool:active {
+    background: rgba(124, 136, 149, 0.55);
+}
+.downloadPrompt {
+    border-radius: 5px;
+    width: 400px;
+    height: 200px;
+    background: slategrey;
+}
+
+.download {
+    padding: 10px;
+    border: 1px solid #7e8999;
+    border-radius: 10px;
+    background: aliceblue;
+    font-family: "Tisa Sans", sans-serif;
+    font-weight: 300 !important;
+    position: relative;
+    margin: 10px;
+}
+b {
+    font-weight: 900;
+}
+
+.download .download-details {
+    font-size: small;
+}
+.download .download-detail {
+    margin: 0 10px;
+    display: block;
+    color: #7e8999;
+}
+
+.download .tools {
+    position: absolute;
+    right: 3px;
+    top: 3px;
+}
+.progress-bar {
+    width: 100%;
+    margin-top: 5px;
+    position: relative;
+    height: 12px;
+    /*padding: 10px;*/
+}
+.progress-bar-wrapper {
+    border-radius: 15px;
+    border: none;
+    background: #b4c9e0;
+    box-shadow: 1px 0 3px 0 #8d9daf;
+    position: relative;
+    display: block;
+    height: 100%;
+}
+.progress-bar-inner {
+    background: cornflowerblue;
+    display: block;
+    position: relative;
+    height: 100%;
+    border-radius: inherit;
+    transition: 0.2s ease;
+}
+.progress-bar-wrapper .chunk {
+    background: rgba(126, 128, 133, 0.64);
+    border-radius: inherit;
+    width: 30px;
+    left: 100px;
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    height: 100%;
 }
