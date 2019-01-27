@@ -3,30 +3,44 @@ import time
 import requests
 import tempfile
 
+
 url_to_check = ''
 path_to_save = ''
 parts = []
 
 
-def length(url):
+class Part:
+    percent_done = 0
+
+    def __init__(self, url, from_byte, to_byte):
+        self.url = url
+        self.from_byte = from_byte
+        self.to_byte = to_byte
+        self.length = get_length(url)
+        self.current_byte = from_byte
+        self.stop_byte = to_byte
+        self.file = tempfile.NamedTemporaryFile(delete=False)
+
+    def download_bytes(self):  # https://stackoverflow.com/a/16696317/7886229
+        r = requests.get(self.url, {'Range': 'bytes=%d-%d' % (self.from_byte, self.to_byte)}, stream=True)
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk:  # filter out keep-alive new chunks
+                chunk_len = len(chunk)
+                if self.current_byte + chunk_len == self.to_byte:
+                    self.file.write(chunk)
+                    break
+                if self.current_byte + chunk_len > self.to_byte:
+                    print("too big")
+                    self.file.write(chunk[:int(self.to_byte - self.current_byte)])
+                    break
+                self.file.write(chunk)
+                self.current_byte += len(chunk)
+                # f.flush() commented by recommendation from J.F.Sebastian
+
+
+def get_length(url):
     response = requests.head(url)
     return response.headers['content-length']
-
-
-def download_bytes(url, from_byte, to_byte):  # https://stackoverflow.com/a/16696317/7886229
-    local_filename = tempfile.NamedTemporaryFile(delete=False)
-    if to_byte == '100%':
-        to_byte = int(length(url))
-    r = requests.get(url, {'Range': 'bytes=%d-%d' % (from_byte, to_byte)}, stream=True)
-    length_downloaded = 0
-    for chunk in r.iter_content(chunk_size=1024):
-        if chunk:  # filter out keep-alive new chunks
-            length_downloaded += 1024
-            if length_downloaded >= to_byte / 4:
-                break
-            local_filename.write(chunk)
-            # f.flush() commented by recommendation from J.F.Sebastian
-    return local_filename.name
 
 
 def byte_requests_supported(url):
@@ -45,5 +59,3 @@ def downspeed():  # https://codereview.stackexchange.com/a/139336/180601
     file_size = int(file.headers['Content-Length']) / 1000
     return round(file_size / time_difference)
 
-
-print(download_bytes('http://speedtest.ftp.otenet.gr/files/test100k.db', 0, '100%'))
