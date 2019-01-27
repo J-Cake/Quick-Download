@@ -6,6 +6,7 @@ const electron = exec('electron .');
 let server;
 
 let nextDatum = false; // when set to true, the next stdout item from the server will cause the loading phase to end.
+let loaded = false;
 
 const kill = () => {
 	if (server)
@@ -14,7 +15,15 @@ const kill = () => {
 		server = null;
 };
 
-electron.stdout.pipe(process.stdout);
+electron.stdout.on('data', data => {
+	if (data.trim().includes("ready")) {
+		if (loaded)
+			signal();
+	}
+
+	process.stdout.write(data);
+});
+
 electron.on('end', kill);
 electron.on('exit', kill);
 electron.stdout.on('end', kill);
@@ -22,7 +31,6 @@ electron.stdout.on('exit', kill);
 
 ping({address: "localhost", port: 3000, attempts: 1}, (opts, result) => {
 	if (isNaN(result.avg)) {
-		console.log("Starting Server");
 		if (server !== null) {
 			server = exec('npm start');
 			server.stdout.on('data', e => {
@@ -36,7 +44,7 @@ ping({address: "localhost", port: 3000, attempts: 1}, (opts, result) => {
 			process.exit(0);
 		}
 	} else {
-		console.log("Server Already Running");
+		loaded = true;
 		signal();
 	}
 });

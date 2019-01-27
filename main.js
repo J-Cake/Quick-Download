@@ -5,19 +5,14 @@ let mainWindow;
 
 let serverIsUp = false;
 
-// process.stdin.on('end', () => {
-// 	console.log("signal");
+// fs.watchFile('./signal.txt', (current, previous) => {
+// 	// console.log("signal");
 // 	serverIsUp = true;
-// 	ipcMain.send('getPage');
+// 	mainWindow.webContents.send('getPage');
 // });
-fs.watchFile('./signal.txt', (current, previous) => {
-	console.log("signal");
-	serverIsUp = true;
-	mainWindow.webContents.send('getPage');
-});
 
 async function createWindow () {
-	mainWindow = new BrowserWindow({width: 720, height: 360});
+	mainWindow = new BrowserWindow({width: 720, height: 360, frame: false});
 
 	if (serverIsUp)
 		mainWindow.loadURL('http://localhost:3000');
@@ -31,6 +26,8 @@ async function createWindow () {
 	});
 
 	mainWindow.setTitle("Quick Downloader");
+
+	console.log("ready");
 }
 
 app.on('ready', createWindow);

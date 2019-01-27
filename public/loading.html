@@ -12,6 +12,12 @@
 		</script>
 
 		<style>
+			* {
+				--animation-speed: 0.85s;
+			}
+		</style>
+
+		<style>
 			@keyframes a1 {
 				0% {
 					left: 0;
@@ -78,6 +84,34 @@
 				}
 			}
 
+			@keyframes pulse {
+				0% {
+
+					box-shadow: 0 0 5px 0 #181b1e;
+					padding: 0;
+				}
+				35% {
+
+					box-shadow: 0 0 5px 0 #181b1e;
+					padding: 0;
+				}
+				50% {
+
+					box-shadow: 0 0 10px 0 #181b1e;
+					padding: 8px;
+				}
+				65% {
+
+					box-shadow: 0 0 5px 0 #181b1e;
+					padding: 0;
+				}
+				100% {
+
+					box-shadow: 0 0 5px 0 #181b1e;
+					padding: 0;
+				}
+			}
+
 		</style>
 
 		<style>
@@ -96,41 +130,60 @@
 			.dot {
 				width: 0.25cm;
 				height: 0.25cm;
+				padding: 0;
 				background: aliceblue;
 				display: block;
 				border-radius: 100px;
-				float: left;
-				margin: 0.25cm;
 				animation-iteration-count: infinite !important;
-				position: relative;
+				position: fixed;
+
+				box-shadow: 0 0 5px 0 #181b1e;
 			}
 			.loading {
 				position: fixed;
 				transform-origin: 50% 50%;
-				animation: rotate 2s ease;
+				animation: rotate calc(var(--animation-speed) * 2) ease;
 				animation-iteration-count: infinite !important;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%);
 			}
 
 			.dot1 {
-				animation: a1 1s ease;
+				animation: a1 var(--animation-speed) ease, pulse var(--animation-speed) ease;
 			}
 			.dot2 {
-				animation: a2 1s ease;
+				animation: a2 var(--animation-speed) ease, pulse var(--animation-speed) ease;
 			}
 			.dot3 {
-				animation: a3 1s ease;
+				animation: a3 var(--animation-speed) ease, pulse var(--animation-speed) ease;
 			}
 			.dot4 {
-				animation: a4 1s ease;
+				animation: a4 var(--animation-speed) ease, pulse var(--animation-speed) ease;
 			}
+			/*.outline {*/
+				/*position: fixed;*/
+				/*background: #ffffff;*/
+				/*!*border: 2px solid #181b1e;*!*/
+				/*width: 8cm;*/
+				/*height: 8cm;*/
+				/*transform-origin: 50% 50%;*/
+				/*border-radius: 10000px;*/
+				/*box-shadow: 0 0 50px 0 #181b1e;*/
+				/*animation: pulse var(--animation-speed) ease;*/
+				/*animation-iteration-count: infinite !important;*/
+				/*padding: 20px;;*/
+			/*}*/
 		</style>
 	</head>
 	<body>
-		<div class="loading">
-			<span class="dot dot1"></span>
-			<span class="dot dot2"></span>
-			<span class="dot dot3"></span>
-			<span class="dot dot4"></span>
+		<div class="outline">
+			<div class="loading">
+				<span class="dot dot1"></span>
+				<span class="dot dot2"></span>
+				<span class="dot dot3"></span>
+				<span class="dot dot4"></span>
+			</div>
 		</div>
 	</body>
 </html>
