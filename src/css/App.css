@@ -1,0 +1,182 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+    outline: none;
+
+    font-family: "Tisa Sans", sans-serif;
+    user-select: none;
+}
+
+body {
+    background: #3e444b;
+    overflow: hidden;
+}
+
+header {
+    display: flex;
+    background: #24282c;
+    padding: 7px;
+    box-shadow: 0 0 5px 0 #181b1e;
+    grid-row: 1;
+}
+
+.App {
+    max-height: 100vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.downloads {
+    display: block;
+    position: relative;
+    /*max-height: calc(100vh - 50px) !important;*/
+    overflow: auto;
+    grid-row: 2;
+}
+
+.tool {
+    font-family: FontAwesome;
+    color: #eee;
+    font-size: 13pt;
+    border: 2px solid #7e8999;
+    border-radius: 9px;
+    background: rgba(102, 112, 123, 0.55);
+    margin: 3px;
+    width: 30px;
+    text-align: center;
+    line-height: 30px;
+    height: 30px;
+    transition: 0.15s ease;
+}
+.tool:focus {
+    border: 2px solid cornflowerblue;
+}
+.tool:active {
+    background: rgba(124, 136, 149, 0.55);
+}
+.downloadPrompt {
+    border-radius: 5px;
+    width: 400px;
+    height: 200px;
+    background: slategrey;
+}
+
+.download {
+    padding: 10px;
+    border: 1px solid #7e8999;
+    border-radius: 10px;
+    background: aliceblue;
+    font-weight: 300 !important;
+    position: relative;
+    margin: 10px;
+}
+b {
+    font-weight: 900;
+}
+
+.download .download-details {
+    font-size: small;
+    user-select: text;
+}
+.download .download-detail {
+    margin: 0 10px;
+    display: block;
+    color: #7e8999;
+}
+
+.download .header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.download .header .tools {
+    float: left;
+    display: block;
+}
+
+.download .header h2 {
+    float: left;
+    display: block;
+}
+
+.progress-bar {
+    width: 100%;
+    margin-top: 5px;
+    position: relative;
+    height: 12px;
+    /*padding: 10px;*/
+}
+.progress-bar-wrapper {
+    border-radius: 15px;
+    border: none;
+    background: #b4c9e0;
+    box-shadow: 1px 0 3px 0 #8d9daf;
+    position: relative;
+    display: block;
+    height: 100%;
+}
+.progress-bar-inner {
+    background: cornflowerblue;
+    display: block;
+    position: relative;
+    height: 100%;
+    border-radius: inherit;
+    transition: 0.2s ease;
+}
+.progress-bar-wrapper .chunk {
+    background: rgba(126, 128, 133, 0.64);
+    border-radius: inherit;
+    width: 30px;
+    left: 100px;
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    height: 100%;
+}
+
+*::-webkit-scrollbar {
+    width: 0.3cm
+}
+
+*::-webkit-scrollbar-track {
+    /*box-shadow: inset 0 0 6px rgba(0,0,0,0.3);*/
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: cornflowerblue;
+    outline: none;
+    border-radius: 100px;
+}
+
+.prompt {
+    position: fixed;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-25%);
+    background: #eeeeee;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+input {
+    display: block;
+    padding: 10px;
+    border: 2px solid #4f5660;
+    background: #b4c9e0;
+    box-shadow: 1px 0 3px 0 #8d9daf;
+    border-radius: 7px;
+    margin: 10px 0;
+    min-width: 15cm;
+    user-select: text;
+}
+
+.right-align {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}

@@ -1,20 +1,46 @@
 {
-  "name": "quick_download",
-  "version": "1.0.0",
-  "description": "We download things quickly. ",
-  "main": "server.js",
+  "name": "quick_downloader",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "electron": "latest",
+    "frameless-titlebar": "^1.0.3",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "react-scripts": "2.1.3"
+  },
   "scripts": {
-	 "start": "node server.js",
-	  "nodemon": "nodemon server.js"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "run": "node launch.js"
   },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "description": "We Download Things Quickly!",
+  "main": "main.js",
+  "devDependencies": {},
   "repository": {
-	"type": "git",
-	"url": "git+https://github.com/jbis9051/quick_download"
+    "type": "git",
+    "url": "git+https://github.com/jbis9051/quick_download.git"
   },
-  "author": "Author",
+  "keywords": [
+    "Quick",
+    "Download"
+  ],
+  "author": "JBis, J-Cake",
   "license": "ISC",
   "bugs": {
-	"url": "https://github.com/jbis9051/quick_download/issues"
+    "url": "https://github.com/jbis9051/quick_download/issues"
   },
   "homepage": "https://github.com/jbis9051/quick_download#readme"
 }

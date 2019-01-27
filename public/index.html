@@ -1,1 +1,32 @@
-Hello World
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+		<meta
+				name="viewport"
+				content="width=device-width, initial-scale=1, shrink-to-fit=no"
+		/>
+		<meta name="theme-color" content="#000000" />
+		<link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossOrigin="anonymous" />
+
+		<title>Quick Downloader</title>
+
+		<script>
+			HTMLElement.prototype.appendHTML = function(html, print) {
+				if (print) console.log(html);
+				[...new DOMParser().parseFromString(html, "text/html").body.children].forEach(i => {
+					this.appendChild(i);
+				});
+
+				return this;
+			};
+		</script>
+
+	</head>
+	<body>
+		<div id="root"></div>
+	</body>
+</html>
