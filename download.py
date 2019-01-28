@@ -1,10 +1,8 @@
 import time
 
-from threading import Thread
-
-
 import requests
 import tempfile
+from multiprocessing.pool import ThreadPool
 
 url_to_check = ''
 path_to_save = ''
@@ -12,7 +10,6 @@ parts = []
 
 
 class Part:
-    percent_done = 0
 
     def __init__(self, url, from_byte, to_byte):
         self.url = url
@@ -22,6 +19,7 @@ class Part:
         self.current_byte = int(from_byte)
         self.stop_byte = int(to_byte)
         self.file = tempfile.NamedTemporaryFile(delete=False)
+        self.percent_done = 0
 
     def download_bytes(self):  # https://stackoverflow.com/a/16696317/7886229
         r = requests.get(self.url, {'Range': 'bytes=%d-%d' % (self.from_byte, self.to_byte)}, stream=True)
@@ -61,9 +59,22 @@ def downspeed():  # https://codereview.stackexchange.com/a/139336/180601
     return round(file_size / time_difference)
 
 
-test = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", 0,
-            get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db"))
+test1 = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", 0,
+             get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db"))
 test2 = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", 0,
              get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db"))
-Thread(target=test.download_bytes()).start()
-Thread(target=test2.download_bytes()).start()
+
+
+def call_downloader(part):
+    print("test")
+    part.download_bytes()
+
+
+parts_test = [
+    test1,
+    test2,
+]
+
+results = ThreadPool(8).imap_unordered(call_downloader, parts_test)
+for path in results:
+    print(path)
