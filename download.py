@@ -11,7 +11,7 @@ parts = []
 
 class Part:
 
-    def __init__(self, url, from_byte, to_byte):
+    def __init__(self, url, from_byte, to_byte,name):
         self.url = url
         self.from_byte = int(from_byte)
         self.to_byte = int(to_byte)
@@ -20,6 +20,8 @@ class Part:
         self.stop_byte = int(to_byte)
         self.file = tempfile.NamedTemporaryFile(delete=False)
         self.percent_done = 0
+        self.last_print = 0
+        self.name= name
 
     def download_bytes(self):  # https://stackoverflow.com/a/16696317/7886229
         r = requests.get(self.url, {'Range': 'bytes=%d-%d' % (self.from_byte, self.to_byte)}, stream=True)
@@ -34,6 +36,10 @@ class Part:
                     break
                 self.file.write(chunk)
                 self.current_byte += len(chunk)
+                self.percent_done = self.current_byte / self.length
+                if self.percent_done - self.last_print > 0.01:
+                    print("%s : %s%%" % (self.name, round((self.percent_done * 100))))
+                    self.last_print = self.percent_done
                 # f.flush() commented by recommendation from J.F.Sebastian
 
 
@@ -59,10 +65,10 @@ def downspeed():  # https://codereview.stackexchange.com/a/139336/180601
     return round(file_size / time_difference)
 
 
-test1 = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", 0,
-             get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db"))
-test2 = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", 0,
-             get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db"))
+test1 = Part("http://speedtest.ftp.otenet.gr/files/test100Mb.db", 0,
+             get_length("http://speedtest.ftp.otenet.gr/files/test100Mb.db"), "Part 1")
+test2 = Part("http://speedtest.ftp.otenet.gr/files/test100Mb.db", 0,
+             get_length("http://speedtest.ftp.otenet.gr/files/test100Mb.db"), "Part 2")
 
 
 def call_downloader(part):
