@@ -1,8 +1,10 @@
 import time
 
+from threading import Thread
+
+
 import requests
 import tempfile
-
 
 url_to_check = ''
 path_to_save = ''
@@ -14,11 +16,11 @@ class Part:
 
     def __init__(self, url, from_byte, to_byte):
         self.url = url
-        self.from_byte = from_byte
-        self.to_byte = to_byte
-        self.length = get_length(url)
-        self.current_byte = from_byte
-        self.stop_byte = to_byte
+        self.from_byte = int(from_byte)
+        self.to_byte = int(to_byte)
+        self.length = int(get_length(url))
+        self.current_byte = int(from_byte)
+        self.stop_byte = int(to_byte)
         self.file = tempfile.NamedTemporaryFile(delete=False)
 
     def download_bytes(self):  # https://stackoverflow.com/a/16696317/7886229
@@ -30,7 +32,6 @@ class Part:
                     self.file.write(chunk)
                     break
                 if self.current_byte + chunk_len > self.to_byte:
-                    print("too big")
                     self.file.write(chunk[:int(self.to_byte - self.current_byte)])
                     break
                 self.file.write(chunk)
@@ -59,3 +60,10 @@ def downspeed():  # https://codereview.stackexchange.com/a/139336/180601
     file_size = int(file.headers['Content-Length']) / 1000
     return round(file_size / time_difference)
 
+
+test = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", 0,
+            get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db"))
+test2 = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", 0,
+             get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db"))
+Thread(target=test.download_bytes()).start()
+Thread(target=test2.download_bytes()).start()
