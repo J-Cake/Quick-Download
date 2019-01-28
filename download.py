@@ -10,8 +10,11 @@ parts = []
 
 
 class Part:
+    average = 0
+    amount = 0
+    last_print = 0
 
-    def __init__(self, url, from_byte, to_byte,name):
+    def __init__(self, url, from_byte, to_byte, name):
         self.url = url
         self.from_byte = int(from_byte)
         self.to_byte = int(to_byte)
@@ -20,8 +23,7 @@ class Part:
         self.stop_byte = int(to_byte)
         self.file = tempfile.NamedTemporaryFile(delete=False)
         self.percent_done = 0
-        self.last_print = 0
-        self.name= name
+        self.name = name
 
     def download_bytes(self):  # https://stackoverflow.com/a/16696317/7886229
         r = requests.get(self.url, {'Range': 'bytes=%d-%d' % (self.from_byte, self.to_byte)}, stream=True)
@@ -36,16 +38,18 @@ class Part:
                     break
                 self.file.write(chunk)
                 self.current_byte += len(chunk)
-                self.percent_done = self.current_byte / self.length
-                if self.percent_done - self.last_print > 0.01:
-                    print("%s : %s%%" % (self.name, round((self.percent_done * 100))))
-                    self.last_print = self.percent_done
+                self.percent_done = (self.current_byte - self.from_byte) / (self.to_byte - self.from_byte)
+                Part.amount += 1
+                Part.average = ((Part.average * Part.amount) + self.percent_done) / Part.amount
+                if Part.average - Part.last_print > 0.01:
+                    Part.last_print = Part.average
+                    print("Average : %s%%" % (round((self.average*100))))
                 # f.flush() commented by recommendation from J.F.Sebastian
 
 
 def get_length(url):
     response = requests.head(url)
-    return response.headers['content-length']
+    return int(response.headers['content-length'])
 
 
 def byte_requests_supported(url):
@@ -65,20 +69,29 @@ def downspeed():  # https://codereview.stackexchange.com/a/139336/180601
     return round(file_size / time_difference)
 
 
+total_length = get_length("http://speedtest.ftp.otenet.gr/files/test100Mb.db")
+
 test1 = Part("http://speedtest.ftp.otenet.gr/files/test100Mb.db", 0,
-             get_length("http://speedtest.ftp.otenet.gr/files/test100Mb.db"), "Part 1")
-test2 = Part("http://speedtest.ftp.otenet.gr/files/test100Mb.db", 0,
-             get_length("http://speedtest.ftp.otenet.gr/files/test100Mb.db"), "Part 2")
+             total_length / 4, "Part 1")
+test2 = Part("http://speedtest.ftp.otenet.gr/files/test100Mb.db", (total_length / 4) + 1,
+             (total_length / 4) * 2, "Part 2")
+test3 = Part("http://speedtest.ftp.otenet.gr/files/test100Mb.db", (total_length / 4) * 2 + 1,
+             (total_length / 4) * 3, "Part 3")
+test4 = Part("http://speedtest.ftp.otenet.gr/files/test1Gb.db", (total_length / 4) * 3 + 1,
+             total_length, "Part 4")
+test5 = Part("http://speedtest.ftp.otenet.gr/files/test100Mb.db", 0,
+             total_length, "Part 5")
 
 
 def call_downloader(part):
-    print("test")
     part.download_bytes()
 
 
 parts_test = [
     test1,
     test2,
+    test3,
+    test4
 ]
 
 results = ThreadPool(8).imap_unordered(call_downloader, parts_test)
