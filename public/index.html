@@ -14,17 +14,6 @@
 
 		<title>Quick Downloader</title>
 
-		<script>
-			HTMLElement.prototype.appendHTML = function(html, print) {
-				if (print) console.log(html);
-				[...new DOMParser().parseFromString(html, "text/html").body.children].forEach(i => {
-					this.appendChild(i);
-				});
-
-				return this;
-			};
-		</script>
-
 	</head>
 	<body>
 		<div id="root"></div>

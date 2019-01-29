@@ -1,22 +1,9 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
-const fs = require('fs');
-
 let mainWindow;
 
-let serverIsUp = false;
-
-// fs.watchFile('./signal.txt', (current, previous) => {
-// 	// console.log("signal");
-// 	serverIsUp = true;
-// 	mainWindow.webContents.send('getPage');
-// });
-
 async function createWindow () {
-	mainWindow = new BrowserWindow({width: 720, height: 360, frame: false});
+	mainWindow = new BrowserWindow({width: 720, height: 360, frame: false, nodeIntegration: true});
 
-	if (serverIsUp)
-		mainWindow.loadURL('http://localhost:3000');
-	else
 		mainWindow.loadFile('./public/loading.html');
 
 	mainWindow.webContents.openDevTools();
@@ -27,7 +14,6 @@ async function createWindow () {
 
 	mainWindow.setTitle("Quick Downloader");
 
-	console.log("ready");
 }
 
 app.on('ready', createWindow);
@@ -43,3 +29,8 @@ app.on('activate', function () {
 		createWindow();
 	}
 });
+
+ipcMain.on('minimise', e => mainWindow.minimize());
+ipcMain.on('maximize', e => mainWindow.maximize());
+ipcMain.on('restore', e => mainWindow.restore());
+ipcMain.on('close', e => mainWindow.close());

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './css/App.css';
 import Tool from './tool';
 import Download from './download';
+import WindowFrame from './windowframe';
 
 class App extends Component {
 	constructor(...args) {
@@ -14,7 +15,7 @@ class App extends Component {
 			downloadName: "",
 			downloadURL: ""
 		}
-	} // onClick={() => this.setState({downloads: [...this.state.downloads, <Download key={Date.now()} url="http://jacob-schneider.ga/hosted-content/bbb.mp4"/>]})}
+	}
 
 	showPrompt() {
 		if (!this.state.promptShowing) {
@@ -26,9 +27,29 @@ class App extends Component {
 		this.setState({promptShowing: false});
 	}
 
+	beginDownload() {
+		this.setState({downloads: [...this.state.downloads, <Download key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]});
+		this.closePrompt();
+
+		App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName);
+	}
+
+	static addToDownloadHistory(url, name) {
+		const _downloadHistory = JSON.parse(window.localStorage.downloadHistory);
+		_downloadHistory.push({url, name});
+
+		window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
+	}
+
+	componentDidMount() {
+		if (!window.localStorage.downloadHistory)
+			window.localStorage.downloadHistory = JSON.stringify([{name: "Big Buck Bunny", url: "http://jacob-schneider/hosted-content/bbb.mp4"}]);
+	}
+
 	render() {
 		return (
 			<div className="wrapper">
+				<WindowFrame />
 				<div className="App">
 					<header>
 						<Tool shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
@@ -44,14 +65,14 @@ class App extends Component {
 							</div>
 
 							<label htmlFor={"dl-name"}>The file name of the download</label>
-							<input onChange={e => this.setState(prevState => ({downloadName: e.target.value}))} className={"dl-name"} id={"dl-name"} placeholder={"Download Name"} />
+							<input onChange={e => this.setState({downloadName: e.target.value})} className={"dl-name"} id={"dl-name"} placeholder={"Download Name"} />
 
 							<label htmlFor={"dl-url"}>The location of the file to download</label>
-							<input onChange={e => this.setState(prevState => ({downloadURL: e.target.value}))} className={"url"} id={"dl-url"} placeholder={"Download URL"} />
+							<input onChange={e => this.setState({downloadURL: e.target.value})} className={"url"} id={"dl-url"} placeholder={"Download URL"} />
 
 							<div className={"right-align"}>
 								<Tool className={"confirm-btn"} icon={"fas fa-check"}
-								      onClick={() => void this.setState({downloads: [...this.state.downloads, <Download key={Date.now()} url="http://jacob-schneider.ga/hosted-content/bbb.mp4"/>]}) || this.closePrompt()} />
+								      onClick={() => this.beginDownload()} />
 							</div>
 						</div>
 						: undefined

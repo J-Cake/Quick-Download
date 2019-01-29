@@ -1,0 +1,76 @@
+#titlebar {
+    color: #FFF;
+    display: block;
+    height: auto;
+    -webkit-app-region: drag;
+    font-family: "Segoe UI Light", "Helvetica Neue", sans-serif;
+}
+
+#window-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 46px);
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 32px;
+    font-family: "Segoe MDL2 Assets";
+    font-size: 10px;
+}
+#window-controls * {
+    font-family: "Segoe MDL2 Assets";
+}
+#window-controls .button {
+    grid-row: 1 / span 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+#window-controls #min-btn {
+    grid-column: 1;
+}
+#window-controls #max-btn, #window-controls #restore-btn {
+    grid-column: 2;
+}
+#window-controls #close-btn {
+    grid-column: 3;
+}
+
+#window-controls {
+    -webkit-app-region: no-drag;
+}
+#window-controls .button {
+    user-select: none;
+    cursor: default;
+    opacity: 0.8;
+}
+#window-controls .button:hover {
+    background: rgba(255,255,255,0.2);
+    opacity: 1;
+}
+#window-controls #close-btn:hover {
+    background: #E81123;
+}
+#window-controls #restore-btn {
+    display: none;
+}
+
+#titlebar #drag-region {
+    display: grid;
+    grid-template-columns: auto 138px;
+}
+#window-title {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+    margin-left: 8px;
+    overflow-x: hidden;
+}
+#window-title span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+}

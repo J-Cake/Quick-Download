@@ -7,13 +7,13 @@ export default class Download extends React.Component {
 		super(...arguments);
 		this.state = {
 			url: arguments[0].url,
-			size: /*get size*/ 512,
-			progress: /*calculate progress*/ 50,
+			size: /*get size*/ "calculating",
+			progress: /*calculate progress*/ 0,
 			timeStarted: Date.now(),
-			chunks: new Array(32).fill(1),
-			chunkSize: 8,
+			chunks: new Array(1).fill(0),
+			chunkSize: 1024,
 			details: false,
-			fileName: "Big Buck Bunny.mp4"
+			fileName: this.props.name
 		};
 
 		this.state.totalChunks = /*get total chunks*/ this.state.size / this.state.chunkSize;
@@ -43,7 +43,7 @@ export default class Download extends React.Component {
 						<span className="download-detail"><b>Source: </b>{this.state.url}</span>
 						<span className="download-detail"><b>Size: </b>{this.state.size} bytes</span>
 						<span
-							className="download-detail"><b>Estimated Time of completion: </b>{/*Calculate completion time*/}getting there</span>
+							className="download-detail"><b>Estimated Time of completion: </b>{/*Calculate completion time*/}Today</span>
 						<span
 							className="download-detail"><b>Chunks downloaded: </b>{this.state.chunks.reduce((a, i) => a += i ? 1 : 0)} / {this.state.totalChunks}</span>
 					</div>

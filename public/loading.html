@@ -185,5 +185,40 @@
 				<span class="dot dot4"></span>
 			</div>
 		</div>
+
+		<script>
+			const { ping } = require('../ping.js');
+			const { exec } = require('child_process');
+
+			(async function() {
+				// server launch control
+
+				console.log('Server Launch Control');
+
+				let server;
+				let nextDatum = false; // when set to true, the next stdout item from the server will cause the loading phase to end.
+
+				ping({address: "localhost", port: 3000, attempts: 1}, (opts, result) => {
+					console.log(result);
+					if (isNaN(result.avg)) {
+						server = exec('npm start');
+						server.stdout.on('data', e => {
+							if (e.trim().indexOf(`Starting the development server...`) > -1)
+								nextDatum = true;
+
+							if (nextDatum)
+								nextDatum = load() || false;
+
+							process.stdout.write(e);
+						});
+						// start server
+					} else {
+						load();
+					}
+				});
+
+				const load = () => void (window.location.href = "http://localhost:3000");
+			})();
+		</script>
 	</body>
 </html>

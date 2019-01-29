@@ -13,4 +13,4 @@ export default class Progress extends React.Component {
 	}
 }
 
-const Filler = props => <div className="progress-bar-inner" style={{width: `${props.progress}%`}}><span className="chunk" /></div>;
+const Filler = props => <div className="progress-bar-inner" style={{width: `${props.progress}%`}}/>;
