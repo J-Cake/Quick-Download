@@ -1,8 +1,10 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
 let mainWindow;
 
+let withFrame = false;
+
 async function createWindow () {
-	mainWindow = new BrowserWindow({width: 720, height: 360, frame: false, nodeIntegration: true, icon: "./build/favicon.ico"});
+	mainWindow = new BrowserWindow({width: 720, height: 360, frame: withFrame, nodeIntegration: true, icon: "./build/favicon.ico"});
 
 		mainWindow.loadFile('./public/loading.html');
 
@@ -13,6 +15,12 @@ async function createWindow () {
 	});
 
 	mainWindow.setTitle("Quick Downloader");
+
+	ipcMain.on('withFrame', e => {
+		withFrame = true;
+		mainWindow.close();
+		createWindow();
+	})
 
 }
 

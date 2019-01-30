@@ -2,7 +2,7 @@
     color: #FFF;
     display: block;
     height: auto;
-    /*-webkit-app-region: drag;*/
+    -webkit-app-region: drag;
     font-family: "Segoe UI Light", "Helvetica Neue", sans-serif;
 }
 
