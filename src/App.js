@@ -3,6 +3,7 @@ import './css/App.css';
 import Tool from './tool';
 import Download from './download';
 import WindowFrame from './windowframe';
+// import TitleBar from 'frameless-titlebar';
 
 class App extends Component {
 	constructor(...args) {
@@ -41,9 +42,21 @@ class App extends Component {
 		window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
 	}
 
+	static getDownloadNames() {
+		return JSON.parse(window.localStorage.downloadHistory).map(i => i.name);
+	}
+
+	static getDownloadUrls() {
+		return JSON.parse(window.localStorage.downloadHistory).map(i => i.url);
+	}
+
 	componentDidMount() {
 		if (!window.localStorage.downloadHistory)
 			window.localStorage.downloadHistory = JSON.stringify([{name: "Big Buck Bunny", url: "http://jacob-schneider/hosted-content/bbb.mp4"}]);
+	}
+
+	acceptSuggestion(number) {
+		
 	}
 
 	render() {
@@ -64,11 +77,21 @@ class App extends Component {
 								<Tool className={"prompt-close-btn"} icon={"fas fa-times"} onClick={e => this.closePrompt()} />
 							</div>
 
-							<label htmlFor={"dl-name"}>The file name of the download</label>
-							<input onChange={e => this.setState({downloadName: e.target.value})} className={"dl-name"} id={"dl-name"} placeholder={"Download Name"} />
+							<div className={"formItem"}>
+								<label htmlFor={"dl-name"}>The file name of the download</label>
+								<input onChange={e => this.setState({downloadName: e.target.value})} className={"dl-name"} id={"dl-name"} placeholder={"Download Name"} />
+								<div className={"suggestions"}>
+									{App.getDownloadNames().map((i, a) => <div key={a} className={"suggestion"}><span onClick={this.acceptSuggestion(a)}>{i}</span><br /></div> )}
+								</div>
+							</div>
 
-							<label htmlFor={"dl-url"}>The location of the file to download</label>
-							<input onChange={e => this.setState({downloadURL: e.target.value})} className={"url"} id={"dl-url"} placeholder={"Download URL"} />
+							<div className={"formItem"}>
+								<label htmlFor={"dl-url"}>The location of the file to download</label>
+								<input onChange={e => this.setState({downloadURL: e.target.value})} className={"url"} id={"dl-url"} placeholder={"Download URL"} />
+								<div className={"suggestions"}>
+									{App.getDownloadUrls().map((i, a) => <div key={a} className={"suggestion"}><span onClick={this.acceptSuggestion(a)}>{i}</span><br /></div> )}
+								</div>
+							</div>
 
 							<div className={"right-align"}>
 								<Tool className={"confirm-btn"} icon={"fas fa-check"}
@@ -81,6 +104,7 @@ class App extends Component {
 			</div>
 		);
 	}
+
 }
 
 export default App;

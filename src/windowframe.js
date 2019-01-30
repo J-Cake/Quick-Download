@@ -7,6 +7,10 @@ const _electron = window.require('electron');
 const remote = _electron.remote;
 const _window = remote.getCurrentWindow();
 
+let platform = remote.require('os').platform();
+if (platform !== "win32" && platform !== "darwin")
+	platform = "other";
+
 export default class WindowFrame extends React.Component {
 	constructor(...args) {
 		super(...args);
@@ -17,16 +21,16 @@ export default class WindowFrame extends React.Component {
 	}
 
 	componentDidMount() {
-		$("#min-btn").on("click", e => {
+		$(".min-btn").on("click", e => {
 			_window.minimize();
 		});
-		$("#max-btn").on("click", e => {
+		$(".max-btn").on("click", e => {
 			_window.maximize();
 		});
-		$("#restore-btn").on("click", e => {
+		$(".restore-btn").on("click", e => {
 			_window.restore();
 		});
-		$("#close-btn").on("click", e => {
+		$(".close-btn").on("click", e => {
 			_window.close();
 		});
 
@@ -40,24 +44,28 @@ export default class WindowFrame extends React.Component {
 	}
 
 	render() {
+
+		console.log(platform);
+
 		return (
-			<header id="titlebar">
-				<div id="drag-region">
-					<div id="window-title">
+			<header style={{display: _window.isFullScreen() ? "none" : "block"}} className={`titlebar ${platform}`}>
+				<div className={`drag-region ${platform}`}>
+					<div className={`window-title ${platform}`}>
+						<img src={"./favicon.ico"} className={`icon ${platform}`}  alt={"Quick Downloader"}/>
 						<span>Quick Downloader</span>
 					</div>
-					<div id="window-controls">
-						<div className="button" id="min-btn">
-							<span>&#xE921;</span>
+					<div className={`window-controls ${platform}`}>
+						<div className={`button min-btn ${platform}`}>
+							<span>{platform === "win32" ? "" : ""} </span>
 						</div>
-						<div className="button" id="max-btn" style={{display: !this.state.restore ? "inherit" : "none"}}>
-							<span>&#xE922;</span>
+						<div className={`button max-btn ${platform}`} style={{display: !this.state.restore ? "inherit" : "none"}}>
+							<span>{platform === "win32" ? "" : ""}</span>
 						</div>
-					<div className="button" id="restore-btn" style={{display: this.state.restore ? "inherit" : "none"}}>
-							<span>&#xE923;</span>
+					<div className={`button restore-btn ${platform}`} style={{display: this.state.restore ? "inherit" : "none"}}>
+							<span>{platform === "win32" ? "" : ""}</span>
 						</div>
-						<div className="button" id="close-btn">
-							<span>&#xE8BB;</span>
+						<div className={`button close-btn ${platform}`}>
+							<span>{platform === "win32" ? "" : ""}</span>
 						</div>
 					</div>
 				</div>

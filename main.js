@@ -2,7 +2,7 @@ const {app, BrowserWindow, ipcMain} = require('electron');
 let mainWindow;
 
 async function createWindow () {
-	mainWindow = new BrowserWindow({width: 720, height: 360, frame: false, nodeIntegration: true});
+	mainWindow = new BrowserWindow({width: 720, height: 360, frame: false, nodeIntegration: true, icon: "./build/favicon.ico"});
 
 		mainWindow.loadFile('./public/loading.html');
 
