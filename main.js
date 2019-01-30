@@ -1,33 +1,32 @@
 const {app, BrowserWindow, ipcMain} = require('electron');
-const fs = require('fs');
-
 let mainWindow;
 
-let serverIsUp = false;
-
-// fs.watchFile('./signal.txt', (current, previous) => {
-// 	// console.log("signal");
-// 	serverIsUp = true;
-// 	mainWindow.webContents.send('getPage');
-// });
+let withFrame = false;
 
 async function createWindow () {
-	mainWindow = new BrowserWindow({width: 720, height: 360, frame: false});
+	mainWindow = new BrowserWindow({width: 720, height: 360, frame: withFrame, nodeIntegration: true, icon: "./build/favicon.ico"});
 
-	if (serverIsUp)
-		mainWindow.loadURL('http://localhost:3000');
-	else
-		mainWindow.loadFile('./public/loading.html');
+	mainWindow.loadFile('./public/loading.html');
 
-	mainWindow.webContents.openDevTools();
+	mainWindow.setMenu(null);
 
-	mainWindow.on('closed', function () {
-		mainWindow = null;
-	});
+	// mainWindow.webContents.openDevTools();
+	mainWindow.frame = withFrame;
 
 	mainWindow.setTitle("Quick Downloader");
 
-	console.log("ready");
+	ipcMain.on('withFrame', e => {
+		withFrame = true;
+			mainWindow.close();
+		createWindow();
+	});
+	ipcMain.on('noFrame', e => {
+		withFrame = false;
+			mainWindow.close();
+		createWindow();
+	})
+
+
 }
 
 app.on('ready', createWindow);
@@ -43,3 +42,8 @@ app.on('activate', function () {
 		createWindow();
 	}
 });
+
+ipcMain.on('minimise', e => {try {mainWindow.minimize()} catch(e) {}});
+ipcMain.on('minimise', e => {try {mainWindow.maximize()} catch(e) {}});
+ipcMain.on('minimise', e => {try {mainWindow.restore()} catch(e) {}});
+ipcMain.on('minimise', e => {try {mainWindow.close()} catch(e) {}});

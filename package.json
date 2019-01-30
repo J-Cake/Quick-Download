@@ -14,8 +14,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron": "electron .",
-    "run": "node launch.js"
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -42,5 +41,5 @@
   "bugs": {
     "url": "https://github.com/jbis9051/quick_download/issues"
   },
-  "homepage": "https://github.com/jbis9051/quick_download#readme"
+  "homepage": "./"
 }

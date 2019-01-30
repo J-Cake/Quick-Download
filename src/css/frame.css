@@ -1,0 +1,181 @@
+.titlebar.win32 {
+    color: #FFF;
+    display: block;
+    height: auto;
+    -webkit-app-region: drag;
+    font-family: "Segoe UI Light", "Helvetica Neue", sans-serif;
+}
+
+.window-controls.win32 {
+    display: grid;
+    grid-template-columns: repeat(3, 46px);
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 32px;
+    font-family: "Segoe MDL2 Assets";
+    font-size: 10px;
+}
+.window-controls.win32 * {
+    font-family: "Segoe MDL2 Assets";
+}
+.window-controls.win32 .button.win32 {
+    grid-row: 1 / span 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+.window-controls.win32 .min-btn.win32 {
+    grid-column: 1;
+}
+.window-controls.win32 .max-btn.win32, .window-controls.win32 .restore-btn.win32 {
+    grid-column: 2;
+}
+.window-controls.win32 .close-btn.win32 {
+    grid-column: 3;
+}
+
+.window-controls.win32 {
+    -webkit-app-region: no-drag;
+}
+.window-controls.win32 .button.win32 {
+    user-select: none;
+    cursor: default;
+    opacity: 0.8;
+}
+.window-controls.win32 .button.win32:hover {
+    background: rgba(255,255,255,0.2);
+    opacity: 1;
+}
+.window-controls.win32 .close-btn.win32:hover {
+    background: #E81123;
+}
+.window-controls.win32 .restore-btn.win32 {
+    display: none;
+}
+
+.titlebar.win32 .drag-region.win32 {
+    display: grid;
+    grid-template-columns: auto 138px;
+}
+.window-title.win32 {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+    margin-left: 8px;
+    overflow-x: hidden;
+}
+.window-title.win32 span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+    margin-left: 16px;
+}
+
+.icon.win32 {
+    height: 20px;
+    position: absolute;
+    margin-left: -8px;
+}
+
+.titlebar.darwin, .drag-region.darwin {
+    height: 20px;
+    width: 100vw;
+    padding: 0;
+}
+.drag-region.darwin {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.drag-region.darwin .window-title.darwin {
+    -webkit-app-region: drag;
+    width: 100%;
+}
+
+.drag-region.darwin .window-controls.darwin {
+    width: 200px;
+
+    display: flex;
+
+    padding-left: -1px;
+    padding-top: 3px;
+}
+.window-controls .button.darwin {
+    width: 13px;
+    height: 13px;
+    overflow: hidden;
+    border-radius: 100px;
+    box-sizing: border-box;
+    margin-left: 8.5px;
+    font-size: 8pt;
+    display: block;
+    float: left;
+
+    font-family: FontAwesome;
+}
+
+.button.darwin * {
+    font-family: FontAwesome;
+}
+
+.window-controls.darwin .button.darwin.close-btn {
+    background: #ff6159;
+    border: 1px solid #d2393c;
+    color: #ff6159;
+    order: 1;
+
+    padding-left: 1.5px;
+}
+
+.window-controls.darwin .button.darwin.min-btn {
+    background: #ffbd4c;
+    border: 1px solid #e09e3e;
+    color: #ffbd4c;
+    order: 2;
+    padding-left: 1.5px;
+}
+
+.window-controls.darwin .button.darwin.max-btn, .window-controls.darwin .button.darwin.restore-btn {
+    background: #00ca56;
+    border: 1px solid #14ae46;
+    color: #00ca56;
+    order: 3;
+
+    transform: rotate(-45deg);
+    letter-spacing: 2px;
+    padding-top: 0.2px;
+}
+
+.window-controls.darwin .button.darwin.close-btn:hover {
+    color: #6c2827;
+}
+
+.window-controls.darwin .button.darwin.min-btn:hover {
+    color: #6e5020;
+}
+
+.window-controls.darwin .button.darwin.max-btn:hover, .window-controls.darwin .button.darwin.restore-btn:hover {
+    color: #005725;
+}
+
+.window-title.darwin {
+    width: 100%;
+    text-align: center;
+    color: #b4c9e0;
+    font-family: "Avenir", "Helvetica Neue", sans-serif;
+}
+
+.window-title.darwin * {
+    font-family: "Avenir", "Helvetica Neue", sans-serif;
+    margin-top: 2px;
+    font-size: 10pt;
+}
+
+.window-title.darwin img {
+    display: none;
+}
