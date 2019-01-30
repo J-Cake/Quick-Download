@@ -6,21 +6,26 @@ let withFrame = false;
 async function createWindow () {
 	mainWindow = new BrowserWindow({width: 720, height: 360, frame: withFrame, nodeIntegration: true, icon: "./build/favicon.ico"});
 
-		mainWindow.loadFile('./public/loading.html');
+	mainWindow.loadFile('./public/loading.html');
 
-	mainWindow.webContents.openDevTools();
+	mainWindow.setMenu(null);
 
-	mainWindow.on('closed', function () {
-		mainWindow = null;
-	});
+	// mainWindow.webContents.openDevTools();
+	mainWindow.frame = withFrame;
 
 	mainWindow.setTitle("Quick Downloader");
 
 	ipcMain.on('withFrame', e => {
 		withFrame = true;
-		mainWindow.close();
+			mainWindow.close();
+		createWindow();
+	});
+	ipcMain.on('noFrame', e => {
+		withFrame = false;
+			mainWindow.close();
 		createWindow();
 	})
+
 
 }
 
@@ -38,7 +43,7 @@ app.on('activate', function () {
 	}
 });
 
-ipcMain.on('minimise', e => mainWindow.minimize());
-ipcMain.on('maximize', e => mainWindow.maximize());
-ipcMain.on('restore', e => mainWindow.restore());
-ipcMain.on('close', e => mainWindow.close());
+ipcMain.on('minimise', e => {try {mainWindow.minimize()} catch(e) {}});
+ipcMain.on('minimise', e => {try {mainWindow.maximize()} catch(e) {}});
+ipcMain.on('minimise', e => {try {mainWindow.restore()} catch(e) {}});
+ipcMain.on('minimise', e => {try {mainWindow.close()} catch(e) {}});

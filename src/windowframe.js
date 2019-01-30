@@ -7,11 +7,31 @@ const _electron = window.require('electron');
 const remote = _electron.remote;
 const _window = remote.getCurrentWindow();
 
+window.localStorage.hasRelaunched = window.localStorage.hasRelaunched || "false";
+window.localStorage.withFrame = window.localStorage.withFrame || 'true';
+
 let platform = remote.require('os').platform();
-if (platform !== "win32" && platform !== "darwin" && window.localStorage.hasRelaunched === "false") {
+
+if (platform !== "win32" && platform !== "darwin") {
 	platform = "other";
-	window.localStorage.hasRelaunched = "true";
-	_electron.ipcRenderer.send('withFrame');
+	if (window.localStorage.hasRelaunched === "false") {
+		window.localStorage.hasRelaunched = "true";
+		window.localStorage.withFrame = "true";
+		_electron.ipcRenderer.send('withFrame');
+	} else {
+		window.localStorage.hasRelaunched = "false";
+		window.localStorage.withFrame = "false";
+	}
+} else {
+	if (window.localStorage.withFrame === "true") {
+		window.localStorage.withFrame = "false";
+		window.localStorage.hasReloaded = "false";
+		_electron.ipcRenderer.send('noFrame');
+	}
+
+	if (_window.frame) {
+		_electron.ipcRenderer.send('noFrame');
+	}
 }
 
 export default class WindowFrame extends React.Component {
@@ -24,7 +44,7 @@ export default class WindowFrame extends React.Component {
 	}
 
 	componentDidMount() {
-		if (platform !== "other") {
+		if ($(".titlebar")) {
 			$(".min-btn").on("click", e => {
 				_window.minimize();
 			});
@@ -52,7 +72,7 @@ export default class WindowFrame extends React.Component {
 
 		console.log(platform);
 
-		if (platform !== "other") {
+		if (!_window.frame) {
 			return (
 				<header style={{display: _window.isFullScreen() ? "none" : "block"}} className={`titlebar ${platform}`}>
 					<div className={`drag-region ${platform}`}>
