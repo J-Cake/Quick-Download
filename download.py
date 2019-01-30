@@ -145,5 +145,4 @@ download = Download(
     "dsfs", '/Users/joshuabrown3/Desktop')
 download.createParts().download_all().combineParts().move_to_final()
 
-# https://1fiag6d.oloadcdn.net/dl/l/uZyoOCpauHw5U_Ru/StR3j2dx_QE/My.Friend.Dahmer.2017.1080p.WEB+DL.DD5.1.H264+FGT.E.mp4?mime=true
 # https://raw.githubusercontent.com/jbis9051/quick_download/master/ping.js
