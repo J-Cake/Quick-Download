@@ -11,16 +11,94 @@ parts = []
 
 
 class Download:
+    mimetype = {
+        "application/octet-stream": "so",
+        "application/postscript": "ps",
+        "audio/x-aiff": "aiff",
+        "audio/basic": "snd",
+        "video/x-msvideo": "avi",
+        "text/plain": "txt",
+        "image/x-ms-bmp": "bmp",
+        "application/x-cdf": "cdf",
+        "application/x-csh": "csh",
+        "text/css": "css",
+        "application/msword": "wiz",
+        "application/x-dvi": "dvi",
+        "message/rfc822": "nws",
+        "text/x-setext": "etx",
+        "image/gif": "gif",
+        "application/x-gtar": "gtar",
+        "application/x-hdf": "hdf",
+        "text/html": "html",
+        "image/jpeg": "jpg",
+        "application/x-javascript": "js",
+        "application/x-latex": "latex",
+        "video/mpeg": "mpg",
+        "application/x-troff-man": "man",
+        "application/x-troff-me": "me",
+        "application/x-mif": "mif",
+        "video/quicktime": "qt",
+        "video/x-sgi-movie": "movie",
+        "audio/mpeg": "mp3",
+        "video/mp4": "mp4",
+        "application/x-troff-ms": "ms",
+        "application/x-netcdf": "nc",
+        "application/oda": "oda",
+        "image/x-portable-bitmap": "pbm",
+        "application/pdf": "pdf",
+        "application/x-pkcs12": "pfx",
+        "image/x-portable-graymap": "pgm",
+        "image/png": "png",
+        "image/x-portable-anymap": "pnm",
+        "application/vnd.ms-powerpoint": "pwz",
+        "image/x-portable-pixmap": "ppm",
+        "text/x-python": "py",
+        "application/x-python-code": "pyo",
+        "audio/x-pn-realaudio": "ra",
+        "application/x-pn-realaudio": "ram",
+        "image/x-cmu-raster": "ras",
+        "application/xml": "xsl",
+        "image/x-rgb": "rgb",
+        "application/x-troff": "tr",
+        "text/richtext": "rtx",
+        "text/x-sgml": "sgml",
+        "application/x-sh": "sh",
+        "application/x-shar": "shar",
+        "application/x-wais-source": "src",
+        "application/x-shockwave-flash": "swf",
+        "application/x-tar": "tar",
+        "application/x-tcl": "tcl",
+        "application/x-tex": "tex",
+        "application/x-texinfo": "texinfo",
+        "image/tiff": "tiff",
+        "text/tab-separated-values": "tsv",
+        "application/x-ustar": "ustar",
+        "text/x-vcard": "vcf",
+        "audio/x-wav": "wav",
+        "image/x-xbitmap": "xbm",
+        "application/vnd.ms-excel": "xlsx",
+        "text/xml": "xml",
+        "image/x-xpixmap": "xpm",
+        "image/x-xwindowdump": "xwd",
+        "application/zip": "zip"
+    }
+
     def __init__(self, url, name, save_location):
         self.save_location = save_location
         self.final_temp_file = tempfile.NamedTemporaryFile(delete=False)
         self.url = url
         self.total_length = Download.get_length(url)
+        self.extension = Download.get_extention(url)
         self.name = name
         self.average_percentage = 0
         self.average_index = 0
         self.last_print = 0
         self.parts = []
+
+    @staticmethod
+    def get_extention(url):
+        response = requests.head(url)
+        return Download.mimetype[response.headers['Content-Type']]
 
     @staticmethod
     def get_length(url):
@@ -109,7 +187,7 @@ class Download:
             return self
 
     def move_to_final(self):
-        shutil.move(self.final_temp_file.name, self.save_location + "/test.png")
+        shutil.move(self.final_temp_file.name, self.save_location + "/" + self.name + "." + self.extension)
 
     @staticmethod
     def call_downloader(part):
@@ -142,8 +220,5 @@ class Part:
 
 download = Download(
     "http://127.0.0.1/test.png",
-    "dsfs", '/Users/joshuabrown3/Desktop')
+    "test2", '/Users/joshuabrown3/Desktop')
 download.createParts().download_all().combineParts().move_to_final()
-
-# https://1fiag6d.oloadcdn.net/dl/l/uZyoOCpauHw5U_Ru/StR3j2dx_QE/My.Friend.Dahmer.2017.1080p.WEB+DL.DD5.1.H264+FGT.E.mp4?mime=true
-# https://raw.githubusercontent.com/jbis9051/quick_download/master/ping.js
