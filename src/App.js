@@ -3,7 +3,6 @@ import './css/App.css';
 import Tool from './tool';
 import Download from './download';
 import WindowFrame from './windowframe';
-// import TitleBar from 'frameless-titlebar';
 
 class App extends Component {
 	constructor(...args) {
@@ -56,7 +55,7 @@ class App extends Component {
 	}
 
 	acceptSuggestion(number) {
-		
+
 	}
 
 	render() {
