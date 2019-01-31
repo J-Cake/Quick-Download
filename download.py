@@ -3,6 +3,8 @@ import shutil
 import os
 import requests
 import tempfile
+import urllib.parse
+
 from multiprocessing.pool import ThreadPool
 
 url_to_check = ''
@@ -11,78 +13,6 @@ parts = []
 
 
 class Download:
-    mimetype = {
-        "application/octet-stream": "so",
-        "application/postscript": "ps",
-        "audio/x-aiff": "aiff",
-        "audio/basic": "snd",
-        "video/x-msvideo": "avi",
-        "text/plain": "txt",
-        "image/x-ms-bmp": "bmp",
-        "application/x-cdf": "cdf",
-        "application/x-csh": "csh",
-        "text/css": "css",
-        "application/msword": "wiz",
-        "application/x-dvi": "dvi",
-        "message/rfc822": "nws",
-        "text/x-setext": "etx",
-        "image/gif": "gif",
-        "application/x-gtar": "gtar",
-        "application/x-hdf": "hdf",
-        "text/html": "html",
-        "image/jpeg": "jpg",
-        "application/x-javascript": "js",
-        "application/x-latex": "latex",
-        "video/mpeg": "mpg",
-        "application/x-troff-man": "man",
-        "application/x-troff-me": "me",
-        "application/x-mif": "mif",
-        "video/quicktime": "qt",
-        "video/x-sgi-movie": "movie",
-        "audio/mpeg": "mp3",
-        "video/mp4": "mp4",
-        "application/x-troff-ms": "ms",
-        "application/x-netcdf": "nc",
-        "application/oda": "oda",
-        "image/x-portable-bitmap": "pbm",
-        "application/pdf": "pdf",
-        "application/x-pkcs12": "pfx",
-        "image/x-portable-graymap": "pgm",
-        "image/png": "png",
-        "image/x-portable-anymap": "pnm",
-        "application/vnd.ms-powerpoint": "pwz",
-        "image/x-portable-pixmap": "ppm",
-        "text/x-python": "py",
-        "application/x-python-code": "pyo",
-        "audio/x-pn-realaudio": "ra",
-        "application/x-pn-realaudio": "ram",
-        "image/x-cmu-raster": "ras",
-        "application/xml": "xsl",
-        "image/x-rgb": "rgb",
-        "application/x-troff": "tr",
-        "text/richtext": "rtx",
-        "text/x-sgml": "sgml",
-        "application/x-sh": "sh",
-        "application/x-shar": "shar",
-        "application/x-wais-source": "src",
-        "application/x-shockwave-flash": "swf",
-        "application/x-tar": "tar",
-        "application/x-tcl": "tcl",
-        "application/x-tex": "tex",
-        "application/x-texinfo": "texinfo",
-        "image/tiff": "tiff",
-        "text/tab-separated-values": "tsv",
-        "application/x-ustar": "ustar",
-        "text/x-vcard": "vcf",
-        "audio/x-wav": "wav",
-        "image/x-xbitmap": "xbm",
-        "application/vnd.ms-excel": "xlsx",
-        "text/xml": "xml",
-        "image/x-xpixmap": "xpm",
-        "image/x-xwindowdump": "xwd",
-        "application/zip": "zip"
-    }
-
     def __init__(self, url, name, save_location):
         self.save_location = save_location
         self.final_temp_file = tempfile.NamedTemporaryFile(delete=False)
@@ -97,8 +27,7 @@ class Download:
 
     @staticmethod
     def get_extention(url):
-        response = requests.head(url)
-        return Download.mimetype[response.headers['Content-Type']]
+        return os.path.splitext(urllib.parse.urlparse(url).path)[1]
 
     @staticmethod
     def get_length(url):
@@ -126,7 +55,7 @@ class Download:
 
     @staticmethod
     def average_download_speed():
-        return int((Download.download_speed()) / 3)
+        return int((Download.download_speed()))
 
     @staticmethod
     def throttled_speed(url):
@@ -143,10 +72,10 @@ class Download:
 
     @staticmethod
     def average_throttled_speed(url):
-        return int((Download.throttled_speed(url) + Download.throttled_speed(url) + Download.throttled_speed(url)) / 3)
+        return int(Download.throttled_speed(url))
 
     def average_in(self, percent_done_input, from_part):
-        if self.average_index == 8:
+        if self.average_index == 4:
             self.average_percentage = 0
             self.average_index = 0
         self.average_percentage = ((self.average_percentage * self.average_index)
@@ -158,8 +87,10 @@ class Download:
             self.last_print = self.average_percentage
 
     def createParts(self):
-        num_of_parts_to_create = int(self.average_download_speed() / self.average_throttled_speed(self.url)) - 1
-        num_of_parts_to_create = 4
+        # num_of_parts_to_create = int(self.average_download_speed() / self.average_throttled_speed(self.url)) - 1
+        # if num_of_parts_to_create <= 0:
+        #   num_of_parts_to_create = 1
+        num_of_parts_to_create = 26
         last_int = -1
         for i in range(num_of_parts_to_create):
             to_byte = int((self.total_length / num_of_parts_to_create) * (i + 1))
@@ -170,6 +101,7 @@ class Download:
 
     def download_all(self):
         print("Downloading All Parts")
+        print("Num of parts: %d" % len(self.parts))
         results = ThreadPool(len(self.parts)).imap_unordered(Download.call_downloader, self.parts)
         i = 0
         for path in results:
@@ -187,7 +119,7 @@ class Download:
             return self
 
     def move_to_final(self):
-        shutil.move(self.final_temp_file.name, self.save_location + "/" + self.name + "." + self.extension)
+        shutil.move(self.final_temp_file.name, self.save_location + "/" + self.name + self.extension)
 
     @staticmethod
     def call_downloader(part):
@@ -219,6 +151,6 @@ class Part:
 
 
 download = Download(
-    "http://127.0.0.1/test.png",
-    "test2", '/Users/joshuabrown3/Desktop')
+    "https://download-cf.jetbrains.com/idea/ideaIC-2018.3.4.dmg",
+    "Intelij", '/Users/joshuabrown3/Desktop/vid')
 download.createParts().download_all().combineParts().move_to_final()
