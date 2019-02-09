@@ -1,8 +1,12 @@
 
 const fetch = require('node-fetch');
-const AbortController  = require('abort-controller');
+const https = require('https');
+const http = require('http');
 class Download{
-    async constructor(url, name, save_location){
+    constructor(url, name, save_location){
+        this.init(url,name,save_location);
+    }
+    async init(url, name, save_location){
         this.save_location = save_location;
         this.final_temp_file = tempfile.NamedTemporaryFile(false);
         this.url = url;
@@ -43,28 +47,26 @@ class Download{
     }
     static download_speed(){
         const url = "http://speedtest.ftp.otenet.gr/files/test1Gb.db";
-        const start = (new Date()).getMilliseconds();
+        const start = Date.now();
         let dl = 0;
         let time_difference = 0;
-        const controller = new AbortController();
-      /*  const timeout = setTimeout(
-            () => { controller.abort(); },
-            10000,
-        );
-        */
-        fetch(url,{ signal:controller.signal })
-            .then(body => console.log(body))
-            .then(res => {
-                //dl += res.length;
-                time_difference = (new Date()).getMilliseconds();
-                console.log(res);
-            });
-        return Math.round(dl / time_difference)
+        http.get(url, (resp) => {
+            setTimeout(function () {
+                resp.destroy();
+            },10000);
+           resp.on("data", (chunk => {
+               dl += chunk.length;
+           }));
+           resp.on("end", function () {
+               time_difference = (Date.now() - start)/1000;
+               console.log(dl + " / " + time_difference + " = " + Math.round(dl / time_difference));
+           });
+        });
     }
 
 }
 async function Main(){
-    let length = await Download.get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db");
-
+    //let length = await Download.get_length("http://speedtest.ftp.otenet.gr/files/test1Gb.db");
+    Download.download_speed();
 }
 Main();
