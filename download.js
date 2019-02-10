@@ -3,33 +3,44 @@ const https = require('https');
 const http = require('http');
 const url_lib = require('url');
 const os = require('os');
+const TempFile = require('./tempfile');
 
 /**
  * @var protocol
  * @var port
  */
 class Download{
-    constructor(url, name, save_location){
-        this.init(url,name,save_location);
+    constructor(){
+
     }
     async init(url, name, save_location){
-        this.save_location = save_location;
-        this.final_temp_file = tempfile.NamedTemporaryFile({deleteWhenDone: false});
-
-        this.url = url;
-        this.total_length = await Download.get_length(url);
-        this.extension = Download.get_extension(url);
-        this.name = name;
-        this.average_percentage = 0;
-        this.average_index = 0;
-        this.last_print = 0;
-        this.parts = [];
+        return await new Promise(async resolve => {
+            this.save_location = save_location;
+            this.final_temp_file = new TempFile.TmpFile();
+            this.url = url;
+            this.total_length = await Download.get_length(url);
+            this.extension = Download.get_extension(url);
+            this.name = name;
+            this.average_percentage = 0;
+            this.average_index = 0;
+            this.last_print = 0;
+            this.parts = [];
+            this.parts_done = 0;
+            if (url_lib.parse(url).protocol === "http:") {
+                this.protocol = http;
+                this.port = "80";
+            } else {
+                this.protocol = https;
+                this.port = "443";
+            }
+            resolve(this);
+        });
+    }
+    static get_lib(url){
         if(url_lib.parse(url).protocol === "http:") {
-            this.protocol = http;
-            this.port = "80";
+            return http;
         } else {
-            this.protocol = https;
-            this.port = "443";
+            return https;
         }
     }
     static get_extension(url){ // https://stackoverflow.com/a/6997591/7886229
@@ -47,23 +58,36 @@ class Download{
     }
     static async get_length(url){
        return await new Promise(resolve => {
-           fetch(url, {method: 'HEAD'})
-               .then(res => {
-                   resolve(res.headers.get('content-length'));
-                   // ^ what're ye doin buddy? res.headers['content-length'] would be perfectly adequate
-               });
+           const q = url_lib.parse(url);
+           Download.get_lib(url).request({
+               method: 'HEAD',
+               path: q.pathname,
+               host: q.hostname,
+               port: (q.protocol === "http:") ? 80 : 443
+           },(res)=>{
+             resolve(res.headers['content-length']);
+           }).end();
        });
     }
-    static byte_request_supported(url){
-        const q = url_lib.parse(url);
-        this.protocol.request({
-            method: 'HEAD',
-            path: q.pathname,
-            host: q.hostname,
-            port: this.port
-        },(res)=>{
-            console.log(res.statusCode);
-        }).end();
+    static async byte_request_supported(url) {
+        return await new Promise(resolve => {
+            const q = url_lib.parse(url);
+            Download.get_lib(url).request({
+                method: 'GET',
+                headers: {
+                    'Range': 'bytes=0-1'
+                },
+                path: q.pathname,
+                host: q.hostname,
+                port: (q.protocol === "http:") ? 80 : 443
+            }, (res) => {
+                res.on("data",(chunk) => {
+                    res.destroy();
+                    resolve(res.statusCode);
+                });
+
+            }).end();
+        });
     }
     static async download_speed(){
         const url = "http://speedtest.ftp.otenet.gr/files/test1Gb.db";
@@ -90,7 +114,7 @@ class Download{
         let dl = 0;
         let time_difference = 0;
         return await new Promise(resolve => {
-            http.get(url, (resp) => {
+            Download.get_lib(url).get(url, (resp) => {
                 setTimeout(function () {
                     resp.destroy();
                 }, 5000);
@@ -121,27 +145,37 @@ class Download{
         if (num_of_parts_to_create <= 0){
             num_of_parts_to_create = 1;
         }
-        num_of_parts_to_create = 26;
+        num_of_parts_to_create = 10;
         let last_int = -1;
         for (let i = 0; i < num_of_parts_to_create; i++) {
             let to_byte = parseInt((this.total_length / num_of_parts_to_create) * (i + 1));
-            this.parts.append(new Part(this.url,last_int + 1, to_byte, this));
+            this.parts.push(new Part(this.url,last_int + 1, to_byte, this));
             last_int = to_byte;
         }
         return this;
     }
-    download_all(){
+    async download_all(){
         console.log("Downloading All Parts");
         console.log("Num of parts: " + this.parts.length);
-        for (let i = 0; i < self.parts.length; i++) {
-            self.parts.download_bytes(i,length,(i,length)=>{
-                console.log(i+1 + " of " + length + "complete");
-            });
+        let promises = [];
+        for (let i = 0; i < this.parts.length; i++) {
+            promises.push(new Promise(async resolve => {
+               await this.parts[i].download_bytes();
+               resolve();
+            }));
         }
+        await Promise.all(promises).then(function () {
+
+        });
         return this
     }
+    imDone() {
+        console.log(++this.parts_done + " of " + this.parts.length + " completed");
+    }
     combineParts(){
-        //TODO: write this
+        this.parts.forEach(part => {
+           this.final_temp_file.write(part.read());
+        });
         return this;
     }
     move_to_final(){
@@ -151,13 +185,13 @@ class Download{
 }
 
 class Part {
-    constructor(url, number, to_byte,parent){
+    constructor(url, from_byte, to_byte,parent){
         this.url = url;
         this.from_byte = parseInt(from_byte);
         this.to_byte = parseInt(to_byte);
         this.current_byte = parseInt(from_byte);
         this.stop_byte = parseInt(to_byte);
-        this.file = tempfile.NamedTemporaryFile({deleteAfterUse: false});
+        this.file = new TempFile.TmpFile(from_byte);
         this.percent_done = 0;
         this.parent = parent;
         if(url_lib.parse(url).protocol === "http:") {
@@ -167,19 +201,30 @@ class Part {
             this.protocol = https;
             this.port = "443";
         }
-    }
-    download_bytes(){
-        this.protocol.get(this.url,{
-            headers: {
-                'Range':`bytes=${this.from_byte}-${this.to_byte}`
-            }
-        },(res) => {
-            res.on('data',(res) =>{
-                this.file.write(res);
-                this.current_byte+= res.length;
-                this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
-                this.parent.average_in(this.percent_done, this);
-            })
+    };
+    async download_bytes(){
+      return await new Promise(resolve => {
+            const q = url_lib.parse(this.url);
+            this.protocol.get({
+                port: this.port,
+                protocol: q.protocol,
+                path: q.pathname,
+                host: q.hostname,
+                headers: {
+                    'Range': `bytes=${this.from_byte}-${this.to_byte}`
+                }
+            }, (res) => {
+                res.on('data', (res) => {
+                    this.file.write(res);
+                    this.current_byte += res.length;
+                    this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
+                    this.parent.average_in(this.percent_done, this);
+                });
+                res.on('end', () => {
+                    this.parent.imDone();
+                    resolve();
+                })
+            });
         });
     }
 }
@@ -189,6 +234,8 @@ process.on('exit', () => {
 });
 
 async function Main(){
-   console.log(os.tmpdir());
+    let download = await new Download().init("https://download-cf.jetbrains.com/idea/ideaIC-2018.3.4.dmg",
+        "Intelij", '/Users/joshuabrown3/Desktop/vid');
+    await download.createParts().download_all().combineParts().move_to_final();
 }
 Main();

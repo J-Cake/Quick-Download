@@ -4,21 +4,21 @@ const path = require('path');
 
 module.exports.TmpFile = class TmpFile {
 	constructor(name, parentPath) {
-		this.path = path.join(parentPath || os.tmpdir(), name);
+		this.path = path.join(parentPath || os.tmpdir(), 'qdtmp_' + name  + '.quickdTMP');
 	}
 
 	async write(content) {
 		return new Promise(function (resolve, reject) {
-			fs.writeFile(this.path, content, 'utf8', err => {
+			fs.appendFile(this.path, content, 'utf8', err => {
 				if (err)
 					reject({success: false, err});
 				resolve({success: true});
 			});
-		})
+		}.bind(this))
 	}
 
 	writeSync(content) {
-		fs.writeFileSync(this.path, content, 'utf8');
+		fs.appendFileSync(this.path, content, 'utf8');
 	}
 
 	async delete() {
