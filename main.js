@@ -26,7 +26,6 @@ async function createWindow () {
 		createWindow();
 	})
 
-
 }
 
 app.on('ready', createWindow);

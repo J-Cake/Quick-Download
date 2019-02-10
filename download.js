@@ -14,7 +14,8 @@ class Download{
     }
     async init(url, name, save_location){
         this.save_location = save_location;
-        this.final_temp_file = tempfile.NamedTemporaryFile(false);
+        this.final_temp_file = tempfile.NamedTemporaryFile({deleteWhenDone: false});
+
         this.url = url;
         this.total_length = await Download.get_length(url);
         this.extension = Download.get_extension(url);
@@ -49,6 +50,7 @@ class Download{
            fetch(url, {method: 'HEAD'})
                .then(res => {
                    resolve(res.headers.get('content-length'));
+                   // ^ what're ye doin buddy? res.headers['content-length'] would be perfectly adequate
                });
        });
     }
@@ -102,7 +104,7 @@ class Download{
             });
         });
     }
-    average_in(percent_done_input,from_part){
+    average_in(percent_done_input, from_part){
         if(this.average_index === 4){
             this.average_index = 0;
             this.average_index = 0;
@@ -110,7 +112,7 @@ class Download{
         this.average_percentage = ((this.average_percentage * this.average_index) + percent_done_input) / (this.average_index + 1);
         this.average_index += 1;
         if(this.average_percentage - this.last_print > 0.01){
-            console.log(this.average_percentage)
+            console.log(this.average_percentage);
             this.last_print = this.average_percentage;
         }
     }
@@ -155,7 +157,7 @@ class Part {
         this.to_byte = parseInt(to_byte);
         this.current_byte = parseInt(from_byte);
         this.stop_byte = parseInt(to_byte);
-        this.file = tempfile.NamedTemporaryFile(delete=False);
+        this.file = tempfile.NamedTemporaryFile({deleteAfterUse: false});
         this.percent_done = 0;
         this.parent = parent;
         if(url_lib.parse(url).protocol === "http:") {
@@ -180,8 +182,12 @@ class Part {
             })
         });
     }
-
 }
+
+process.on('exit', () => {
+    // cleanup code here. delete all temporary files and directories
+});
+
 async function Main(){
    console.log(os.tmpdir());
 }
