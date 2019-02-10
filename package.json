@@ -16,6 +16,11 @@
     "eject": "react-scripts eject",
     "electron": "electron ."
   },
+  "jest": {
+    "roots": [
+      "./tests"
+    ]
+  },
   "eslintConfig": {
     "extends": "react-app"
   },
