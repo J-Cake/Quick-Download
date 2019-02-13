@@ -1,20 +1,28 @@
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+// import * as fs from 'fs';
+// import * as os from 'os';
+// import * as path from 'path';
 
-module.exports.TmpFile = class TmpFile {
+const _electron = window.require('electron');
+const remote = _electron.remote;
+
+const fs = remote.require('fs');
+const os = remote.require('os');
+const path = remote.require('path');
+
+class TmpFile {
 	constructor(name, parentPath) {
 		this.path = path.join(parentPath || os.tmpdir(), 'qdtmp_' + name  + '.quickdTMP');
 	}
 
 	async write(content) {
+		const path = this.path;
 		return new Promise(function (resolve, reject) {
-			fs.appendFile(this.path, content, 'utf8', err => {
+			fs.appendFile(path, content, 'utf8', err => {
 				if (err)
 					reject({success: false, err});
 				resolve({success: true});
-			});
-		}.bind(this))
+			})
+		})
 	}
 
 	writeSync(content) {
@@ -49,9 +57,9 @@ module.exports.TmpFile = class TmpFile {
 		cont = fs.readFileSync(this.path, 'utf8');
 		return cont
 	}
-};
+}
 
-module.exports.TmpDir = class TmpDir {
+class TmpDir {
 	constructor(name, path) {
 		this.path = path.join(path || os.tmpdir(), name);
 
@@ -158,4 +166,9 @@ module.exports.TmpDir = class TmpDir {
 	getContent() {
 		return this.children;
 	}
-};
+}
+
+export {
+	TmpFile,
+	TmpDir
+}

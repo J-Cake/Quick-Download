@@ -4,13 +4,13 @@ let mainWindow;
 let withFrame = false;
 
 async function createWindow () {
-	mainWindow = new BrowserWindow({width: 720, height: 360, frame: withFrame, nodeIntegration: true, icon: "./build/favicon.ico"});
+	mainWindow = new BrowserWindow({width: 720, height: 360, frame: withFrame, nodeIntegration: true, icon: "./build/favicon.ico", webPreferences: {webSecurity: false}});
 
 	mainWindow.loadFile('./public/loading.html');
 
 	mainWindow.setMenu(null);
 
-	// mainWindow.webContents.openDevTools();
+	mainWindow.webContents.openDevTools();
 	mainWindow.frame = withFrame;
 
 	mainWindow.setTitle("Quick Downloader");

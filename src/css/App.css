@@ -9,6 +9,10 @@
     user-select: none;
 }
 
+*::selection {
+    background:rgba(102, 112, 123, 0.55);
+}
+
 body {
     background: #3e444b;
     overflow: hidden;
@@ -40,7 +44,7 @@ header {
 .tool {
     font-family: FontAwesome;
     color: #eee;
-    font-size: 13pt;
+    font-size: 11pt;
     border: 2px solid #7e8999;
     border-radius: 9px;
     background: rgba(102, 112, 123, 0.55);
@@ -48,6 +52,7 @@ header {
     width: 30px;
     text-align: center;
     line-height: 30px;
+    vertical-align: top;
     height: 30px;
     transition: 0.15s ease;
 }
@@ -66,9 +71,9 @@ header {
 
 .download {
     padding: 10px;
-    border: 1px solid #7e8999;
+    box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);
     border-radius: 10px;
-    background: aliceblue;
+    background: rgba(36, 40, 44, 0.9);
     font-weight: 300 !important;
     position: relative;
     margin: 10px;
@@ -84,7 +89,7 @@ b {
 .download .download-detail {
     margin: 0 10px;
     display: block;
-    color: #7e8999;
+    color: #aaa;
 }
 
 .download .header {
@@ -101,6 +106,7 @@ b {
 .download .header h2 {
     float: left;
     display: block;
+    color: #eee;
 }
 
 .progress-bar {
@@ -114,7 +120,7 @@ b {
     border-radius: 15px;
     border: none;
     background: #b4c9e0;
-    box-shadow: 1px 0 3px 0 #8d9daf;
+    /*box-shadow: 1px 0 3px 0 #8d9daf;*/
     position: relative;
     display: block;
     height: 100%;
@@ -128,7 +134,7 @@ b {
     transition: 0.2s ease;
 }
 .progress-bar-wrapper .chunk {
-    background: rgba(126, 128, 133, 0.64);
+    background: rgba(126, 128, 133, 0.8);
     border-radius: inherit;
     width: 30px;
     left: 100px;
@@ -158,21 +164,32 @@ b {
     top: 25%;
     left: 50%;
     transform: translateX(-50%) translateY(-25%);
-    background: #eeeeee;
+    background: rgb(36, 40, 44);
+    color: #eeeeee;
     border-radius: 10px;
     padding: 20px;
+    box-shadow: 0 0 4px 0 #181b1e;
 }
-
 input {
     display: block;
     padding: 10px;
     border: 2px solid #4f5660;
-    background: #fff;
-    box-shadow: 1px 0 3px 0 #8d9daf;
+    background: rgba(36, 40, 44, 0.9);
+    /*box-shadow: 1px 0 3px 0 #8d9daf;*/
+    color: #eee;
     border-radius: 7px;
     margin: 10px 0;
     min-width: 15cm;
     user-select: text;
+}
+input:focus {
+    border-color: #b4c9e0;
+}
+input.required {
+    border-color: #b81d27;
+}
+input.required:focus {
+    border-color: #ff2734;
 }
 
 .right-align {
@@ -184,12 +201,11 @@ input {
 .formItem .suggestions {
     display: none;
     width: calc(100% - 20px);
-    color: #181b1e;
-    background: #fff;
+    color: #eee;
+    background: rgb(36, 40, 44);
     z-index: 10;
+    margin: -11px 10px 10px;
     border: 2px solid #4f5660;
-    margin: -13px 10px 10px;
-    border-top: 2px solid #fff;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     padding: 6px 0;
@@ -198,10 +214,10 @@ input {
 .suggestion {
     margin: 3px 0;
     padding: 5px;
-    color: #444;
+    color: #eee;
 }
 .suggestion:hover {
-    background: #eee;
+    background: rgba(92, 102, 112, 0.64);
 }
 
 .formItem input:focus ~ .suggestions, .suggestions:hover {
@@ -210,4 +226,8 @@ input {
 }
 .formItem {
     position: relative;
+}
+
+.formItem .suggestions:focus {
+    display: none;
 }
