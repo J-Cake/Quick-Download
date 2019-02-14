@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import './css/App.css';
-import Tool from './tool';
-import Download from './download';
-import WindowFrame from './windowframe';
+import Tool from './components/tool';
+import Download from './components/download';
+import WindowFrame from './components/windowframe';
 import * as Mousetrap from 'mousetrap';
 
 const _electron = window.require('electron');
