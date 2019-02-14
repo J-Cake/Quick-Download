@@ -12,21 +12,30 @@ const path = remote.require('path');
 class TmpFile {
 	constructor(name, parentPath) {
 		this.path = path.join(parentPath || os.tmpdir(), 'qdtmp_' + name  + '.quickdTMP');
+		this.file = fs.createWriteStream(this.path, "utf8");
 	}
 
 	async write(content) {
 		const path = this.path;
 		return new Promise(function (resolve, reject) {
-			fs.appendFile(path, content, 'utf8', err => {
-				if (err)
-					reject({success: false, err});
-				resolve({success: true});
-			})
+			// fs.appendFile(path, content, 'utf8', err => {
+			// 	if (err)
+			// 		reject({success: false, err});
+			// 	resolve({success: true});
+			// })
+			try {
+				this.file.write(content);
+			} catch (err) {
+				reject({success: false, err})
+			}
+
+			resolve({success: true});
+
 		})
 	}
 
 	writeSync(content) {
-		fs.appendFileSync(this.path, content, 'utf8');
+		this.file.write(content);
 	}
 
 	async delete() {
@@ -171,4 +180,13 @@ class TmpDir {
 export {
 	TmpFile,
 	TmpDir
+}
+
+function sleep(ms) {
+	let startTime = new Date().getTime();
+	let counter = 0;
+	while (startTime + ms > new Date().getTime()) {
+		counter++;
+	}
+	return counter;
 }
