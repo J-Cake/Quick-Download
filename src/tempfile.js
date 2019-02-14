@@ -16,15 +16,10 @@ class TmpFile {
 	}
 
 	async write(content) {
-		const path = this.path;
+		const file = this.file;
 		return new Promise(function (resolve, reject) {
-			// fs.appendFile(path, content, 'utf8', err => {
-			// 	if (err)
-			// 		reject({success: false, err});
-			// 	resolve({success: true});
-			// })
 			try {
-				this.file.write(content);
+				file.write(content);
 			} catch (err) {
 				reject({success: false, err})
 			}

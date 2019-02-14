@@ -4,6 +4,7 @@ import * as url_lib from 'url';
 import * as TempFile from './tempfile';
 import * as os from 'os';
 import * as path from 'path';
+import * as fs from 'fs';
 
 /**
  * @var protocol
@@ -195,15 +196,25 @@ class Download {
 		});
 	}
 
-	combineParts() {
-		this.parts.forEach(part => {
-			this.final_temp_file.write(part.read());
-		});
+	async combineParts_move_to_final() {
+		let final = fs.createWriteStream(this.final_temp_file, {flags: 'a'});
+		for (const part of this.parts) {
+			await Download.pipeFileToWriteStream(part.file.path, final);
+		}
 		return this;
 	}
-
-	move_to_final() {
-		//TODO: write this
+	static async pipeFileToWriteStream(path, stream) {
+		return await new Promise((resolve, reject) => {
+			const r = fs.createReadStream(path);
+			r.on('close', resolve);
+			r.on('error', reject);
+			r.pipe(stream);
+		});
+	}
+	async cleanup(){
+		for (const part of this.parts) {
+			part.cleanup();
+		}
 	}
 
 }
@@ -252,11 +263,16 @@ class Part {
 			})
 		});
 	}
+	async cleanup() {
+		this.file.deleteSync();
+	}
 }
 
 export default async function beginDownload(url, name, saveLocation, onUpdate) {
-	let download = await new Download().init(url, name, saveLocation || path.join(os.homedir(), "downloads"), onUpdate);
-    (await download.createParts().download_all()).combineParts().move_to_final();
+	let download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), () => onUpdate);
+	await download.createParts().download_all();
+	await download.combineParts_move_to_final();
+	await download.cleanup();
 }
 // export default function* beginDownload(url, name, saveLocation) {
 // 	const download = new Download();
