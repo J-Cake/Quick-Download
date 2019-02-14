@@ -12,13 +12,13 @@ path_to_save = ''
 parts = []
 
 
-class Download:
+class DownloadFile:
     def __init__(self, url, name, save_location):
         self.save_location = save_location
         self.final_temp_file = tempfile.NamedTemporaryFile(delete=False)
         self.url = url
-        self.total_length = Download.get_length(url)
-        self.extension = Download.get_extention(url)
+        self.total_length = DownloadFile.get_length(url)
+        self.extension = DownloadFile.get_extention(url)
         self.name = name
         self.average_percentage = 0
         self.average_index = 0
@@ -55,7 +55,7 @@ class Download:
 
     @staticmethod
     def average_download_speed():
-        return int((Download.download_speed()))
+        return int((DownloadFile.download_speed()))
 
     @staticmethod
     def throttled_speed(url):
@@ -72,7 +72,7 @@ class Download:
 
     @staticmethod
     def average_throttled_speed(url):
-        return int(Download.throttled_speed(url))
+        return int(DownloadFile.throttled_speed(url))
 
     def average_in(self, percent_done_input, from_part):
         if self.average_index == 4:
@@ -102,7 +102,7 @@ class Download:
     def download_all(self):
         print("Downloading All Parts")
         print("Num of parts: %d" % len(self.parts))
-        results = ThreadPool(len(self.parts)).imap_unordered(Download.call_downloader, self.parts)
+        results = ThreadPool(len(self.parts)).imap_unordered(DownloadFile.call_downloader, self.parts)
         i = 0
         for path in results:
             i += 1
@@ -150,7 +150,7 @@ class Part:
             # f.flush() commented by recommendation from J.F.Sebastian
 
 
-download = Download(
+download = DownloadFile(
     "https://download-cf.jetbrains.com/idea/ideaIC-2018.3.4.dmg",
     "Intelij", '/Users/joshuabrown3/Desktop/vid')
 download.createParts().download_all().combineParts().move_to_final()

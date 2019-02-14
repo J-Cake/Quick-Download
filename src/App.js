@@ -3,6 +3,15 @@ import './css/App.css';
 import Tool from './tool';
 import Download from './download';
 import WindowFrame from './windowframe';
+import * as Mousetrap from 'mousetrap';
+
+const _electron = window.require('electron');
+const remote = _electron.remote;
+
+let platform = remote.require('os').platform();
+
+if (platform !== "win32" && platform !== "darwin")
+	platform = "other";
 
 class App extends Component {
 	constructor(...args) {
@@ -14,7 +23,9 @@ class App extends Component {
 			promptShowing: false,
 			downloadName: "",
 			downloadURL: ""
-		}
+		};
+
+		this.settingsVisible = true;
 	}
 
 	showPrompt() {
@@ -28,10 +39,17 @@ class App extends Component {
 	}
 
 	beginDownload() {
-		this.setState({downloads: [...this.state.downloads, <Download key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]});
-		this.closePrompt();
+		if (this.state.downloadURL) {
+			this.setState({downloads: [...this.state.downloads, <Download key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]});
+			this.closePrompt();
 
-		App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName);
+			if (!this.state.stopSave)
+				App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName);
+
+			this.setState({stopSave: true});
+		} else {
+			this.setState({requiredField: true});
+		}
 	}
 
 	static addToDownloadHistory(url, name) {
@@ -52,49 +70,143 @@ class App extends Component {
 	componentDidMount() {
 		if (!window.localStorage.downloadHistory)
 			window.localStorage.downloadHistory = JSON.stringify([{name: "Big Buck Bunny", url: "http://jacob-schneider/hosted-content/bbb.mp4"}]);
+
+		Mousetrap.bind('ctrl+n', () => this.showPrompt());
+		Mousetrap.bind('esc', () => {
+			this.closePrompt();
+		});
+		Mousetrap.bind('ctrl+j', () => this.pastDownloads());
+		Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
 	}
 
 	acceptSuggestion(number) {
+		const names = App.getDownloadNames(),
+			urls = App.getDownloadUrls();
+
+		this.setState({
+			downloadURL: urls[number],
+			downloadName: names[number]
+		});
+
+		this.setState({
+			stopSave: true
+		});
+
+		document.querySelector('.suggestions').style.display = "none";
+	}
+
+	showSettings() {
+		this.settingsVisible = !this.settingsVisible;
+	}
+
+	static confirmExit() {
+		window.close();
+	}
+
+	pastDownloads() {
 
 	}
 
 	render() {
 		return (
 			<div className="wrapper">
-				<WindowFrame />
+				<WindowFrame/>
 				<div className="App">
 					<header>
 						<Tool shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
+						<div className={"menu"}>
+							<div className={"submenu"}>
+								<label className={"menuTitle"}>File</label>
+								<div className={"options"}>
+									<div onClick={e => this.showPrompt()} className={"option"}>
+										New Download
+										<div className={"accelerator"}>
+											{platform === "darwin" ? "Cmd+N" : "Ctrl+N"}
+										</div>
+									</div>
+									<div className={"option"}>
+										Show Past Downloads
+										<div className={"accelerator"}>
+											{platform === "darwin" ? "Cmd+J" : "Ctrl+J"}
+										</div>
+									</div>
+									<hr/>
+									<div onClick={() => App.confirmExit()} className={"option"}>
+										Exit
+										<div className={"accelerator"}>
+											{platform === "darwin" ? "Cmd+W" : "Ctrl+W"}
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className={"submenu"}>
+								<label className={"menuTitle"}>View</label>
+								<div className={"options"}>
+									<div className={"option"}>
+										<div className={"submenu"}>
+											<label className={"menuTitle"}>Theme</label>
+											<div className={"options"}>
+												<div className={"option"}>
+													Dark
+												</div>
+											</div>
+										</div>
+									</div>
+									<div className={"option"}>
+										Full Screen
+										<div className={"accelerator"}>
+											F11
+										</div>
+									</div>
+								</div>
+							</div>
+							<div className={"submenu"}>
+								<label className={"menuTitle"}>Help</label>
+								<div className={"options"}>
+									<div className={"option"}>About</div>
+									<div className={"option"}>Docs</div>
+								</div>
+							</div>
+						</div>
 					</header>
+
 					<div className="downloads">
 						{this.state.downloads}
 					</div>
 
-					{ this.state.promptShowing ?
+					{this.state.promptShowing ?
 						<div className="prompt">
 							<div className={"right-align"}>
-								<Tool className={"prompt-close-btn"} icon={"fas fa-times"} onClick={e => this.closePrompt()} />
+								<Tool className={"prompt-close-btn"} icon={"fas fa-times"}
+								      onClick={e => this.closePrompt()}/>
 							</div>
 
 							<div className={"formItem"}>
 								<label htmlFor={"dl-name"}>The file name of the download</label>
-								<input onChange={e => this.setState({downloadName: e.target.value})} className={"dl-name"} id={"dl-name"} placeholder={"Download Name"} />
+								<input value={this.state.downloadName}
+								       onChange={e => this.setState({downloadName: e.target.value})}
+								       className={"dl-name"} id={"dl-name"} placeholder={"Download Name"}/>
 								<div className={"suggestions"}>
-									{App.getDownloadNames().map((i, a) => <div key={a} className={"suggestion"}><span onClick={this.acceptSuggestion(a)}>{i}</span><br /></div> )}
+									{App.getDownloadNames().map((i, a) => <div key={a} className={"suggestion"}><span
+										onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
 								</div>
 							</div>
 
 							<div className={"formItem"}>
 								<label htmlFor={"dl-url"}>The location of the file to download</label>
-								<input onChange={e => this.setState({downloadURL: e.target.value})} className={"url"} id={"dl-url"} placeholder={"Download URL"} />
+								<input value={this.state.downloadURL}
+								       onChange={e => this.setState({downloadURL: e.target.value})}
+								       className={"url" + " " + this.state.required ? "required" : ""} id={"dl-url"}
+								       placeholder={"Download URL"}/>
 								<div className={"suggestions"}>
-									{App.getDownloadUrls().map((i, a) => <div key={a} className={"suggestion"}><span onClick={this.acceptSuggestion(a)}>{i}</span><br /></div> )}
+									{App.getDownloadUrls().map((i, a) => <div key={a} className={"suggestion"}><span
+										onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
 								</div>
 							</div>
 
 							<div className={"right-align"}>
 								<Tool className={"confirm-btn"} icon={"fas fa-check"}
-								      onClick={() => this.beginDownload()} />
+								      onClick={() => this.beginDownload()}/>
 							</div>
 						</div>
 						: undefined
@@ -103,7 +215,6 @@ class App extends Component {
 			</div>
 		);
 	}
-
 }
 
 export default App;

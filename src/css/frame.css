@@ -1,4 +1,4 @@
-.titlebar.win32 {
+.titlebar.win32 .drag-region.win32 {
     color: #FFF;
     display: block;
     height: auto;
@@ -92,7 +92,7 @@
     flex-direction: row-reverse;
 }
 
-.drag-region.darwin .window-title.darwin {
+.drag-region.darwin {
     -webkit-app-region: drag;
     width: 100%;
 }
@@ -178,4 +178,75 @@
 
 .window-title.darwin img {
     display: none;
+}
+
+.menu .option:hover {
+    background: rgba(49, 76, 110, 0.65);
+    color: #eeeeee;
+}
+.menu .option:active {
+    background: rgba(88, 97, 107, 0.71);
+}
+.menu {
+    display: flex;
+    padding-left: 15px;
+    color: #b4c9e0;
+    position: relative;
+
+    font-size: 11pt;
+
+    z-index: 100;
+}
+.menu > .submenu > .options {
+    display: none;
+    position: fixed;
+
+    background: rgba(36, 40, 44, 0.9);
+    color: #eee;
+
+    padding: 5px;
+    min-width: 250px;
+    max-width: 600px;
+
+    text-overflow-ellipsis: ellipsis;
+
+    border-top: 3px solid rgba(49,76,110,0.65);
+    border-top-right-radius: 7px;
+}
+
+.option > .accelerator {
+    float: right;
+    color: #66727f;
+}
+.option {
+    padding: 5px 10px;
+}
+
+.menu > .submenu, .menu {
+    height: calc(11pt + 6px);
+}
+
+.submenu {
+    background: rgba(36, 40, 44, 0.9);
+    color: #eee;
+
+    overflow: visible;
+}
+.submenu > .menuTitle {
+    display: block;
+    width: auto;
+    padding: 0 10px;
+}
+.submenu:hover > .menuTitle {
+    background: rgba(49,76,110,0.65);
+    color: #eeeeee;
+    /*height: 110%;*/
+}
+
+.menu .submenu:hover > .options {
+    display: block;
+}
+
+hr {
+    border: 1px solid #4f5660;
 }

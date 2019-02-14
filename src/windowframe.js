@@ -70,7 +70,7 @@ export default class WindowFrame extends React.Component {
 
 	render() {
 
-		console.log(platform);
+		// console.log(platform);
 
 		if (!_window.frame) {
 			return (

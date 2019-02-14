@@ -1,9 +1,9 @@
-const tmp = require('../tempfile');
+const tmp = require('../src/tempfile');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-expected.extend({
+expect.extend({
 	doesFileExist(fileName) {
 		return {
 			pass: fs.existsSync(path.join(os.tmpdir(), fileName))

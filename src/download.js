@@ -2,6 +2,11 @@ import React from 'react';
 import Tool from './tool';
 import Progress from './progress';
 
+import * as path from "path";
+import * as os from 'os';
+
+import beginDownload from './downloadFile';
+
 export default class Download extends React.Component {
 	constructor() {
 		super(...arguments);
@@ -13,18 +18,33 @@ export default class Download extends React.Component {
 			chunks: new Array(1).fill(0),
 			chunkSize: 1024,
 			details: false,
-			fileName: this.props.name
+			fileName: this.props.name,
+			status: 0
 		};
 
-		this.state.totalChunks = /*get total chunks*/ this.state.size / this.state.chunkSize;
-		console.log(arguments[0].url);
+		this.download = beginDownload(this.state.url, this.state.fileName, path.join(window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads')), info => {
+			console.log(info);
+			this.setState({
+				progress: info.percentage,
+				size: info.size
+			});
+		});
+
+		this.download.then(res => {
+			console.log(res);
+		})
+		// while (!this.download.done && !this.download.failed) {
+		// 	this.setState({progress: this.download.percentage, totalChunks: this.download.totalChunks});
+		// 	console.log(this.download);
+		//
+		// 	this.download.next();
+		// }
 	}
 
 	cancelDownload() {
 		// Cancel download somehow
 	}
 	toggleDetails() {
-		console.log(this.state);
 		this.setState(prevState => ({details: !prevState.details}));
 	}
 
@@ -50,7 +70,7 @@ export default class Download extends React.Component {
 					: undefined
 				}
 
-				<Progress value={this.state.progress} />
+				<Progress className={this.state.status === 1 ? "failed" : ""} value={this.state.progress} />
 			</div>
 		);
 	}
