@@ -9,7 +9,7 @@ module.exports.TmpFile = class TmpFile {
 
 	async write(content) {
 		return new Promise(function (resolve, reject) {
-			fs.appendFile(this.path, content, 'utf8', err => {
+			fs.appendFile(this.path, content, err => {
 				if (err)
 					reject({success: false, err});
 				resolve({success: true});
@@ -18,7 +18,7 @@ module.exports.TmpFile = class TmpFile {
 	}
 
 	writeSync(content) {
-		fs.appendFileSync(this.path, content, 'utf8');
+		fs.appendFileSync(this.path, content);
 	}
 
 	async delete() {

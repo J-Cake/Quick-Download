@@ -3,7 +3,9 @@ const https = require('https');
 const http = require('http');
 const url_lib = require('url');
 const os = require('os');
+const fs = require('fs');
 const TempFile = require('./tempfile');
+const path = require('path');
 
 /**
  * @var protocol
@@ -16,10 +18,9 @@ class Download{
     async init(url, name, save_location){
         return await new Promise(async resolve => {
             this.save_location = save_location;
-            this.final_temp_file = new TempFile.TmpFile();
-            this.url = url;
-            this.total_length = await Download.get_length(url);
             this.extension = Download.get_extension(url);
+            this.final_temp_file = path.join(save_location,name + this.extension);
+            this.url = url;
             this.name = name;
             this.average_percentage = 0;
             this.average_index = 0;
@@ -33,6 +34,7 @@ class Download{
                 this.protocol = https;
                 this.port = "443";
             }
+            this.total_length = await Download.get_length(url);
             resolve(this);
         });
     }
@@ -54,7 +56,7 @@ class Download{
         url = url.split('#')[0];
 
         // Now we have only extension
-        return url;
+        return path.extname(url);
     }
     static async get_length(url){
        return await new Promise(resolve => {
@@ -141,11 +143,11 @@ class Download{
         }
     }
     createParts(){
-        let num_of_parts_to_create = parseInt(Download.download_speed() / Download.throttled_speed(this.url)) - 1;
+       /* let num_of_parts_to_create = parseInt(Download.download_speed() / Download.throttled_speed(this.url)) - 1;
         if (num_of_parts_to_create <= 0){
             num_of_parts_to_create = 1;
-        }
-        num_of_parts_to_create = 10;
+        } */
+        let num_of_parts_to_create = 26;
         let last_int = -1;
         for (let i = 0; i < num_of_parts_to_create; i++) {
             let to_byte = parseInt((this.total_length / num_of_parts_to_create) * (i + 1));
@@ -172,16 +174,26 @@ class Download{
     imDone() {
         console.log(++this.parts_done + " of " + this.parts.length + " completed");
     }
-    combineParts(){
-        this.parts.forEach(part => {
-           this.final_temp_file.write(part.read());
-        });
+    async combineParts_move_to_final() {
+        let final = fs.createWriteStream(this.final_temp_file, {flags: 'a'});
+        for (const part of this.parts) {
+            await Download.pipeFileToWriteStream(part.file.path, final);
+        }
         return this;
     }
-    move_to_final(){
-        //TODO: write this
+    static async pipeFileToWriteStream(path, stream) {
+        return await new Promise((resolve, reject) => {
+            const r = fs.createReadStream(path);
+            r.on('close', resolve);
+            r.on('error', reject);
+            r.pipe(stream);
+        });
     }
-
+    async cleanup(){
+        for (const part of this.parts) {
+            part.cleanup();
+        }
+    }
 }
 
 class Part {
@@ -191,7 +203,7 @@ class Part {
         this.to_byte = parseInt(to_byte);
         this.current_byte = parseInt(from_byte);
         this.stop_byte = parseInt(to_byte);
-        this.file = new TempFile.TmpFile(from_byte);
+        this.file = new TempFile.TmpFile(Date.now()*to_byte);
         this.percent_done = 0;
         this.parent = parent;
         if(url_lib.parse(url).protocol === "http:") {
@@ -215,7 +227,7 @@ class Part {
                 }
             }, (res) => {
                 res.on('data', (res) => {
-                    this.file.write(res);
+                    this.file.writeSync(res);
                     this.current_byte += res.length;
                     this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
                     this.parent.average_in(this.percent_done, this);
@@ -227,6 +239,9 @@ class Part {
             });
         });
     }
+    async cleanup(){
+        this.file.deleteSync();
+    }
 }
 
 process.on('exit', () => {
@@ -234,8 +249,10 @@ process.on('exit', () => {
 });
 
 async function Main(){
-    let download = await new Download().init("https://download-cf.jetbrains.com/idea/ideaIC-2018.3.4.dmg",
-        "Intelij", '/Users/joshuabrown3/Desktop/vid');
-    await download.createParts().download_all().combineParts().move_to_final();
+    let download = await new Download().init("http://ipv4.download.thinkbroadband.com/100MB.zip",
+        "100mbzip", '/Users/joshuabrown3/Desktop/vid');
+    await download.createParts().download_all();
+    await download.combineParts_move_to_final();
+    await download.cleanup();
 }
 Main();
