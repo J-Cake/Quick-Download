@@ -1,5 +1,5 @@
 import React from 'react';
-import Tool from "./App";
+import Tool from "../App";
 import Download from './download';
 
 export default class Prompt extends React.Component {

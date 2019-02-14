@@ -1,5 +1,5 @@
 import React from 'react';
-import './css/frame.css';
+import '../css/frame.css';
 
 import {$} from './utils';
 
