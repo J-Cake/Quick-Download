@@ -17,7 +17,7 @@ class Download {
 
 	async init(url, name, save_location, onUpdate) {
 		this.save_location = save_location;
-		this.final_temp_file = new TempFile.TmpFile();
+		this.final_file = path.join(save_location,name + this.extension);
 		this.url = url;
 		this.total_length = await Download.get_length(url);
 		this.extension = Download.get_extension(url);
@@ -179,7 +179,7 @@ class Download {
 		let promises = [];
 		for (let i = 0; i < this.parts.length; i++) {
 			promises.push(new Promise(async resolve => {
-			//	await this.parts[i].download_bytes();
+				await this.parts[i].download_bytes();
 				resolve();
 			}));
 		}
@@ -198,7 +198,7 @@ class Download {
 	}
 
 	async combineParts_move_to_final() {
-		let final = fs.createWriteStream(this.final_temp_file, {flags: 'a'});
+		let final = fs.createWriteStream(this.final_file, {flags: 'a'});
 		for (const part of this.parts) {
 			await Download.pipeFileToWriteStream(part.file.path, final);
 		}
@@ -227,7 +227,7 @@ class Part {
 		this.to_byte = parseInt(to_byte);
 		this.current_byte = parseInt(from_byte);
 		this.stop_byte = parseInt(to_byte);
-		this.file = new TempFile.TmpFile(from_byte);
+		this.file = new TempFile.TmpFile(Date.now()+from_byte);
 		this.percent_done = 0;
 		this.parent = parent;
 		if (url_lib.parse(url).protocol === "http:") {
@@ -270,7 +270,7 @@ class Part {
 }
 
 export default async function beginDownload(url, name, saveLocation, onUpdate) {
-	let download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), () => onUpdate);
+	let download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')));
 	await download.createParts().download_all();
 	await download.combineParts_move_to_final();
 	await download.cleanup();
