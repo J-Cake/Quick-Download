@@ -274,26 +274,3 @@ export default async function beginDownload(url, name, saveLocation, onUpdate) {
 	await download.combineParts_move_to_final();
 	await download.cleanup();
 }
-// export default function* beginDownload(url, name, saveLocation) {
-// 	const download = new Download();
-// 	const init = download.init(url, name, saveLocation).then(res => {
-// 		console.log(res)
-// 	}).then(res => {
-// 		download.createParts()
-// 	});
-//
-// 	while (download.parts_done || 0 > download.totalParts) {
-// 		yield {
-// 			percentage: download.average_percentage,
-// 			getSpeed: download.throttled_speed,
-// 			totalParts: download.totalParts
-// 		};
-// 	}
-// };
-
-// async function Main(){
-//     let download = await new Download().init("https://download-cf.jetbrains.com/idea/ideaIC-2018.3.4.dmg",
-//         "Intelij", path.join(os.homedir(), "downloads"));
-//     await download.createParts().download_all().combineParts().move_to_final();
-// }
-// Main();
