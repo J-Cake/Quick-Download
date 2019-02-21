@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
+
 import './css/App.css';
+import './css/box.css';
+
+import * as Mousetrap from "Mousetrap";
+
 import Tool from './components/tool';
 import Download from './components/download';
 import WindowFrame from './components/windowframe';
-import * as Mousetrap from 'mousetrap';
+import Alert from './components/alert';
+import {$} from './components/utils'
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
@@ -14,6 +20,8 @@ if (platform !== "win32" && platform !== "darwin")
 	platform = "other";
 
 class App extends Component {
+	settingsVisible = true;
+
 	constructor(...args) {
 		super(...args);
 		document.title = "Quick Downloader";
@@ -22,10 +30,14 @@ class App extends Component {
 			downloads: [],
 			promptShowing: false,
 			downloadName: "",
-			downloadURL: ""
+			downloadURL: "",
+			boxes: []
 		};
+	}
 
-		this.settingsVisible = true;
+	alert(box) {
+		this.setState(prev => ({boxes: [...prev.boxes, box]}));
+		console.log("showing box");
 	}
 
 	showPrompt() {
@@ -69,14 +81,18 @@ class App extends Component {
 
 	componentDidMount() {
 		if (!window.localStorage.downloadHistory)
-			window.localStorage.downloadHistory = JSON.stringify([{name: "Big Buck Bunny", url: "http://jacob-schneider/hosted-content/bbb.mp4"}]);
+			window.localStorage.downloadHistory = JSON.stringify([]);
 
-		Mousetrap.bind('ctrl+n', () => this.showPrompt());
-		Mousetrap.bind('esc', () => {
-			this.closePrompt();
-		});
-		Mousetrap.bind('ctrl+j', () => this.pastDownloads());
-		Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
+		try {
+			Mousetrap.bind('ctrl+n', () => this.showPrompt());
+			Mousetrap.bind('esc', () => {
+				this.closePrompt();
+			});
+			Mousetrap.bind('ctrl+j', () => this.pastDownloads());
+			Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
+		} catch (e) {
+			this.alert(<Alert key={new Date().toLocaleString()} header={"An error has occurred"} body={"A dependency has failed to load, keyboard shortcuts will be disabled. Otherwise, everything else should work."}/>)
+		}
 	}
 
 	acceptSuggestion(number) {
@@ -92,7 +108,7 @@ class App extends Component {
 			stopSave: true
 		});
 
-		document.querySelector('.suggestions').style.display = "none";
+		$('.suggestions').style.display = "none";
 	}
 
 	showSettings() {
@@ -152,7 +168,7 @@ class App extends Component {
 											</div>
 										</div>
 									</div>
-									<div className={"option"}>
+									<div className={"option"} onClick={() => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen())}>
 										Full Screen
 										<div className={"accelerator"}>
 											F11
@@ -211,6 +227,9 @@ class App extends Component {
 						</div>
 						: undefined
 					}
+				</div>
+				<div className={"box-display-area"}>
+					{this.state.boxes}
 				</div>
 			</div>
 		);
