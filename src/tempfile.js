@@ -176,12 +176,3 @@ export {
 	TmpFile,
 	TmpDir
 }
-
-function sleep(ms) {
-	let startTime = new Date().getTime();
-	let counter = 0;
-	while (startTime + ms > new Date().getTime()) {
-		counter++;
-	}
-	return counter;
-}
