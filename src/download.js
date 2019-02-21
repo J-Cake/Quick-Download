@@ -157,12 +157,13 @@ class Download {
 	}
 
 	createParts() {
-		let num_of_parts_to_create = parseInt(Download.download_speed() / Download.throttled_speed(this.url)) - 1;
+		/* let num_of_parts_to_create = parseInt(Download.download_speed() / Download.throttled_speed(this.url)) - 1;
 		this.totalParts = num_of_parts_to_create;
 		if (num_of_parts_to_create <= 0) {
 			num_of_parts_to_create = 1;
 		}
-		num_of_parts_to_create = 10;
+		*/
+		let num_of_parts_to_create = 10;
 		let last_int = -1;
 		for (let i = 0; i < num_of_parts_to_create; i++) {
 			let to_byte = parseInt((this.total_length / num_of_parts_to_create) * (i + 1));
@@ -178,7 +179,7 @@ class Download {
 		let promises = [];
 		for (let i = 0; i < this.parts.length; i++) {
 			promises.push(new Promise(async resolve => {
-				await this.parts[i].download_bytes();
+			//	await this.parts[i].download_bytes();
 				resolve();
 			}));
 		}
@@ -250,8 +251,8 @@ class Part {
 					'Range': `bytes=${this.from_byte}-${this.to_byte}`
 				}
 			}, res => {
-				res.on('data', (res) => {
-					this.file.write(res);
+				res.on('data',  (res) => {
+					this.file.writeSync(res);
 					this.current_byte += res.length;
 					this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
 					this.parent.average_in(this.percent_done, this);
