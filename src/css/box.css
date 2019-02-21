@@ -1,0 +1,33 @@
+.box-display-area {
+    position: fixed;
+    width: 100vw;
+    max-height: 100vh;
+    height: auto;
+    top: 0;
+    left: 0;
+    z-index: 111;
+    background: rgba(24, 27, 30, 0.66);
+}
+
+.box-display-area:has(div) {
+    height: 100vh;
+}
+
+.alert {
+    max-width: 20cm;
+    position: fixed;
+    background: rgb(36, 40, 44);
+    color: #eeeeee;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 4px 0 #181b1e;
+    margin: 110px 20px;
+}
+
+.alert-header {
+    font-size: 1.45em;
+}
+
+.alert-body {
+    color: #c1c1c1;
+}

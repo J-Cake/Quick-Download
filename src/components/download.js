@@ -5,7 +5,7 @@ import Progress from './progress';
 import * as path from "path";
 import * as os from 'os';
 
-import beginDownload from '../download';
+import beginDownload from '../download.js';
 
 export default class Download extends React.Component {
 	constructor() {
