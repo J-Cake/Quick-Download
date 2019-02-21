@@ -15,7 +15,7 @@ class Download {
 
 	}
 
-	async init(url, name, save_location, onUpdate) {
+	async init(url, name, save_location) {
 		this.save_location = save_location;
 		this.final_file = path.join(save_location,name + this.extension);
 		this.url = url;
@@ -34,8 +34,6 @@ class Download {
 			this.protocol = https;
 			this.port = "443";
 		}
-
-		this.onUpdate = onUpdate;
 		return this;
 	}
 
