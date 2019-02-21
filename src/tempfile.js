@@ -2,8 +2,8 @@
 // import * as os from 'os';
 // import * as path from 'path';
 
-const _electron = window.require('electron');
-const remote = _electron.remote;
+const electron = window.require('electron');
+const remote = electron.remote;
 
 const fs = remote.require('fs');
 const os = remote.require('os');
@@ -21,6 +21,7 @@ class TmpFile {
 			try {
 				file.write(content);
 			} catch (err) {
+				console.log(err);
 				reject({success: false, err})
 			}
 
@@ -158,6 +159,7 @@ class TmpDir {
 			} else if (i instanceof TmpFile) {
 				this.deleteFileSync(i.name);
 			}
+			return i;
 		})
 	}
 
@@ -175,13 +177,4 @@ class TmpDir {
 export {
 	TmpFile,
 	TmpDir
-}
-
-function sleep(ms) {
-	let startTime = new Date().getTime();
-	let counter = 0;
-	while (startTime + ms > new Date().getTime()) {
-		counter++;
-	}
-	return counter;
 }
