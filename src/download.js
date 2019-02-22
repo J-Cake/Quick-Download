@@ -1,10 +1,13 @@
-import * as http from 'http';
-import * as https from 'https';
+
 import * as url_lib from 'url';
 import * as TempFile from './tempfile';
 import * as os from 'os';
 import * as path from 'path';
-import * as fs from 'fs';
+
+const http = window.require('http');
+const https = window.require('https');
+const fs = window.require('fs');
+
 
 /**
  * @var protocol
@@ -15,18 +18,19 @@ class Download {
 
 	}
 
-	async init(url, name, save_location) {
+	async init(url, name, save_location,onUpdate) {
 		this.save_location = save_location;
+		this.extension = Download.get_extension(url);
 		this.final_file = path.join(save_location,name + this.extension);
 		this.url = url;
 		this.total_length = await Download.get_length(url);
-		this.extension = Download.get_extension(url);
 		this.name = name;
 		this.average_percentage = 0;
 		this.average_index = 0;
 		this.last_print = 0;
 		this.parts = [];
 		this.parts_done = 0;
+		this.onUpdate = onUpdate;
 		if (url_lib.parse(url).protocol === "http:") {
 			this.protocol = http;
 			this.port = "80";
@@ -47,7 +51,7 @@ class Download {
 
 	static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
 		// Remove everything to the last slash in URL
-		url = url.substr(1 + url.lastIndexOf("/"));
+		url = url.substr(1 + url.lastIndexOf("."));
 
 		// Break URL at ? and take first part (file name, extension)
 		url = url.split('?')[0];
@@ -56,7 +60,7 @@ class Download {
 		url = url.split('#')[0];
 
 		// Now we have only extension
-		return url;
+		return "."+url;
 	}
 
 	static async get_length(url) {
@@ -150,6 +154,12 @@ class Download {
 
 		if (this.average_percentage - this.last_print > 0.01) {
 			console.log(this.average_percentage);
+			this.onUpdate({
+				percentage: this.average_percentage,
+				size: this.total_length,
+				total_chunks: this.parts.length
+
+			});
 			this.last_print = this.average_percentage;
 		}
 	}
@@ -184,22 +194,26 @@ class Download {
 		await Promise.all(promises).then(function () {
 
 		});
-		return this
+		return this;
 	}
 
 	imDone() {
 		console.log(++this.parts_done + " of " + this.parts.length + " completed");
-
 		this.onUpdate({
-			percentage: this.average_percentage
+			percentage: this.average_percentage,
+			size: this.total_length,
+			chunks_done: this.parts_done
 		});
 	}
 
 	async combineParts_move_to_final() {
 		let final = fs.createWriteStream(this.final_file, {flags: 'a'});
-		for (const part of this.parts) {
-			await Download.pipeFileToWriteStream(part.file.path, final);
-		}
+		final.on('open',async () => {
+			for (const part of this.parts) {
+				await Download.pipeFileToWriteStream(part.file.path, final);
+			}
+		});
+
 		return this;
 	}
 	static async pipeFileToWriteStream(path, stream) {
@@ -269,8 +283,8 @@ class Part {
 }
 
 export default async function beginDownload(url, name, saveLocation, onUpdate) {
-	let download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')));
+	let download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')),onUpdate);
 	await download.createParts().download_all();
 	await download.combineParts_move_to_final();
-	await download.cleanup();
+	//await download.cleanup();
 }

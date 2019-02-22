@@ -3,36 +3,38 @@ import Tool from './tool';
 import Progress from './progress';
 
 import * as path from "path";
-import * as os from 'os';
+
 
 import beginDownload from '../download.js';
+
+const os = window.require('os');
 
 export default class Download extends React.Component {
 	constructor() {
 		super(...arguments);
 		this.state = {
 			url: arguments[0].url,
-			size: /*get size*/ "calculating",
+			size: /*get size*/ "Calculating...",
 			progress: /*calculate progress*/ 0,
 			timeStarted: Date.now(),
-			chunks: new Array(1).fill(0),
+			chunks_done: "0",
+			total_chunks: "Loading...",
 			chunkSize: 1024,
 			details: false,
 			fileName: this.props.name,
 			status: 0
 		};
-
 		this.download = beginDownload(this.state.url, this.state.fileName, path.join(window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads')), info => {
 			console.log(info);
 			this.setState({
-				progress: info.percentage,
-				size: info.size
+				progress: info.percentage*100,
+				size: info.size,
+				total_chunks: info.total_chunks,
+				chunks_done: info.chunks_done
 			});
 		});
 
-		this.download.then(res => {
-			console.log(res);
-		})
+
 		// while (!this.download.done && !this.download.failed) {
 		// 	this.setState({progress: this.download.percentage, totalChunks: this.download.totalChunks});
 		// 	console.log(this.download);
@@ -65,12 +67,13 @@ export default class Download extends React.Component {
 						<span
 							className="download-detail"><b>Estimated Time of completion: </b>{/*Calculate completion time*/}Today</span>
 						<span
-							className="download-detail"><b>Chunks downloaded: </b>{this.state.chunks.reduce((a, i) => a += i ? 1 : 0)} / {this.state.totalChunks}</span>
+							className="download-detail"><b>Chunks downloaded: </b>{this.state.chunks_done} of {this.state.total_chunks}</span>
 					</div>
 					: undefined
 				}
 
 				<Progress className={this.state.status === 1 ? "failed" : ""} value={this.state.progress} />
+				<Progress className={this.state.status === 1 ? "failed" : ""} value={(this.state.chunks_done/this.state.total_chunks)*100} />
 			</div>
 		);
 	}
