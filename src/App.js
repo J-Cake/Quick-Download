@@ -123,6 +123,34 @@ class App extends Component {
 
 	}
 
+	about() {
+		console.log(window.process.versions);
+		this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<div>
+			<ul className={"about-details"}>
+				<li>
+					<b>Node Version: </b>
+					<span>{window.process.versions.node}</span>
+				</li>
+				<li>
+					<b>Electron Version: </b>
+					<span>{window.process.versions.electron}</span>
+				</li>
+				<li>
+					<b>Chromium Version: </b>
+					<span>{window.process.versions.chrome}</span>
+				</li>
+				<li>
+					<b>V8 Version: </b>
+					<span>{window.process.versions.v8}</span>
+				</li>
+				<li>
+					<b>React Version: </b>
+					<span>{React.version}</span>
+				</li>
+			</ul>
+		</div>}/>)
+	}
+
 	// hello world
 
 	render() {
@@ -181,7 +209,7 @@ class App extends Component {
 							<div className={"submenu"}>
 								<label className={"menuTitle"}>Help</label>
 								<div className={"options"}>
-									<div className={"option"}>About</div>
+									<div className={"option"} onClick={() => this.about()}>About</div>
 									<div className={"option"}>Docs</div>
 								</div>
 							</div>

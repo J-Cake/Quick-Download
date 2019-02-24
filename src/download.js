@@ -1,4 +1,3 @@
-
 import * as url_lib from 'url';
 import * as TempFile from './tempfile';
 import * as os from 'os';
@@ -8,17 +7,8 @@ const http = window.require('http');
 const https = window.require('https');
 const fs = window.require('fs');
 
-
-/**
- * @var protocol
- * @var port
- */
 class Download {
-	constructor() {
-
-	}
-
-	async init(url, name, save_location,onUpdate) {
+	async init(url, name, save_location, onUpdate) {
 		this.save_location = save_location;
 		this.extension = Download.get_extension(url);
 		this.final_file = path.join(save_location,name + this.extension);
@@ -51,17 +41,18 @@ class Download {
 	}
 
 	static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
-		// Remove everything to the last slash in URL
-		url = url.substr(1 + url.lastIndexOf("."));
-
-		// Break URL at ? and take first part (file name, extension)
-		url = url.split('?')[0];
-
-		// Sometimes URL doesn't have ? but #, so we should also do the same for #
-		url = url.split('#')[0];
-
-		// Now we have only extension
-		return "."+url;
+		return `.${url.split('/').pop().split('.').pop()}`;
+	// 	// Remove everything to the last slash in URL
+	// 	url = url.substr(1 + url.lastIndexOf("."));
+	//
+	// 	// Break URL at ? and take first part (file name, extension)
+	// 	url = url.split('?')[0];
+	//
+	// 	// Sometimes URL doesn't have ? but #, so we should also do the same for #
+	// 	url = url.split('#')[0];
+	//
+	// 	// Now we have only extension
+	// 	return "."+url;
 	}
 
 	static async get_length(url) {
@@ -270,29 +261,33 @@ class Part {
 
 	async download_bytes() {
 		return await new Promise((resolve, reject) => {
-			const q = url_lib.parse(this.url);
-			this.download = this.protocol.get({
-				port: this.port,
-				protocol: q.protocol,
-				path: q.pathname,
-				host: q.hostname,
-				headers: {
-					'Range': `bytes=${this.from_byte}-${this.to_byte}`
-				}
-			}, res => {
-				res.on('data',  res => {
-					this.parent.madeProgress(Buffer.byteLength(res));
-					this.file.writeSync(res);
-					this.current_byte += res.length;
-					this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
-					this.parent.average_in(this.percent_done, this);
-				});
-				res.on('end', data => {
-					// console.log(data);
-					this.parent.imDone();
-					resolve();
-				});
-			})
+			try {
+				const q = url_lib.parse(this.url);
+				this.download = this.protocol.get({
+					port: this.port,
+					protocol: q.protocol,
+					path: q.pathname,
+					host: q.hostname,
+					headers: {
+						'Range': `bytes=${this.from_byte}-${this.to_byte}`
+					}
+				}, res => {
+					res.on('data',  res => {
+						this.parent.madeProgress(Buffer.byteLength(res));
+						this.file.writeSync(res);
+						this.current_byte += res.length;
+						this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
+						this.parent.average_in(this.percent_done, this);
+					});
+					res.on('end', data => {
+						// console.log(data);
+						this.parent.imDone();
+						resolve();
+					});
+				})
+			} catch (e) {
+				reject(e);
+			}
 		});
 	}
 	async cancel() {

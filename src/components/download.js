@@ -39,6 +39,8 @@ export default class Download extends React.Component {
 				status: info.done ? 2 : 0,
 				path: info.path
 			});
+
+			this.cancelDownload = info.cancel
 		}).catch(e => {
 			console.error(e);
 			this.setState({
@@ -46,10 +48,6 @@ export default class Download extends React.Component {
 			})
 		});
 	}
-
-	cancelDownload = async () =>  {
-		console.log(this.download.cancel);
-	};
 
 	toggleDetails() {
 		this.setState(prevState => ({details: !prevState.details}));
@@ -75,7 +73,7 @@ export default class Download extends React.Component {
 				</div>
 				{this.state.details ?
 					<div className="download-details">
-						<span className="final-location"><b>Final File Destination: </b>{this.state.path}</span>
+						<span className="download-detail"><b>Final File Destination: </b>{this.state.path}</span>
 						<span className="download-detail"><b>Source: </b>{this.state.url}</span>
 						<span className="download-detail"><b>Size: </b>{this.state.size} bytes</span>
 						<span

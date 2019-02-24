@@ -15,6 +15,7 @@
 
 .alert {
     max-width: 20cm;
+    min-width: 400px;
     position: fixed;
     background: rgb(36, 40, 44);
     color: #eeeeee;
