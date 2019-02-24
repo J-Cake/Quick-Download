@@ -23,6 +23,7 @@ class Download {
 		this.extension = Download.get_extension(url);
 		this.final_file = path.join(save_location,name + this.extension);
 		this.url = url;
+		this.progress = 0;
 		this.total_length = await Download.get_length(url);
 		this.name = name;
 		this.average_percentage = 0;
@@ -72,7 +73,7 @@ class Download {
 				host: q.hostname,
 				port: (q.protocol === "http:") ? 80 : 443
 			}, res => {
-				resolve(res.headers['content-length']);
+				resolve(Number(res.headers['content-length'] || "0"));
 			}).end();
 		});
 	}
@@ -144,7 +145,7 @@ class Download {
 		});
 	}
 
-	average_in(percent_done_input, from_part) {
+	average_in(percent_done_input) {
 		if (this.average_index === 4) {
 			this.average_index = 0;
 			this.average_index = 0;
@@ -153,13 +154,10 @@ class Download {
 		this.average_index += 1;
 
 		if (this.average_percentage - this.last_print > 0.01) {
-			console.log(this.average_percentage);
-			this.onUpdate({
-				percentage: this.average_percentage,
-				size: this.total_length,
-				total_chunks: this.parts.length
+			// console.log(this.average_percentage);
 
-			});
+			this.madeProgress(0);
+
 			this.last_print = this.average_percentage;
 		}
 	}
@@ -181,29 +179,39 @@ class Download {
 		return this;
 	}
 
-	async download_all() {
-		console.log("Downloading All Parts");
-		console.log("Num of parts: " + this.parts.length);
-		let promises = [];
-		for (let i = 0; i < this.parts.length; i++) {
-			promises.push(new Promise(async resolve => {
-				await this.parts[i].download_bytes();
-				resolve();
-			}));
-		}
-		await Promise.all(promises).then(function () {
+	madeProgress(amount, done) {
+		this.progress += amount;
 
+		// console.log(this.progress, this.total_length, this.parts);
+
+		this.onUpdate({
+			percentage: (this.progress / this.total_length) * 100,
+			average_percentage: this.average_percentage,
+			size: this.total_length,
+			chunks_done: this.parts_done,
+			done: done || false,
+			path: this.final_file
 		});
-		return this;
+	}
+
+	download_all() {
+		// console.log("Downloading All Parts");
+		// console.log("Num of parts: " + this.parts.length);
+		return new Promise((resolve, reject) => {
+			const promises = [];
+			for (let i = 0; i < this.parts.length; i++) {
+				promises.push(new Promise(async resolve => {
+					await this.parts[i].download_bytes();
+					resolve();
+				}));
+			}
+			Promise.all(promises).then(() => resolve(this)).catch(err => reject(err));
+		});
 	}
 
 	imDone() {
 		console.log(++this.parts_done + " of " + this.parts.length + " completed");
-		this.onUpdate({
-			percentage: this.average_percentage,
-			size: this.total_length,
-			chunks_done: this.parts_done
-		});
+		this.madeProgress(0);
 	}
 
 	async combineParts_move_to_final() {
@@ -230,6 +238,13 @@ class Download {
 		}
 	}
 
+	async cancel() {
+		for (const part of this.parts) {
+			part.cancel(); // complete download cancellation
+
+		}
+	}
+
 }
 
 class Part {
@@ -240,7 +255,7 @@ class Part {
 		this.current_byte = parseInt(from_byte);
 		this.stop_byte = parseInt(to_byte);
 		this.file = new TempFile.TmpFile(Date.now()+from_byte);
-		console.log(this.file.path);
+		// console.log(this.file.path);
 		this.percent_done = 0;
 		this.parent = parent;
 		if (url_lib.parse(url).protocol === "http:") {
@@ -250,12 +265,14 @@ class Part {
 			this.protocol = https;
 			this.port = "443";
 		}
+
+		this.download = null
 	};
 
 	async download_bytes() {
-		return await new Promise(resolve => {
+		return await new Promise((resolve, reject) => {
 			const q = url_lib.parse(this.url);
-			this.protocol.get({
+			this.download = this.protocol.get({
 				port: this.port,
 				protocol: q.protocol,
 				path: q.pathname,
@@ -264,18 +281,23 @@ class Part {
 					'Range': `bytes=${this.from_byte}-${this.to_byte}`
 				}
 			}, res => {
-				res.on('data',  (res) => {
+				res.on('data',  res => {
+					this.parent.madeProgress(Buffer.byteLength(res));
 					this.file.writeSync(res);
 					this.current_byte += res.length;
 					this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
 					this.parent.average_in(this.percent_done, this);
 				});
-				res.on('end', () => {
+				res.on('end', data => {
+					// console.log(data);
 					this.parent.imDone();
 					resolve();
 				});
 			})
 		});
+	}
+	async cancel() {
+		this.download.abort();
 	}
 	async cleanup() {
 		this.file.deleteSync();
@@ -283,8 +305,10 @@ class Part {
 }
 
 export default async function beginDownload(url, name, saveLocation, onUpdate) {
-	let download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')),onUpdate);
+	const download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), onUpdate);
 	await download.createParts().download_all();
 	await download.combineParts_move_to_final();
+	download.madeProgress(0, true);
 	//await download.cleanup();
+	// TODO: Fix major bug: the file isn't complete. Would suck to become unpopular because of this...
 }

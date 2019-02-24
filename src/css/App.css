@@ -76,10 +76,22 @@ header {
     background: rgba(36, 40, 44, 0.9);
     font-weight: 300 !important;
     position: relative;
+    transition: 0.45s ease;
     margin: 10px;
 }
 b {
     font-weight: 900;
+}
+
+.download.done {
+    background: #00ca56;
+}
+.download.failed {
+    background: #b81d27;
+}
+
+.download.done *, .download.failed * {
+    color: #3c434b;
 }
 
 .download .download-details {
@@ -90,6 +102,10 @@ b {
     margin: 0 10px;
     display: block;
     color: #aaa;
+}
+
+.download.done .download-detail, .download.failed .download-detail {
+    color: #66727f;
 }
 
 .download .header {
@@ -109,6 +125,30 @@ b {
     color: #eee;
 }
 
+.download.done .header h2, .download.failed .header h2 {
+    color: #181b1e;
+}
+
+.progress-bar > .progress-visual {
+    position: absolute;
+    top: -15px;
+    font-size: 15px;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.progress-bar > .progress-visual > span {
+    width: 40px;
+    height: 40px;
+    display: block;
+    position: relative;
+    line-height: 30px;
+    padding: 5px;
+    background: #b4c9e0;
+    box-shadow: 0 0 3px 0 #3e444b;
+    border-radius: 100px;
+}
+
 .progress-bar {
     width: 100%;
     margin-top: 5px;
@@ -124,14 +164,21 @@ b {
     position: relative;
     display: block;
     height: 100%;
+    overflow: hidden;
+}
+.progress-bar-wrapper.failed .progress-bar-inner {
+    background: #b81d27;
+}
+.progress-bar.container {
+    display: flex;
 }
 .progress-bar-inner {
     background: cornflowerblue;
     display: block;
     position: relative;
     height: 100%;
-    border-radius: inherit;
-    transition: 0.2s ease;
+    /*border-radius: inherit;*/
+    transition: 400ms ease;
 }
 .progress-bar-wrapper .chunk {
     background: rgba(126, 128, 133, 0.8);
