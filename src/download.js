@@ -163,12 +163,11 @@ class Download {
 	}
 
 	createParts() {
-		/* let num_of_parts_to_create = parseInt(Download.download_speed() / Download.throttled_speed(this.url)) - 1;
+		/* let num_of_parts_to_create = parseInt( Download.download_speed() / Download.throttled_speed(this.url)) - 1;
 		this.totalParts = num_of_parts_to_create;
 		if (num_of_parts_to_create <= 0) {
 			num_of_parts_to_create = 1;
-		}
-		*/
+		} */
 		let num_of_parts_to_create = 10;
 		let last_int = -1;
 		for (let i = 0; i < num_of_parts_to_create; i++) {
@@ -183,7 +182,7 @@ class Download {
 		this.progress += amount;
 
 		// console.log(this.progress, this.total_length, this.parts);
-
+		//console.log((this.progress / this.total_length) * 100);
 		this.onUpdate({
 			percentage: (this.progress / this.total_length) * 100,
 			average_percentage: this.average_percentage,
@@ -214,23 +213,23 @@ class Download {
 		this.madeProgress(0);
 	}
 
-	async combineParts_move_to_final() {
-		let final = fs.createWriteStream(this.final_file, {flags: 'a'});
-		final.on('open',async () => {
-			for (const part of this.parts) {
-				await Download.pipeFileToWriteStream(part.file.path, final);
-			}
-		});
-
-		return this;
-	}
-	static async pipeFileToWriteStream(path, stream) {
-		return await new Promise((resolve, reject) => {
-			const r = fs.createReadStream(path);
-			r.on('close', resolve);
-			r.on('error', reject);
-			r.pipe(stream);
-		});
+	 combineParts_move_to_final() {
+		return new Promise((resolve => {
+			let final = fs.createWriteStream(this.final_file, {flags: 'a'});
+			final.on('finish',resolve);
+			final.on('open',async () => {
+				for (const part of this.parts) {
+					console.log(part.file.path);
+					await new Promise((resolve,reject)=>{
+						const r = fs.createReadStream(part.file.path);
+						r.on('close', resolve);
+						r.on('error', (err)=>{console.log(err)});
+					    r.pipe(final,{end:false});
+					});
+				}
+				final.end();
+			});
+		}));
 	}
 	async cleanup(){
 		for (const part of this.parts) {
@@ -308,7 +307,6 @@ export default async function beginDownload(url, name, saveLocation, onUpdate) {
 	const download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), onUpdate);
 	await download.createParts().download_all();
 	await download.combineParts_move_to_final();
+	await download.cleanup();
 	download.madeProgress(0, true);
-	//await download.cleanup();
-	// TODO: Fix major bug: the file isn't complete. Would suck to become unpopular because of this...
 }

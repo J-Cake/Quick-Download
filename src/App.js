@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import './css/App.css';
 import './css/box.css';
 
-import * as Mousetrap from "Mousetrap";
+import * as Mousetrap from "mousetrap";
 
 import Tool from './components/tool';
 import Download from './components/download';
