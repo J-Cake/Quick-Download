@@ -159,7 +159,7 @@ class Download {
 		if (num_of_parts_to_create <= 0) {
 			num_of_parts_to_create = 1;
 		} */
-		let num_of_parts_to_create = 10;
+		let num_of_parts_to_create = 100;
 		let last_int = -1;
 		for (let i = 0; i < num_of_parts_to_create; i++) {
 			let to_byte = parseInt((this.total_length / num_of_parts_to_create) * (i + 1));

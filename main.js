@@ -8,7 +8,11 @@ async function createWindow () {
 
 	mainWindow.loadFile('./public/loading.html');
 
-	mainWindow.setMenu(null);
+	// mainWindow.setMenu({
+	// 	File: {
+	//
+	// 	}
+	// });
 
 	mainWindow.webContents.openDevTools();
 	mainWindow.frame = withFrame;

@@ -1,0 +1,50 @@
+.settings {
+    position: fixed;
+    top: 50px;
+    overflow: auto;
+    max-height: calc(100vh - 75px);
+    z-index: 100000;
+    transform: translateX(-50%);
+}
+
+.checkbox {
+    display: flex;
+}
+
+.checkbox .indicator {
+    display: block;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: 2px solid #4f5660;
+    border-radius: 4px;
+    transition: 0.125s;
+    position: absolute;
+    right: 20px;
+}
+
+.checkbox .indicator.checked {
+    background: #4f5660;
+}
+
+.settings header {
+    box-shadow: none;
+    height: auto !important;
+}
+
+label {
+    font-size: 9pt;
+}
+
+.setting {
+    display: flex;
+    border-bottom: 1px solid #4f5660;
+    margin: 12px 0;
+}
+.setting input[type="checkbox"], .setting input[type="radio"] {
+    min-width: auto;
+    position: absolute;
+    right: 20px;
+    margin-top: 3px;
+}

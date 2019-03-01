@@ -1,18 +1,29 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
 import './css/App.css';
 import './css/box.css';
+import './css/settings.css';
 
-import * as Mousetrap from "mousetrap";
+import * as Mousetrap from "Mousetrap";
 
 import Tool from './components/tool';
 import Download from './components/download';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils'
+// import * as path from "path";
+// import * as os from "os";
+
+const path = window.require('path');
+const os = window.require('os');
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
+
+window.localStorage.theme = window.localStorage.theme || "dark";
+window.localStorage.saveLocation = window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads');
+window.localStorage.proxySettings = window.localStorage.proxySettings || "none";
+window.localStorage.proxyRequiresCredentials = window.localStorage.proxyRequiresCredentials || false;
 
 let platform = remote.require('os').platform();
 
@@ -20,7 +31,6 @@ if (platform !== "win32" && platform !== "darwin")
 	platform = "other";
 
 class App extends Component {
-	settingsVisible = true;
 
 	constructor(...args) {
 		super(...args);
@@ -31,7 +41,8 @@ class App extends Component {
 			promptShowing: false,
 			downloadName: "",
 			downloadURL: "",
-			boxes: []
+			boxes: [],
+			settingsVisible: false
 		};
 	}
 
@@ -52,7 +63,10 @@ class App extends Component {
 
 	beginDownload() {
 		if (this.state.downloadURL) {
-			this.setState({downloads: [...this.state.downloads, <Download key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]});
+			this.setState({
+				downloads: [...this.state.downloads,
+					<Download key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]
+			});
 			this.closePrompt();
 
 			if (!this.state.stopSave)
@@ -91,7 +105,15 @@ class App extends Component {
 			Mousetrap.bind('ctrl+j', () => this.pastDownloads());
 			Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
 		} catch (e) {
-			this.alert(<Alert key={new Date().toLocaleString()} header={"An error has occurred"} body={"A dependency has failed to load, keyboard shortcuts will be disabled. Otherwise, everything else should work."}/>)
+			this.alert(<Alert key={new Date().toLocaleString()} header={"An error has occurred"}
+			                  body={"A dependency has failed to load, keyboard shortcuts will be disabled. Otherwise, everything else should work."}/>)
+		}
+
+		window.App = {
+			show: () => this.showPrompt(),
+			close: () => App.confirmExit(),
+			toggleFullScreen: () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()),
+			about: () => this.about()
 		}
 	}
 
@@ -160,60 +182,71 @@ class App extends Component {
 				<div className="App">
 					<header>
 						<Tool shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
-						<div className={"menu"}>
-							<div className={"submenu"}>
-								<label className={"menuTitle"}>File</label>
-								<div className={"options"}>
-									<div onClick={e => this.showPrompt()} className={"option"}>
-										New Download
-										<div className={"accelerator"}>
-											{platform === "darwin" ? "Cmd+N" : "Ctrl+N"}
+						<Tool shortcut="+"
+						      onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
+						      icon={"fas fa-cog"}/>
+						{platform === "win32" ?
+							<div className={"menu"}>
+								<div className={"submenu"}>
+									<label className={"menuTitle"}>File</label>
+									<div className={"options"}>
+										<div onClick={e => this.showPrompt()} className={"option"}>
+											New Download
+											<div className={"accelerator"}>
+												{platform === "darwin" ? "Cmd+N" : "Ctrl+N"}
+											</div>
 										</div>
-									</div>
-									<div className={"option"}>
-										Show Past Downloads
-										<div className={"accelerator"}>
-											{platform === "darwin" ? "Cmd+J" : "Ctrl+J"}
+										<div className={"option"}>
+											Show Past Downloads
+											<div className={"accelerator"}>
+												{platform === "darwin" ? "Cmd+J" : "Ctrl+J"}
+											</div>
 										</div>
-									</div>
-									<hr/>
-									<div onClick={() => App.confirmExit()} className={"option"}>
-										Exit
-										<div className={"accelerator"}>
-											{platform === "darwin" ? "Cmd+W" : "Ctrl+W"}
+										<hr/>
+										<div onClick={() => App.confirmExit()} className={"option"}>
+											Exit
+											<div className={"accelerator"}>
+												{platform === "darwin" ? "Cmd+W" : "Ctrl+W"}
+											</div>
+										</div>
+										<div
+											onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
+											className={"option"}>
+											Open Settings
 										</div>
 									</div>
 								</div>
-							</div>
-							<div className={"submenu"}>
-								<label className={"menuTitle"}>View</label>
-								<div className={"options"}>
-									<div className={"option"}>
-										<div className={"submenu"}>
-											<label className={"menuTitle"}>Theme</label>
-											<div className={"options"}>
-												<div className={"option"}>
-													Dark
+								<div className={"submenu"}>
+									<label className={"menuTitle"}>View</label>
+									<div className={"options"}>
+										<div className={"option"}>
+											<div className={"submenu"}>
+												<label className={"menuTitle"}>Theme</label>
+												<div className={"options"}>
+													<div className={"option"}>
+														Dark
+													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-									<div className={"option"} onClick={() => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen())}>
-										Full Screen
-										<div className={"accelerator"}>
-											F11
+										<div className={"option"}
+										     onClick={() => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen())}>
+											Full Screen
+											<div className={"accelerator"}>
+												F11
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-							<div className={"submenu"}>
-								<label className={"menuTitle"}>Help</label>
-								<div className={"options"}>
-									<div className={"option"} onClick={() => this.about()}>About</div>
-									<div className={"option"}>Docs</div>
+								<div className={"submenu"}>
+									<label className={"menuTitle"}>Help</label>
+									<div className={"options"}>
+										<div className={"option"} onClick={() => this.about()}>About</div>
+										<div className={"option"}>Docs</div>
+									</div>
 								</div>
-							</div>
-						</div>
+							</div> : null
+						}
 					</header>
 
 					<div className="downloads">
@@ -257,10 +290,143 @@ class App extends Component {
 						</div>
 						: undefined
 					}
+					{this.state.settingsVisible ?
+						<div className={"prompt settings"}>
+							<header>
+								<h1>Settings</h1>
+								<div className={"right-align"}>
+									<Tool className={"prompt-close-btn"} icon={"fas fa-times"}
+									      onClick={e => this.setState({settingsVisible: false})}/>
+
+								</div>
+							</header>
+
+							<h2>Appearance</h2>
+							<div className={"settings-group"}>
+								<div className={"setting"}>
+									<label htmlFor="dark">Dark Theme</label>
+									<input
+										onChange={field => window.localStorage.theme = field.target.value === "on" ? "dark" : "light"}
+										aria-selected={window.localStorage.getItem('theme') === 'dark'}
+										className={"theme"}
+										name={"theme"} id={"dark"} type={"radio"}/>
+								</div>
+								<div className={"setting"}>
+									<label htmlFor="light">Light Theme</label>
+									<input
+										onChange={field => window.localStorage.theme = field.target.value === "on" ? "light" : "dark"}
+										aria-selected={window.localStorage.getItem('theme') === 'light'}
+										className={"theme"}
+										name={"theme"} id={"light"} type={"radio"}/>
+								</div>
+							</div>
+
+							<br/>
+							<h2>General</h2>
+							<input onChange={field => window.localStorage.saveLocation = field.target.value} type="file"
+							       webkitdirectory="" directory="" id={"save-location"}/>
+							<label htmlFor={"save-location"}>Save Location</label>
+
+							<br/>
+							<br/>
+							<h2>Network</h2>
+
+							<div className={"setting"}>
+								<label htmlFor={"none"}>None</label>
+								<input type={"radio"} name={"proxy-auth-type"}
+								       checked={window.localStorage.getItem('proxySettings') === 'none'} id={"none"}
+								       onChange={field => {
+									       if (field.target.value === "on") window.localStorage.setItem('proxySettings', 'none');
+									       this.forceUpdate();
+								       }}/>
+							</div>
+
+							<div className={"setting"}>
+								<label htmlFor={"none"}>Pac Script</label>
+								<input type={"radio"} name={"proxy-auth-type"}
+								       checked={window.localStorage.getItem('proxySettings') === 'pac'} id={"pac"}
+								       onChange={field => {
+									       if (field.target.value === "on") window.localStorage.setItem('proxySettings', 'pac');
+									       this.forceUpdate();
+								       }}/>
+							</div>
+
+							<div className={"setting"}>
+								<label htmlFor={"none"}>With Credentials</label>
+								<input type={"radio"}
+								       name={"proxy-auth-type"}
+								       checked={window.localStorage.getItem('proxySettings') === 'auth'} id={"auth"}
+								       onChange={field => {
+									       if (field.target.value === "on") window.localStorage.setItem('proxySettings', 'auth');
+									       this.forceUpdate();
+								       }}/>
+							</div>
+
+							{
+								window.localStorage.getItem('proxySettings') === "pac" ?
+									<div><input placeholder={"https://example.com/proxy/proxy.pac"}
+									            onChange={field => window.localStorage.setItem('pacFile', field.target.value)}
+									            id={"pac-location"}/><label htmlFor={"pac-location"}>Pac Script
+										Location</label></div> :
+									(window.localStorage.getItem('proxySettings') === "auth" ? (
+										<div>
+											<input placeholder={"proxy.example.com"}
+											       value={window.localStorage.getItem('proxyHost')}
+											       onChange={field => window.localStorage.setItem('proxyHost', field.target.value)}
+											       id={"proxy-host"}/>
+											<label htmlFor={"proxy-host"}>Proxy Host</label>
+
+											<input placeholder={8080}
+											       type={"number"}
+											       value={window.localStorage.getItem('proxyPort') || "80"}
+											       onChange={field => window.localStorage.setItem('proxyPort', field.target.value)}
+											       id={"proxy-port"}/>
+											<label htmlFor={"proxy-port"}>Proxy Port</label>
+
+											<Checkbox checked={window.localStorage.getItem('proxyRequiresCredentials')}
+											          onChange={value => void window.localStorage.setItem("proxyRequiresCredentials", value) || this.forceUpdate()}
+											          text={"Proxy Requires Credentials"}/>
+
+											{
+												window.localStorage.getItem('proxyRequiresCredentials') ? <div>
+													<input placeholder={"Proxy Username"}
+													       onChange={field => window.localStorage.proxyUsername = field.target.value}
+													       value={window.localStorage.proxyUsername}
+													       id={"proxy-username"}/>
+													<input placeholder={"Proxy Password"} type={"password"}
+													       onChange={field => window.localStorage.proxyPassword = field.target.value}
+													       value={window.localStorage.proxyPassword}
+													       id={"proxy-password"}/>
+
+												</div> : null
+											}
+
+										</div>
+									) : null)
+							}
+
+						</div>
+						: null}
 				</div>
 				<div className={"box-display-area"}>
 					{this.state.boxes}
 				</div>
+			</div>
+		);
+	}
+}
+
+class Checkbox extends React.Component {
+	state = {
+		checked: this.props.checked || 0
+	};
+
+	render() {
+		return (
+			<div className={"checkbox"}
+			     onClick={() => !(void this.setState(prev => ({checked: !prev.checked}))) && this.props.onChange(!this.state.checked)}>
+				<span className={"label"}>{this.props.text}</span>
+				<span className={"indicator" + (this.state.checked ? " checked" : "")}/>
 			</div>
 		);
 	}

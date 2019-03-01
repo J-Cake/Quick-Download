@@ -1,0 +1,21 @@
+TODO: Loading animation
+TODO: Title isn't centered
+TODO: Mac Nav buttons need padding on top
+TODO: The Menu is weirdly layed out, make menu native on Mac
+TODO: Nav Icons don't load on Mac
+TODO: Center tool buttons
+TODO: Fullscreen doesn't work
+TODO: Packaged name needs updating
+TODO: Suggestions need improvement, arrow key navigation, remove suggestions that don't fit the content of the bar
+TODO: Give miminum size
+TODO: Keyboard shortcuts don't work
+TODO: Past Downloads don't work
+TODO: Make prompt centered
+TODO: Speed up native operations
+TODO: Native notifications when download is completed
+TODO: Native progress bar (most recent download)
+TODO: x should minimise instead of close
+TODO: Automatic updates
+TODO: extra menu items: Contact Devs, Licensing Info, Report Bug
+TODO: IMPORTANT: Change download destination
+TODO: Add proxy settings

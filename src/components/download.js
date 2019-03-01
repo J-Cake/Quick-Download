@@ -41,6 +41,7 @@ export default class Download extends React.Component {
 			});
 
 			this.cancelDownload = info.cancel
+
 		}).catch(e => {
 			console.error(e);
 			this.setState({
@@ -54,7 +55,7 @@ export default class Download extends React.Component {
 	}
 
 	open() {
-		shell.openItem(this.state.path);
+		shell.showItemInFolder(this.state.path);
 	}
 
 	render() {
@@ -68,7 +69,13 @@ export default class Download extends React.Component {
 						{this.state.status === 1 ?
 							<Tool className="retry" onClick={e => this.startDownload()} icon={"fas fa-redo-alt"} /> : null}
 						<Tool className="show-download-details" onClick={e => this.toggleDetails()} icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"} />
-						<Tool className="download-cancel-btn" onClick={e => this.cancelDownload(this)} icon={"fas fa-times"} />
+						<Tool className="download-cancel-btn" onClick={e => {
+							try {
+								this.cancelDownload(this);
+							} catch (e) {
+								delete this.download;
+							}
+						}} icon={"fas fa-times"} />
 					</div>
 				</div>
 				{this.state.details ?
