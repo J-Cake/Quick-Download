@@ -27,7 +27,7 @@ Using HTTP Byte Requests, Quick Downloader splits the download up into parts and
 
 ## TODO
 
-- [ ] Figure why it still works really well when their is no throttling and no CDN (We have no clue)
+- [ ] Figure why it still works really well when there is no throttling and no CDN (We have no clue)
 - [ ] Auto calculate most efficient number of parts
 - [ ] Make better code
 
