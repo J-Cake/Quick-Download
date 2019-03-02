@@ -39,12 +39,61 @@ label {
 
 .setting {
     display: flex;
-    border-bottom: 1px solid #4f5660;
+    /*border-bottom: 1px solid #4f5660;*/
     margin: 12px 0;
 }
 .setting input[type="checkbox"], .setting input[type="radio"] {
     min-width: auto;
     position: absolute;
     right: 20px;
-    margin-top: 3px;
+    margin-top: -5px;
+}
+
+input[type="file"] {
+    overflow: hidden;
+    text-wrap: none;
+    z-index: -1;
+    border: none;
+}
+
+label.saveLocation {
+    display: block;
+    padding: 9px;
+    border: 2px solid #4f5660;
+    box-sizing: border-box;
+    color: #eee;
+    border-radius: 7px;
+    font-size: 11pt;
+    margin: 10px 0;
+    min-width: 15cm;
+    user-select: text;
+    background: inherit;
+    /*position: absolute;*/
+    cursor: pointer;
+}
+
+/*input[type="file"]:focus ~ label.saveLocation, label.saveLocation:focus, input[type="file"]:active ~ label.saveLocation, label.saveLocation:active {*/
+    /*border-color: #b4c9e0;*/
+/*}*/
+
+input[type="file"] + label {
+    border: none;
+    background: transparent;
+    color: #b4c9e0;
+}
+
+input[type="radio"] {
+    -webkit-appearance: none;
+    border-radius: 30px;
+    width: 10px;
+    height: 10px;
+    transition: 0.125s;
+}
+input[type="radio"]:checked {
+    background: #4f5660;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    display: none !important;
 }

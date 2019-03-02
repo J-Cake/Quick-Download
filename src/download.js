@@ -8,7 +8,7 @@ const https = window.require('https');
 const fs = window.require('fs');
 
 class Download {
-	async init(url, name, save_location, onUpdate) {
+	async init(url, name, save_location, parts, onUpdate) {
 		this.save_location = save_location;
 		this.extension = Download.get_extension(url);
 		this.final_file = path.join(save_location,name + this.extension);
@@ -22,6 +22,7 @@ class Download {
 		this.parts = [];
 		this.parts_done = 0;
 		this.onUpdate = onUpdate;
+		this.numOfParts = parts || 10;
 		if (url_lib.parse(url).protocol === "http:") {
 			this.protocol = http;
 			this.port = "80";
@@ -159,10 +160,10 @@ class Download {
 		if (num_of_parts_to_create <= 0) {
 			num_of_parts_to_create = 1;
 		} */
-		let num_of_parts_to_create = 100;
+		this.num_of_parts_to_create = this.numOfParts || 10;
 		let last_int = -1;
-		for (let i = 0; i < num_of_parts_to_create; i++) {
-			let to_byte = parseInt((this.total_length / num_of_parts_to_create) * (i + 1));
+		for (let i = 0; i < this.num_of_parts_to_create; i++) {
+			let to_byte = parseInt((this.total_length / this.num_of_parts_to_create) * (i + 1));
 			this.parts.push(new Part(this.url, last_int + 1, to_byte, this));
 			last_int = to_byte;
 		}
@@ -179,6 +180,7 @@ class Download {
 			average_percentage: this.average_percentage,
 			size: this.total_length,
 			chunks_done: this.parts_done,
+			total_chunks: this.num_of_parts_to_create,
 			done: done || false,
 			path: this.final_file
 		});
@@ -298,8 +300,8 @@ class Part {
 	}
 }
 
-export default async function beginDownload(url, name, saveLocation, onUpdate) {
-	const download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), onUpdate);
+export default async function beginDownload(url, name, saveLocation, parts, onUpdate) {
+	const download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), parts, onUpdate);
 	await download.createParts().download_all();
 	await download.combineParts_move_to_final();
 	await download.cleanup();

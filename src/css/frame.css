@@ -85,7 +85,7 @@
 .titlebar.darwin, .drag-region.darwin {
     height: 20px;
     width: 100vw;
-    padding: 0;
+    padding: 2px 0 0 0;
 }
 .drag-region.darwin {
     display: flex;
@@ -207,6 +207,9 @@
     padding: 5px;
     min-width: 250px;
     max-width: 600px;
+    margin-left: 0;
+
+    /*margin-top: 12pt;*/
 
     text-overflow-ellipsis: ellipsis;
 
@@ -231,6 +234,8 @@
     color: #eee;
 
     overflow: visible;
+
+    /*display: flex;*/
 }
 .submenu > .menuTitle {
     display: block;
@@ -245,6 +250,13 @@
 
 .menu .submenu:hover > .options {
     display: block;
+}
+
+.options {
+    position: relative;
+
+    display: block;
+    margin-left: 20px;
 }
 
 hr {

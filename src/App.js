@@ -4,7 +4,7 @@ import './css/App.css';
 import './css/box.css';
 import './css/settings.css';
 
-import * as Mousetrap from "Mousetrap";
+// import * as Mousetrap from "Mousetrap";
 
 import Tool from './components/tool';
 import Download from './components/download';
@@ -17,6 +17,8 @@ import {$} from './components/utils'
 const path = window.require('path');
 const os = window.require('os');
 
+const Mousetrap = window.require('mousetrap');
+
 const _electron = window.require('electron');
 const remote = _electron.remote;
 
@@ -24,6 +26,7 @@ window.localStorage.theme = window.localStorage.theme || "dark";
 window.localStorage.saveLocation = window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads');
 window.localStorage.proxySettings = window.localStorage.proxySettings || "none";
 window.localStorage.proxyRequiresCredentials = window.localStorage.proxyRequiresCredentials || false;
+window.localStorage.partsToCreate = window.localStorage.partsToCreate || 10;
 
 let platform = remote.require('os').platform();
 
@@ -42,7 +45,8 @@ class App extends Component {
 			downloadName: "",
 			downloadURL: "",
 			boxes: [],
-			settingsVisible: false
+			settingsVisible: false,
+			currentSelection: 0
 		};
 	}
 
@@ -58,7 +62,7 @@ class App extends Component {
 	}
 
 	closePrompt() {
-		this.setState({promptShowing: false});
+		this.setState({downloadName: "", downloadURL: "", promptShowing: false});
 	}
 
 	beginDownload() {
@@ -78,6 +82,22 @@ class App extends Component {
 		}
 	}
 
+	changeSelection(dir) {
+		if (this.state.focused) {
+			console.log(dir);
+			if (this.state.focused.classList.contains('dl-name'))
+				this.setState(prev => {
+					const maxSelection = this.getDownloadNames().length;
+					return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
+				});
+			else if (window.activeElement.classList.contains('dl-url'))
+				this.setState(prev => {
+					const maxSelection = this.getDownloadUrls().length;
+					return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
+				});
+		}
+	}
+
 	static addToDownloadHistory(url, name) {
 		const _downloadHistory = JSON.parse(window.localStorage.downloadHistory);
 		_downloadHistory.push({url, name});
@@ -85,12 +105,14 @@ class App extends Component {
 		window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
 	}
 
-	static getDownloadNames() {
-		return JSON.parse(window.localStorage.downloadHistory).map(i => i.name);
+	getDownloadNames() {
+		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
+		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name).toLowerCase().indexOf((this.state.downloadName).toLowerCase()) >= 0).map(i => i.name);
 	}
 
-	static getDownloadUrls() {
-		return JSON.parse(window.localStorage.downloadHistory).map(i => i.url);
+	getDownloadUrls() {
+		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
+		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.url).toLowerCase().indexOf((this.state.downloadURL).toLowerCase()) >= 0).map(i => i.url);
 	}
 
 	componentDidMount() {
@@ -98,12 +120,18 @@ class App extends Component {
 			window.localStorage.downloadHistory = JSON.stringify([]);
 
 		try {
-			Mousetrap.bind('ctrl+n', () => this.showPrompt());
+			Mousetrap.bind('mod+n', () => this.showPrompt());
 			Mousetrap.bind('esc', () => {
 				this.closePrompt();
 			});
-			Mousetrap.bind('ctrl+j', () => this.pastDownloads());
+			Mousetrap.bind('mod+j', () => this.pastDownloads());
 			Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
+
+			Mousetrap.bind('up', () => this.changeSelection(-1) || false);
+			Mousetrap.bind('down', () => this.changeSelection(1) || false);
+			Mousetrap.bind('enter', () => {
+				if (this.state.promptShowing) this.acceptSuggestion(this.state.currentSelection)
+			});
 		} catch (e) {
 			this.alert(<Alert key={new Date().toLocaleString()} header={"An error has occurred"}
 			                  body={"A dependency has failed to load, keyboard shortcuts will be disabled. Otherwise, everything else should work."}/>)
@@ -111,15 +139,31 @@ class App extends Component {
 
 		window.App = {
 			show: () => this.showPrompt(),
+			showPastDownloads: () => this.pastDownloads(),
 			close: () => App.confirmExit(),
 			toggleFullScreen: () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()),
 			about: () => this.about()
-		}
+		};
+
+		// _electron.remote.getCurrentWindow().setMenu;
+		_electron.remote.getCurrentWindow().setMenu(_electron.remote.Menu.buildFromTemplate([{
+			label: "File",
+			submenu: [{label: "New Download", click: window.App.show}, {
+				label: "Show Past Downloads",
+				click: window.App.showPastDownloads
+			}, {type: "separator"}, {label: "Exit", click: window.App.close}, {
+				label: "Open Settings",
+				click: () => this.showSettings()
+			}]
+		}, {
+			label: "View",
+			submenu: [{label: "Theme", submenu: [{label: "Dark"}, {label: "Light"}, {role: "togglefullscreen"}]}]
+		}, {label: "Help", submenu: [{label: "About", click: window.App.about}, {label: "Docs"}]}]));
 	}
 
 	acceptSuggestion(number) {
-		const names = App.getDownloadNames(),
-			urls = App.getDownloadUrls();
+		const names = this.getDownloadNames(),
+			urls = this.getDownloadUrls();
 
 		this.setState({
 			downloadURL: urls[number],
@@ -131,6 +175,12 @@ class App extends Component {
 		});
 
 		$('.suggestions').style.display = "none";
+
+		this.setState({
+			currentSelection: 0,
+			focused: null
+		})
+		// $(".confirm-btn").focus();
 	}
 
 	showSettings() {
@@ -145,8 +195,12 @@ class App extends Component {
 
 	}
 
+	changePath() {
+		window.localStorage.saveLocation = _electron.ipcRenderer.sendSync('pickDir');
+		this.forceUpdate();
+	}
+
 	about() {
-		console.log(window.process.versions);
 		this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<div>
 			<ul className={"about-details"}>
 				<li>
@@ -185,7 +239,7 @@ class App extends Component {
 						<Tool shortcut="+"
 						      onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
 						      icon={"fas fa-cog"}/>
-						{platform === "win32" ?
+						{platform !== "darwin" ?
 							<div className={"menu"}>
 								<div className={"submenu"}>
 									<label className={"menuTitle"}>File</label>
@@ -226,6 +280,9 @@ class App extends Component {
 													<div className={"option"}>
 														Dark
 													</div>
+													<div className={"option"}>
+														Light
+													</div>
 												</div>
 											</div>
 										</div>
@@ -252,7 +309,7 @@ class App extends Component {
 					<div className="downloads">
 						{this.state.downloads}
 					</div>
-
+					{/* ------------------------------------------------------------------------------------------------New Download Prompt------------------------------------------------------------------------------------------------ */}
 					{this.state.promptShowing ?
 						<div className="prompt">
 							<div className={"right-align"}>
@@ -262,23 +319,30 @@ class App extends Component {
 
 							<div className={"formItem"}>
 								<label htmlFor={"dl-name"}>The file name of the download</label>
-								<input value={this.state.downloadName}
+								<input autoFocus={true} onFocus={field => this.setState({focused: field.target})}
+								       onBlur={() => this.setState({focused: null})}
+								       value={this.state.downloadName}
 								       onChange={e => this.setState({downloadName: e.target.value})}
-								       className={"dl-name"} id={"dl-name"} placeholder={"Download Name"}/>
+								       className={"mousetrap dl-name"} id={"dl-name"} placeholder={"Download Name"}/>
 								<div className={"suggestions"}>
-									{App.getDownloadNames().map((i, a) => <div key={a} className={"suggestion"}><span
+									{this.getDownloadNames().map((i, a) => <div key={a}
+									                                            className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
 										onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
 								</div>
 							</div>
 
 							<div className={"formItem"}>
 								<label htmlFor={"dl-url"}>The location of the file to download</label>
-								<input value={this.state.downloadURL}
+								<input onFocus={field => this.setState({focused: field.target})}
+								       onBlur={() => this.setState({focused: null})}
+								       value={this.state.downloadURL}
 								       onChange={e => this.setState({downloadURL: e.target.value})}
-								       className={"url" + " " + this.state.required ? "required" : ""} id={"dl-url"}
+								       className={"mousetrap url" + " " + this.state.required ? "required" : ""}
+								       id={"dl-url"}
 								       placeholder={"Download URL"}/>
 								<div className={"suggestions"}>
-									{App.getDownloadUrls().map((i, a) => <div key={a} className={"suggestion"}><span
+									{this.getDownloadUrls().map((i, a) => <div key={a}
+									                                           className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
 										onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
 								</div>
 							</div>
@@ -290,6 +354,7 @@ class App extends Component {
 						</div>
 						: undefined
 					}
+					{/*------------------------------------------------------------------------------------------------Settings Prompt------------------------------------------------------------------------------------------------*/}
 					{this.state.settingsVisible ?
 						<div className={"prompt settings"}>
 							<header>
@@ -306,29 +371,60 @@ class App extends Component {
 								<div className={"setting"}>
 									<label htmlFor="dark">Dark Theme</label>
 									<input
-										onChange={field => window.localStorage.theme = field.target.value === "on" ? "dark" : "light"}
-										aria-selected={window.localStorage.getItem('theme') === 'dark'}
+										onChange={field => {
+											if (field.target.value === "on") {
+												window.localStorage.theme = "dark";
+											}
+											console.log(field.target.value)
+										}}
 										className={"theme"}
-										name={"theme"} id={"dark"} type={"radio"}/>
+										name={"theme"}
+										id={"dark"}
+										type={"radio"}
+										checked={window.localStorage.getItem('theme') === 'dark'}/>
 								</div>
 								<div className={"setting"}>
 									<label htmlFor="light">Light Theme</label>
 									<input
-										onChange={field => window.localStorage.theme = field.target.value === "on" ? "light" : "dark"}
-										aria-selected={window.localStorage.getItem('theme') === 'light'}
+										onChange={field => {
+											if (field.target.value === "on") {
+												window.localStorage.theme = "dark";
+											}
+											console.log(field.target.value);
+										}}
 										className={"theme"}
-										name={"theme"} id={"light"} type={"radio"}/>
+										name={"theme"}
+										id={"light"}
+										type={"radio"}
+										checked={window.localStorage.getItem('theme') === 'light'}/>
 								</div>
 							</div>
 
 							<br/>
+
 							<h2>General</h2>
-							<input onChange={field => window.localStorage.saveLocation = field.target.value} type="file"
-							       webkitdirectory="" directory="" id={"save-location"}/>
+
+							<label onClick={() => this.changePath()} htmlFor="save-location"
+							       className={"saveLocation"}>{window.localStorage.saveLocation}</label>
 							<label htmlFor={"save-location"}>Save Location</label>
 
+							<input id={"numOfParts"}
+							       placeholder={"Number of parts to use during download"}
+							       type={"number"}
+							       min={5}
+							       max={30}
+							       value={window.localStorage.partsToCreate}
+							       onChange={field => window.localStorage.partsToCreate = Number(field.target.value)}/>
+							<label htmlFor={"numOfParts"}>How many parts to use during download</label>
+							{/* // TODO: Add reference to docs explaining how to find the optimum part number */}
+
+							<input type={"button"} onClick={() => {
+								if (_electron.ipcRenderer.sendSync('confirmClear'))
+									window.localStorage.clear()
+							}} value={"Reset to default settings"}/>
+
 							<br/>
-							<br/>
+
 							<h2>Network</h2>
 
 							<div className={"setting"}>
@@ -364,14 +460,17 @@ class App extends Component {
 
 							{
 								window.localStorage.getItem('proxySettings') === "pac" ?
-									<div><input placeholder={"https://example.com/proxy/proxy.pac"}
-									            onChange={field => window.localStorage.setItem('pacFile', field.target.value)}
-									            id={"pac-location"}/><label htmlFor={"pac-location"}>Pac Script
-										Location</label></div> :
+									<div>
+										<input placeholder={"https://example.com/proxy/proxy.pac"}
+										       value={window.localStorage.getItem('pacFile') || ""}
+										       onChange={field => window.localStorage.setItem('pacFile', field.target.value)}
+										       id={"pac-location"}/>
+
+										<label htmlFor={"pac-location"}>Pac Script Location</label></div> :
 									(window.localStorage.getItem('proxySettings') === "auth" ? (
 										<div>
 											<input placeholder={"proxy.example.com"}
-											       value={window.localStorage.getItem('proxyHost')}
+											       value={window.localStorage.getItem('proxyHost') || ""}
 											       onChange={field => window.localStorage.setItem('proxyHost', field.target.value)}
 											       id={"proxy-host"}/>
 											<label htmlFor={"proxy-host"}>Proxy Host</label>
@@ -383,12 +482,12 @@ class App extends Component {
 											       id={"proxy-port"}/>
 											<label htmlFor={"proxy-port"}>Proxy Port</label>
 
-											<Checkbox checked={window.localStorage.getItem('proxyRequiresCredentials')}
-											          onChange={value => void window.localStorage.setItem("proxyRequiresCredentials", value) || this.forceUpdate()}
+											<Checkbox checked={window.localStorage.proxyRequiresCredentials === "true"}
+											          onChange={value => (void window.localStorage.setItem("proxyRequiresCredentials", value)) || this.forceUpdate()}
 											          text={"Proxy Requires Credentials"}/>
 
-											{
-												window.localStorage.getItem('proxyRequiresCredentials') ? <div>
+											{(window.localStorage.proxyRequiresCredentials === "true" ?
+												<div>
 													<input placeholder={"Proxy Username"}
 													       onChange={field => window.localStorage.proxyUsername = field.target.value}
 													       value={window.localStorage.proxyUsername}
@@ -397,9 +496,7 @@ class App extends Component {
 													       onChange={field => window.localStorage.proxyPassword = field.target.value}
 													       value={window.localStorage.proxyPassword}
 													       id={"proxy-password"}/>
-
-												</div> : null
-											}
+												</div> : null)}
 
 										</div>
 									) : null)
@@ -418,13 +515,17 @@ class App extends Component {
 
 class Checkbox extends React.Component {
 	state = {
-		checked: this.props.checked || 0
+		checked: this.props.checked
 	};
+
+	constructor(props) {
+		super(props);
+	}
 
 	render() {
 		return (
 			<div className={"checkbox"}
-			     onClick={() => !(void this.setState(prev => ({checked: !prev.checked}))) && this.props.onChange(!this.state.checked)}>
+			     onClick={() => (void this.setState(prev => ({checked: !prev.checked}))) || this.props.onChange(!this.state.checked)}>
 				<span className={"label"}>{this.props.text}</span>
 				<span className={"indicator" + (this.state.checked ? " checked" : "")}/>
 			</div>

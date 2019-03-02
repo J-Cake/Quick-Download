@@ -36,7 +36,7 @@ header {
 .downloads {
     display: block;
     position: relative;
-    /*max-height: calc(100vh - 50px) !important;*/
+    max-height: calc(100vh - 85px) !important;
     overflow: auto;
     grid-row: 2;
 }
@@ -51,8 +51,8 @@ header {
     margin: 3px;
     width: 30px;
     text-align: center;
-    line-height: 30px;
-    vertical-align: top;
+    line-height: 25px;
+    vertical-align: middle;
     height: 30px;
     transition: 0.15s ease;
 }
@@ -228,15 +228,16 @@ input {
     margin: 10px 0;
     min-width: 15cm;
     user-select: text;
+    font-size: 11pt;
 }
 input:focus {
-    border-color: #b4c9e0;
+    border-color: #b4c9e0 !important;
 }
 input.required {
     border-color: #b81d27;
 }
 input.required:focus {
-    border-color: #ff2734;
+    border-color: #ff2734 !important;
 }
 
 .right-align {
@@ -295,4 +296,8 @@ input.required:focus {
 
 .about-details li span {
     text-align: right;
+}
+
+.suggestion.focused {
+    background: #4f5660;
 }

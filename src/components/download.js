@@ -28,12 +28,25 @@ export default class Download extends React.Component {
 		this.startDownload();
 	}
 
+	static calculateSize(bytes) {
+		const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+		let output = bytes;
+		let steps = 0;
+		while (output > 1024) {
+			output /= 1024;
+			steps++;
+		}
+
+		return parseFloat(output).toFixed(2) + " " + units[steps];
+	}
+
 	startDownload() {
-		this.download = beginDownload(this.state.url, this.state.fileName, path.join(window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads')), async info => {
+		this.download = beginDownload(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.numOfParts), async info => {
 			// console.log(info);
 			this.setState({
 				progress: info.percentage,
 				size: info.size,
+				friendlySize: Download.calculateSize(info.size),
 				total_chunks: info.total_chunks,
 				chunks_done: info.chunks_done,
 				status: info.done ? 2 : 0,
@@ -82,11 +95,12 @@ export default class Download extends React.Component {
 					<div className="download-details">
 						<span className="download-detail"><b>Final File Destination: </b>{this.state.path}</span>
 						<span className="download-detail"><b>Source: </b>{this.state.url}</span>
-						<span className="download-detail"><b>Size: </b>{this.state.size} bytes</span>
+						<span className="download-detail"><b>Size: </b>{this.state.friendlySize} ({this.state.size} bytes)</span>
 						<span
 							className="download-detail"><b>Estimated Time of completion: </b>{/*Calculate completion time*/}Today</span>
 						<span
-							className="download-detail"><b>Chunks downloaded: </b>{this.state.chunks_done} of {this.state.total_chunks}</span>
+							className="download-detail"><b>Parts downloaded: </b>{this.state.chunks_done} of {this.state.total_chunks}</span>
+						<span className="download-detail"><b>Progress: </b>{this.state.progress}%</span>
 					</div>
 					: undefined
 				}
