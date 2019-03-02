@@ -40,7 +40,7 @@ Contributions are gladly accepted and encouraged! Please submit pull requests an
 [**Apache License**](https://github.com/jbis9051/quick_download/blob/master/LICENSE)
 
 
-###tl;dr 
+### tl;dr 
 
 You can do what ever you want with this. Just please give credit to the creators:
 
