@@ -5,7 +5,8 @@
 
     outline: none;
 
-    font-family: "Tisa Sans", sans-serif;
+    /* font-family: "Tisa Sans", sans-serif; */
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
     user-select: none;
 }
 
@@ -20,7 +21,8 @@ body {
 
 header {
     display: flex;
-    background: #24282c;
+  /*  background: #24282c; */
+    background: #202225;
     padding: 7px;
     box-shadow: 0 0 5px 0 #181b1e;
     grid-row: 1;
@@ -42,23 +44,28 @@ header {
 }
 
 .tool {
-    font-family: FontAwesome;
     color: #eee;
     font-size: 11pt;
-    border: 2px solid #7e8999;
     border-radius: 9px;
-    background: rgba(102, 112, 123, 0.55);
+    border: 0;
     margin: 3px;
-    width: 30px;
-    text-align: center;
-    line-height: 25px;
-    vertical-align: middle;
-    height: 30px;
-    transition: 0.15s ease;
+    width: 35px;
+    height: 35px;
+    background: transparent;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
 }
-.tool:focus {
-    border: 2px solid cornflowerblue;
+.tool i {
+    transition: 100ms ease;
+}
+.tool:hover {
+    background: rgba(102, 112, 123, 0.55);
+}
+.tool:hover i{
+    color: white;
 }
 .tool:active {
     background: rgba(124, 136, 149, 0.55);
@@ -212,7 +219,7 @@ b {
     top: 25%;
     left: 50%;
     transform: translateX(-50%) translateY(-25%);
-    background: rgb(36, 40, 44);
+     background: #202225;
     color: #eeeeee;
     border-radius: 10px;
     padding: 20px;
@@ -221,7 +228,9 @@ b {
 input {
     display: block;
     padding: 10px;
-    border: 2px solid #4f5660;
+    box-shadow: rgba(0.1,0.1,0.1,0.2) 0px 5px 30px;
+   /* border: 2px solid #4f5660; */
+    border: none;
     background: rgba(36, 40, 44, 0.9);
     /*box-shadow: 1px 0 3px 0 #8d9daf;*/
     color: #eee;
@@ -251,7 +260,7 @@ input.required:focus {
     display: none;
     width: calc(100% - 20px);
     color: #eee;
-    background: rgb(36, 40, 44);
+     background: #202225;
     z-index: 10;
     margin: -11px 10px 10px;
     border: 2px solid #4f5660;

@@ -50,7 +50,10 @@ ipcMain.on('minimise', e => {try {mainWindow.close()} catch(e) {}});
 ipcMain.on('pickDir', e => {
 	e.returnValue = dialog.showOpenDialog(mainWindow, {
 		properties: ['openDirectory']
-	})[0];
+	});
+	if(e.returnValue){
+		e.returnValue = e.returnValue[0];
+	}
 });
 ipcMain.on('confirmClear', e => {
 	dialog.showMessageBox({type: 'info', buttons: ['OK', 'Cancel'], message: "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."}, // "Confirm delete", "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."

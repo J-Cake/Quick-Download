@@ -218,7 +218,7 @@ class App extends Component {
 	}
 
 	changePath() {
-		window.localStorage.saveLocation = _electron.ipcRenderer.sendSync('pickDir');
+		window.localStorage.saveLocation = _electron.ipcRenderer.sendSync('pickDir') || window.localStorage.saveLocation;
 		this.forceUpdate();
 	}
 
@@ -397,13 +397,13 @@ class App extends Component {
 					{/*------------------------------------------------------------------------------------------------Settings Prompt------------------------------------------------------------------------------------------------*/}
 					{this.state.settingsVisible ?
 						<div className={"prompt settings"}>
-							<header>
-								<h1>Settings</h1>
-								<div className={"right-align"}>
-									<Tool className={"prompt-close-btn"} icon={"fas fa-times"}
-									      onClick={e => this.setState({settingsVisible: false})}/>
+							<div className={"close_button"}>
+								<Tool className={"prompt-close-btn"} icon={"fas fa-times"}
+									  onClick={e => this.setState({settingsVisible: false})}/>
 
-								</div>
+							</div>
+							<header className={"settings_header"}>
+								<h1>Settings</h1>
 							</header>
 
 							<h2>Appearance</h2>
@@ -493,7 +493,7 @@ class App extends Component {
 								<br/>
 								<hr/>
 
-								<input type={"button"} onClick={() => {
+								<input type={"button"} className={"reset_button"} onClick={() => {
 									if (_electron.ipcRenderer.sendSync('confirmClear'))
 										window.localStorage.clear();
 
