@@ -12,7 +12,7 @@ We download things quickly.
 ## Usage
 
 1. Open the application
-2. Go to preferences and adjust the amount of parts. Default is 15. Try different number of parts and try to find a sweet spot for your connection.  We currently have no way to calculate the best number of the parts, but we are working on that.
+2. Go to preferences and adjust the amount of parts. Default is 10. Try different number of parts and try to find a sweet spot for your connection.  We currently have no way to calculate the best number of the parts, but we are working on that.
 3. Click the "+" button
 4. Enter a name, location, and URL and click "Done"
 
