@@ -85,9 +85,10 @@ input[type="file"] + label {
 input[type="radio"] {
     -webkit-appearance: none;
     border-radius: 30px;
-    width: 10px;
+    width: 10px !important;
     height: 10px;
     transition: 0.125s;
+
 }
 input[type="radio"]:checked {
     background: #4f5660;

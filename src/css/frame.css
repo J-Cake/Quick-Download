@@ -262,3 +262,7 @@
 hr {
     border: 1px solid #4f5660;
 }
+
+.window-controls.darwin  {
+    display: none !important;
+}

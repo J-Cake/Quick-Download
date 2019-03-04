@@ -55,6 +55,7 @@ header {
     vertical-align: middle;
     height: 30px;
     transition: 0.15s ease;
+    cursor: pointer;
 }
 .tool:focus {
     border: 2px solid cornflowerblue;
@@ -193,7 +194,7 @@ b {
 }
 
 *::-webkit-scrollbar {
-    width: 0.3cm
+    width: 6px;
 }
 
 *::-webkit-scrollbar-track {
@@ -300,4 +301,14 @@ input.required:focus {
 
 .suggestion.focused {
     background: #4f5660;
+}
+
+a {
+    color: #b4c9e0;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a:hover {
+    text-decoration: underline;
 }

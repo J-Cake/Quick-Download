@@ -14,8 +14,8 @@ export default class Download extends React.Component {
 		super(...arguments);
 		this.state = {
 			url: arguments[0].url,
-			size: /*get size*/ "Calculating...",
-			progress: /*calculate progress*/ 0,
+			size: "Calculating...",
+			progress: 0,
 			timeStarted: Date.now(),
 			chunks_done: 0,
 			total_chunks: "Loading...",
@@ -23,25 +23,42 @@ export default class Download extends React.Component {
 			details: false,
 			fileName: this.props.name,
 			status: 0,
-			path: ""
+			path: "",
+			id: this.props.id
 		};
+
+		console.log(this.state);
+
 		this.startDownload();
 	}
 
 	static calculateSize(bytes) {
-		const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
 		let output = bytes;
 		let steps = 0;
-		while (output > 1024) {
-			output /= 1024;
-			steps++;
+
+		let units = [];
+
+		if (window.localStorage.getItem('preferredUnit') === "bin") {
+			units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
+
+			while (output > 1024) {
+				output /= 1024;
+				steps++;
+			}
+		} else if (window.localStorage.getItem('preferredUnit') === "dec") {
+			units = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
+
+			while (output > 1000) {
+				output /= 1000;
+				steps++;
+			}
 		}
 
 		return parseFloat(output).toFixed(2) + " " + units[steps];
 	}
 
 	startDownload() {
-		this.download = beginDownload(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.numOfParts), async info => {
+		this.download = beginDownload(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
 			// console.log(info);
 			this.setState({
 				progress: info.percentage,
@@ -50,10 +67,17 @@ export default class Download extends React.Component {
 				total_chunks: info.total_chunks,
 				chunks_done: info.chunks_done,
 				status: info.done ? 2 : 0,
-				path: info.path
+				path: info.path,
+				elapsedTime: info.elapsedTime
 			});
 
-			this.cancelDownload = info.cancel
+			if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
+				new Notification('Download Complete', {body: `Download of ${this.state.fileName} has been completed`, icon: "./favicon.ico"}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
+			}
+
+			this.props.updateTaskBarProgress(this.state.id, this.state.progress);
+
+			this.cancelDownload = info.cancel;
 
 		}).catch(e => {
 			console.error(e);
@@ -93,6 +117,7 @@ export default class Download extends React.Component {
 				</div>
 				{this.state.details ?
 					<div className="download-details">
+						<span className="download-detail"><b>Elapsed Time: </b>{this.state.elapsedTime}</span>
 						<span className="download-detail"><b>Final File Destination: </b>{this.state.path}</span>
 						<span className="download-detail"><b>Source: </b>{this.state.url}</span>
 						<span className="download-detail"><b>Size: </b>{this.state.friendlySize} ({this.state.size} bytes)</span>

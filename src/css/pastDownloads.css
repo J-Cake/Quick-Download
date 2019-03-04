@@ -1,0 +1,28 @@
+.past-download {
+    background: #4f5660;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: 0.125s;
+    display: flex;
+}
+.past-download:hover {
+    background: #3c434b;
+}
+
+header {
+    box-shadow: none !important;
+}
+
+.past-download .delete {
+    width: 100%;
+
+    display: flex;
+    justify-content: flex-end;
+}
+.download-url {
+    font-size: 9pt;
+    font-weight: 300;
+
+}

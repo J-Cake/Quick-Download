@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import './css/App.css';
 import './css/box.css';
 import './css/settings.css';
+import './css/pastDownloads.css';
 
 // import * as Mousetrap from "Mousetrap";
 
@@ -11,8 +12,6 @@ import Download from './components/download';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils'
-// import * as path from "path";
-// import * as os from "os";
 
 const path = window.require('path');
 const os = window.require('os');
@@ -21,12 +20,6 @@ const Mousetrap = window.require('mousetrap');
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
-
-window.localStorage.theme = window.localStorage.theme || "dark";
-window.localStorage.saveLocation = window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads');
-window.localStorage.proxySettings = window.localStorage.proxySettings || "none";
-window.localStorage.proxyRequiresCredentials = window.localStorage.proxyRequiresCredentials || false;
-window.localStorage.partsToCreate = window.localStorage.partsToCreate || 10;
 
 let platform = remote.require('os').platform();
 
@@ -46,8 +39,22 @@ class App extends Component {
 			downloadURL: "",
 			boxes: [],
 			settingsVisible: false,
-			currentSelection: 0
+			currentSelection: 0,
+			latestDownloadProgress: 0,
+			pastDownloadsVisible: false
 		};
+
+		App.loadSettings();
+	}
+
+	static loadSettings() {
+		window.localStorage.theme = window.localStorage.getItem("theme") || "dark";
+		window.localStorage.saveLocation = window.localStorage.getItem("saveLocation") || path.join(os.homedir(), 'Downloads');
+		window.localStorage.proxySettings = window.localStorage.getItem("proxySettings") || "none";
+		window.localStorage.proxyRequiresCredentials = window.localStorage.getItem("proxyRequiresCredentials") || false;
+		window.localStorage.partsToCreate = Number(window.localStorage.getItem("partsToCreate")) || 10;
+		window.localStorage.preferredUnit = window.localStorage.getItem("preferredUnit") || "bin";
+		window.localStorage.allowNotifications = window.localStorage.getItem("allowNotifications") || "true";
 	}
 
 	alert(box) {
@@ -69,7 +76,9 @@ class App extends Component {
 		if (this.state.downloadURL) {
 			this.setState({
 				downloads: [...this.state.downloads,
-					<Download key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]
+					<Download id={this.state.downloads.length + 1}
+					          updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
+					          key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]
 			});
 			this.closePrompt();
 
@@ -105,6 +114,14 @@ class App extends Component {
 		window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
 	}
 
+	updateTaskBarValue(index, progress) {
+		if (index === this.state.downloads.length) {
+			remote.getCurrentWindow().setProgressBar(progress / 100);
+			if (progress === 100)
+				remote.getCurrentWindow().setProgressBar(-1);
+		}
+	}
+
 	getDownloadNames() {
 		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
 		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name).toLowerCase().indexOf((this.state.downloadName).toLowerCase()) >= 0).map(i => i.name);
@@ -116,6 +133,8 @@ class App extends Component {
 	}
 
 	componentDidMount() {
+		remote.getCurrentWindow().setProgressBar(-1);
+
 		if (!window.localStorage.downloadHistory)
 			window.localStorage.downloadHistory = JSON.stringify([]);
 
@@ -123,6 +142,10 @@ class App extends Component {
 			Mousetrap.bind('mod+n', () => this.showPrompt());
 			Mousetrap.bind('esc', () => {
 				this.closePrompt();
+				this.setState({
+					settingsVisible: false,
+					pastDownloadsVisible: false
+				})
 			});
 			Mousetrap.bind('mod+j', () => this.pastDownloads());
 			Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
@@ -180,7 +203,6 @@ class App extends Component {
 			currentSelection: 0,
 			focused: null
 		})
-		// $(".confirm-btn").focus();
 	}
 
 	showSettings() {
@@ -192,7 +214,7 @@ class App extends Component {
 	}
 
 	pastDownloads() {
-
+		this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}));
 	}
 
 	changePath() {
@@ -236,9 +258,13 @@ class App extends Component {
 				<div className="App">
 					<header>
 						<Tool shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
-						<Tool shortcut="+"
+						<Tool shortcut="*"
 						      onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
 						      icon={"fas fa-cog"}/>
+						<Tool
+							onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
+							icon={"fas fa-clock"}/>
+
 						{platform !== "darwin" ?
 							<div className={"menu"}>
 								<div className={"submenu"}>
@@ -250,7 +276,7 @@ class App extends Component {
 												{platform === "darwin" ? "Cmd+N" : "Ctrl+N"}
 											</div>
 										</div>
-										<div className={"option"}>
+										<div className={"option"} onClick={() => this.pastDownloads()}>
 											Show Past Downloads
 											<div className={"accelerator"}>
 												{platform === "darwin" ? "Cmd+J" : "Ctrl+J"}
@@ -300,6 +326,20 @@ class App extends Component {
 									<div className={"options"}>
 										<div className={"option"} onClick={() => this.about()}>About</div>
 										<div className={"option"}>Docs</div>
+										<div className={"option"}
+										     onClick={() => _electron.shell.openExternal('https://github.com/jbis9051/quick_download/blob/master/LICENSE')}>Licensing
+											Information
+										</div>
+										<div className={"option"}
+										     onClick={() => _electron.shell.openExternal('https://github.com/jbis9051/quick_download/issues/new')}>Report
+											a bug
+										</div>
+										<div className={"option"}
+										     onClick={() => this.alert(<Alert key={new Date().toLocaleString()}
+										                                      header={"Contact us"}
+										                                      body={<ul><li><a href="mailto:josh.stackexchange@gmail.com">Joshua Brown (josh.stackexchange@gmail.com)</a></li><li><a href="mailto:jakieschneider13@gmail.com">Jacob Schneider (jakieschneider13@gmail.com)</a></li></ul>}/>)}>Contact
+											Developers
+										</div>
 									</div>
 								</div>
 							</div> : null
@@ -372,10 +412,9 @@ class App extends Component {
 									<label htmlFor="dark">Dark Theme</label>
 									<input
 										onChange={field => {
-											if (field.target.value === "on") {
+											if (field.target.value === "on")
 												window.localStorage.theme = "dark";
-											}
-											console.log(field.target.value)
+											this.forceUpdate();
 										}}
 										className={"theme"}
 										name={"theme"}
@@ -387,10 +426,9 @@ class App extends Component {
 									<label htmlFor="light">Light Theme</label>
 									<input
 										onChange={field => {
-											if (field.target.value === "on") {
+											if (field.target.value === "on")
 												window.localStorage.theme = "dark";
-											}
-											console.log(field.target.value);
+											this.forceUpdate();
 										}}
 										className={"theme"}
 										name={"theme"}
@@ -403,25 +441,66 @@ class App extends Component {
 							<br/>
 
 							<h2>General</h2>
+							<div className={"settingsGroup"}>
 
-							<label onClick={() => this.changePath()} htmlFor="save-location"
-							       className={"saveLocation"}>{window.localStorage.saveLocation}</label>
-							<label htmlFor={"save-location"}>Save Location</label>
+								{/*<div className={"setting"}>*/}
+								<label onClick={() => this.changePath()} htmlFor="save-location"
+								       className={"saveLocation"}>{window.localStorage.saveLocation}</label>
+								<label htmlFor={"save-location"}>Save Location</label>
+								{/*</div>*/}
 
-							<input id={"numOfParts"}
-							       placeholder={"Number of parts to use during download"}
-							       type={"number"}
-							       min={5}
-							       max={30}
-							       value={window.localStorage.partsToCreate}
-							       onChange={field => window.localStorage.partsToCreate = Number(field.target.value)}/>
-							<label htmlFor={"numOfParts"}>How many parts to use during download</label>
-							{/* // TODO: Add reference to docs explaining how to find the optimum part number */}
+								{/*<div className={"setting"}>*/}
+								<input id={"numOfParts"}
+								       placeholder={"Number of parts to use during download"}
+								       type={"number"}
+								       min={5}
+								       max={30}
+								       value={window.localStorage.getItem("partsToCreate")}
+								       onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
+								<label htmlFor={"numOfParts"}>How many parts to use during download</label>
+								{/*</div>*/}
+								{/* //TODO: Add reference to docs explaining how to find the optimum part number */}
 
-							<input type={"button"} onClick={() => {
-								if (_electron.ipcRenderer.sendSync('confirmClear'))
-									window.localStorage.clear()
-							}} value={"Reset to default settings"}/>
+								<br/>
+								<br/>
+								<h3>Units</h3>
+
+								<hr/>
+
+								<div className={"setting"}>
+									<input type={"radio"} name={"unit"} onChange={field => {
+										if (field.target.value === "on") window.localStorage.preferredUnit = "bin";
+										this.forceUpdate();
+									}} id={"bin"} checked={window.localStorage.getItem('preferredUnit') === "bin"}/>
+									<label htmlFor={"bin"}>Binary Units (MiB = 1024 KiB)</label>
+								</div>
+
+								<div className={"setting"}>
+									<input type={"radio"} name={"unit"} onChange={field => {
+										if (field.target.value === "on") window.localStorage.preferredUnit = "dec";
+										this.forceUpdate();
+									}} id={"dec"} checked={window.localStorage.getItem('preferredUnit') === "dec"}/>
+									<label htmlFor={"dec"}>Decimal Units (MB = 1000 KB)</label>
+								</div>
+
+								<hr/>
+								<br/>
+
+								<Checkbox checked={window.localStorage.getItem('allowNotifications') === true}
+								          text={"Allow Notifications"}
+								          onChange={value => void window.localStorage.setItem('allowNotifications', value) || this.forceUpdate()}/>
+
+								<br/>
+								<hr/>
+
+								<input type={"button"} onClick={() => {
+									if (_electron.ipcRenderer.sendSync('confirmClear'))
+										window.localStorage.clear();
+
+									App.loadSettings();
+									this.forceUpdate();
+								}} value={"Reset to default settings"}/>
+							</div>
 
 							<br/>
 
@@ -463,7 +542,7 @@ class App extends Component {
 									<div>
 										<input placeholder={"https://example.com/proxy/proxy.pac"}
 										       value={window.localStorage.getItem('pacFile') || ""}
-										       onChange={field => window.localStorage.setItem('pacFile', field.target.value)}
+										       onChange={field => void window.localStorage.setItem('pacFile', field.target.value) || this.forceUpdate()}
 										       id={"pac-location"}/>
 
 										<label htmlFor={"pac-location"}>Pac Script Location</label></div> :
@@ -471,14 +550,14 @@ class App extends Component {
 										<div>
 											<input placeholder={"proxy.example.com"}
 											       value={window.localStorage.getItem('proxyHost') || ""}
-											       onChange={field => window.localStorage.setItem('proxyHost', field.target.value)}
+											       onChange={field => void window.localStorage.setItem('proxyHost', field.target.value) || this.forceUpdate()}
 											       id={"proxy-host"}/>
 											<label htmlFor={"proxy-host"}>Proxy Host</label>
 
 											<input placeholder={8080}
 											       type={"number"}
-											       value={window.localStorage.getItem('proxyPort') || "80"}
-											       onChange={field => window.localStorage.setItem('proxyPort', field.target.value)}
+											       value={window.localStorage.getItem('proxyPort') || ""}
+											       onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
 											       id={"proxy-port"}/>
 											<label htmlFor={"proxy-port"}>Proxy Port</label>
 
@@ -489,12 +568,12 @@ class App extends Component {
 											{(window.localStorage.proxyRequiresCredentials === "true" ?
 												<div>
 													<input placeholder={"Proxy Username"}
-													       onChange={field => window.localStorage.proxyUsername = field.target.value}
-													       value={window.localStorage.proxyUsername}
+													       onChange={field => void (window.localStorage.proxyUsername = field.target.value) || this.forceUpdate()}
+													       value={window.localStorage.proxyUsername || ""}
 													       id={"proxy-username"}/>
 													<input placeholder={"Proxy Password"} type={"password"}
-													       onChange={field => window.localStorage.proxyPassword = field.target.value}
-													       value={window.localStorage.proxyPassword}
+													       onChange={field => void (window.localStorage.proxyPassword = field.target.value) || this.forceUpdate()}
+													       value={window.localStorage.proxyPassword || ""}
 													       id={"proxy-password"}/>
 												</div> : null)}
 
@@ -502,6 +581,38 @@ class App extends Component {
 									) : null)
 							}
 
+						</div>
+						: null}
+					{/*------------------------------------------------------------------------------------------------Past Downloads------------------------------------------------------------------------------------------------*/}
+					{this.state.pastDownloadsVisible ?
+						<div className={"prompt past-downloads"}>
+							<header>
+								<h1>History</h1>
+								<div className={"right-align"}>
+									<Tool className={"prompt-close-btn"} icon={"fas fa-times"}
+									      onClick={e => this.setState({pastDownloadsVisible: false})}/>
+
+								</div>
+							</header>
+							{
+								JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div key={a}
+								                                                                              className={"past-download"}>
+									<div className={"download-details"}>
+										<div className={"download-name"}>{i.name}:</div>
+										<div className={"download-url"}>{i.url}</div>
+									</div>
+
+									<div className={"delete"}>
+										<Tool icon={"fas fa-trash"} onClick={() => {
+											const history = JSON.parse(window.localStorage.downloadHistory);
+											history.splice(a, 1);
+
+											window.localStorage.downloadHistory = JSON.stringify(history);
+											this.forceUpdate();
+										}}/>
+									</div>
+								</div>)
+							}
 						</div>
 						: null}
 				</div>

@@ -4,7 +4,7 @@ let mainWindow;
 let withFrame = false;
 
 async function createWindow () {
-	mainWindow = new BrowserWindow({minWidth: 720, minHeight: 360, width: 720, height: 360, frame: withFrame, nodeIntegration: true, icon: "./build/favicon.ico", webPreferences: {webSecurity: false}});
+	mainWindow = new BrowserWindow({minWidth: 720, minHeight: 360, width: 720, height: 360, titleBarStyle:"hidden", frame: withFrame, nodeIntegration: true, icon: "./build/favicon.ico", webPreferences: {webSecurity: false}});
 
 	mainWindow.loadFile('./public/loading.html');
 
@@ -25,6 +25,8 @@ async function createWindow () {
 	})
 
 }
+
+app.setAppUserModelId(process.execPath);
 
 app.on('ready', createWindow);
 

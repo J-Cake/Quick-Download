@@ -23,6 +23,8 @@ class Download {
 		this.parts_done = 0;
 		this.onUpdate = onUpdate;
 		this.numOfParts = parts || 10;
+		this.startTime = Date.now();
+
 		if (url_lib.parse(url).protocol === "http:") {
 			this.protocol = http;
 			this.port = "80";
@@ -175,6 +177,9 @@ class Download {
 
 		// console.log(this.progress, this.total_length, this.parts);
 		//console.log((this.progress / this.total_length) * 100);
+
+		const time = new Date(Date.now() - this.startTime);
+
 		this.onUpdate({
 			percentage: (this.progress / this.total_length) * 100,
 			average_percentage: this.average_percentage,
@@ -182,7 +187,8 @@ class Download {
 			chunks_done: this.parts_done,
 			total_chunks: this.num_of_parts_to_create,
 			done: done || false,
-			path: this.final_file
+			path: this.final_file,
+			elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
 		});
 	}
 

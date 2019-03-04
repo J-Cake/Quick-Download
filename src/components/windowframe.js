@@ -49,10 +49,16 @@ export default class WindowFrame extends React.Component {
 				_window.minimize();
 			});
 			$(".max-btn").on("click", e => {
-				_window.maximize();
+				if (platform !== "darwin")
+					_window.maximize();
+				else
+					_window.setFullScreen(true)
 			});
 			$(".restore-btn").on("click", e => {
-				_window.restore();
+				if (platform !== "darwin")
+					_window.restore();
+				else
+					_window.setFullScreen(false)
 			});
 			$(".close-btn").on("click", e => {
 				_window.close();
@@ -80,6 +86,7 @@ export default class WindowFrame extends React.Component {
 							<img src={"./favicon.ico"} className={`icon ${platform}`} alt={"Quick Downloader"}/>
 							<span>Quick Downloader</span>
 						</div>
+
 						<div className={`window-controls ${platform}`}>
 							<div className={`button min-btn ${platform}`}>
 								<span>{platform === "win32" ? "" : ""} </span>
