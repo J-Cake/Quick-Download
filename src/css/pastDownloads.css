@@ -11,8 +11,9 @@
     background: #3c434b;
 }
 
-header {
+.prompt header {
     box-shadow: none !important;
+    background: transparent !important;
 }
 
 .past-download .delete {

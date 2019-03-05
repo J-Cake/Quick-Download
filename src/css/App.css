@@ -5,13 +5,14 @@
 
     outline: none;
 
-    /* font-family: "Tisa Sans", sans-serif; */
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+    /*font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;*/
+    /*font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;*/
+    font-family: "Source Sans Pro";
     user-select: none;
 }
 
 *::selection {
-    background:rgba(102, 112, 123, 0.55);
+    background: rgba(102, 112, 123, 0.55);
 }
 
 body {
@@ -21,7 +22,7 @@ body {
 
 header {
     display: flex;
-  /*  background: #24282c; */
+    /*  background: #24282c; */
     background: #202225;
     padding: 7px;
     box-shadow: 0 0 5px 0 #181b1e;
@@ -58,18 +59,23 @@ header {
     justify-content: center;
 
 }
+
 .tool i {
     transition: 100ms ease;
 }
+
 .tool:hover {
     background: rgba(102, 112, 123, 0.55);
 }
-.tool:hover i{
+
+.tool:hover i {
     color: white;
 }
+
 .tool:active {
     background: rgba(124, 136, 149, 0.55);
 }
+
 .downloadPrompt {
     border-radius: 5px;
     width: 400px;
@@ -87,6 +93,7 @@ header {
     transition: 0.45s ease;
     margin: 10px;
 }
+
 b {
     font-weight: 900;
 }
@@ -94,6 +101,7 @@ b {
 .download.done {
     background: #00ca56;
 }
+
 .download.failed {
     background: #b81d27;
 }
@@ -106,6 +114,7 @@ b {
     font-size: small;
     user-select: text;
 }
+
 .download .download-detail {
     margin: 0 10px;
     display: block;
@@ -123,8 +132,11 @@ b {
 }
 
 .download .header .tools {
-    float: left;
-    display: block;
+    float: right;
+    display: flex;
+    /*position: absolute;*/
+    /*right: 10px;*/
+
 }
 
 .download .header h2 {
@@ -145,6 +157,7 @@ b {
     left: 50%;
     transform: translateX(-50%);
 }
+
 .progress-bar > .progress-visual > span {
     width: 40px;
     height: 40px;
@@ -164,6 +177,7 @@ b {
     height: 12px;
     /*padding: 10px;*/
 }
+
 .progress-bar-wrapper {
     border-radius: 15px;
     border: none;
@@ -174,12 +188,15 @@ b {
     height: 100%;
     overflow: hidden;
 }
+
 .progress-bar-wrapper.failed .progress-bar-inner {
     background: #b81d27;
 }
+
 .progress-bar.container {
     display: flex;
 }
+
 .progress-bar-inner {
     background: cornflowerblue;
     display: block;
@@ -188,6 +205,7 @@ b {
     /*border-radius: inherit;*/
     transition: 400ms ease;
 }
+
 .progress-bar-wrapper .chunk {
     background: rgba(126, 128, 133, 0.8);
     border-radius: inherit;
@@ -223,16 +241,17 @@ b {
     color: #eeeeee;
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 0 4px 0 #181b1e;
+    box-shadow: 0 0 2px 0 #3e444b;
 }
-/*input {
+
+input {
     display: block;
     padding: 10px;
-    box-shadow: rgba(0.1,0.1,0.1,0.2) 0px 5px 30px;
-   !* border: 2px solid #4f5660; *!
-    border: none;
+    box-shadow: rgba(0.1, 0.1, 0.1, 0.2) 0 5px 30px;
+    /* border: 2px solid #4f5660; */
     background: rgba(36, 40, 44, 0.9);
-    !*box-shadow: 1px 0 3px 0 #8d9daf;*!
+    border: none;
+    /*box-shadow: 1px 0 3px 0 #8d9daf;*/
     color: #eee;
     border-radius: 0.25rem;
     margin: 10px 0;
@@ -240,12 +259,15 @@ b {
     user-select: text;
     font-size: 11pt;
 }
+
 input:focus {
     border-color: #b4c9e0 !important;
 }
+
 input.required {
     border-color: #b81d27;
 }
+
 input.required:focus {
     border-color: #ff2734 !important;
 }
@@ -260,13 +282,14 @@ input.required:focus {
     display: none;
     width: calc(100% - 20px);
     color: #eee;
-     background: #202225;
+    background: rgba(36, 40, 44, 0.9);
     z-index: 10;
+    /*border: 2px solid #4f5660;*/
     margin: -11px 10px 10px;
-    border: 2px solid #4f5660;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
     padding: 6px 0;
+    border-top: none;
 }
 
 .suggestion {
@@ -274,6 +297,7 @@ input.required:focus {
     padding: 5px;
     color: #eee;
 }
+
 .suggestion:hover {
     background: rgba(92, 102, 112, 0.64);
 }
@@ -282,6 +306,7 @@ input.required:focus {
     display: block;
     position: absolute;
 }
+
 .formItem {
     position: relative;
 }
@@ -289,10 +314,12 @@ input.required:focus {
 .formItem .suggestions:focus {
     display: none;
 }
+
 .about-details {
     margin-left: 20px;
     padding-bottom: 10px;
 }
+
 .about-details li {
     display: flex;
     width: 100%;
@@ -321,3 +348,7 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+/*header * {*/
+/*background: transparent;*/
+/*}*/

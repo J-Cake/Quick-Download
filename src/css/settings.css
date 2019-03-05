@@ -2,6 +2,7 @@
     padding: 0;
     border-bottom: 1px solid #4f5660;
     margin: 0 0 30px;
+    background: transparent;
 }
 .checkbox,.setting {
     display: flex;
@@ -20,7 +21,7 @@
     width: 20px;
     height: 20px;
     background: transparent;
-    border: 2px solid #4f5660;
+    border: 2px solid #b4c9e0;
     border-radius: 4px;
     transition: 0.125s;
     position: absolute;
@@ -28,7 +29,7 @@
 }
 
 .checkbox .indicator.checked {
-    background: #4f5660;
+    background: #b4c9e0;
 }
 
 .settings header {
@@ -79,7 +80,7 @@ label.saveLocation {
     /*position: absolute;*/
     cursor: pointer;
     font-family: monospace;
-    box-shadow: rgba(0.1,0.1,0.1,0.2) 0px 5px 30px;
+    box-shadow: rgba(0.1,0.1,0.1,0.2) 0 5px 30px;
     background: rgba(36, 40, 44, 0.9);
 
 }
@@ -101,6 +102,9 @@ input[type="radio"] {
     height: 10px;
     transition: 0.125s;
 
+}
+input[type="radio"]:checked {
+    background: #b4c9e0;
 }
 
 input::-webkit-outer-spin-button,
