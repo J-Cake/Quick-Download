@@ -382,7 +382,7 @@ class App extends Component {
 								       placeholder={"Download URL"}/>
 								<div className={"suggestions"}>
 									{this.getDownloadUrls().map((i, a) => <div key={a}
-									                                           className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
+									                                            className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
 										onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
 								</div>
 							</div>
