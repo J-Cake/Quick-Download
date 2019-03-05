@@ -5,12 +5,13 @@
     max-height: calc(100vh - 75px);
     z-index: 100000;
     transform: translateX(-50%);
-    box-shadow: rgb(0.1,0.1,0.1) 0 10px 50px;
+    box-shadow: #181b1e 0 0 5px 5px;
 }
 .settings_header {
     padding: 0;
     border-bottom: 1px solid #4f5660;
     margin: 0 0 30px;
+    background: transparent;
 }
 .checkbox {
     display: flex;
@@ -35,7 +36,7 @@
 }
 
 .checkbox .indicator.checked {
-    background: #4f5660;
+    background: #b4c9e0;
 }
 
 .settings header {
@@ -88,7 +89,7 @@ label.saveLocation {
     /*position: absolute;*/
     cursor: pointer;
     font-family: monospace;
-    box-shadow: rgba(0.1,0.1,0.1,0.2) 0px 5px 30px;
+    box-shadow: rgba(0.1,0.1,0.1,0.2) 0 5px 30px;
     background: rgba(36, 40, 44, 0.9);
 
 }
@@ -112,7 +113,7 @@ input[type="radio"] {
 
 }
 input[type="radio"]:checked {
-    background: #4f5660;
+    background: #b4c9e0;
 }
 
 input::-webkit-outer-spin-button,

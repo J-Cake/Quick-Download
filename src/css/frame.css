@@ -193,8 +193,12 @@
     color: #b4c9e0;
     position: relative;
 
-    font-size: 11pt;
+    margin-top: 15px;
 
+    font-size: 11pt;
+    height: 55px;
+    /*line-height: 55px;*/
+    vertical-align: text-top;
     z-index: 100;
 }
 .menu > .submenu > .options {
@@ -223,6 +227,10 @@
 }
 .option {
     padding: 5px 10px;
+}
+
+.menu > .submenu {
+    background: inherit;
 }
 
 .menu > .submenu, .menu {
