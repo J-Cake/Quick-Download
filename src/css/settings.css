@@ -1,20 +1,13 @@
-.settings {
-    position: fixed;
-    top: 50px;
-    overflow: auto;
-    max-height: calc(100vh - 75px);
-    z-index: 100000;
-    transform: translateX(-50%);
-    box-shadow: #181b1e 0 0 5px 5px;
-}
 .settings_header {
     padding: 0;
     border-bottom: 1px solid #4f5660;
     margin: 0 0 30px;
     background: transparent;
 }
-.checkbox {
+.checkbox,.setting {
     display: flex;
+    width: 100%;
+    position: relative;
 }
 .close_button {
     position: absolute;
@@ -28,11 +21,11 @@
     width: 20px;
     height: 20px;
     background: transparent;
-    border: 2px solid #4f5660;
+    border: 2px solid #b4c9e0;
     border-radius: 4px;
     transition: 0.125s;
     position: absolute;
-    right: 20px;
+    right: 0;
 }
 
 .checkbox .indicator.checked {
@@ -49,15 +42,13 @@ label {
 }
 
 .setting {
-    display: flex;
     /*border-bottom: 1px solid #4f5660;*/
     margin: 12px 0;
 }
+
 .setting input[type="checkbox"], .setting input[type="radio"] {
     min-width: auto;
     position: absolute;
-    right: 20px;
-    margin-top: -5px;
 }
 .reset_button {
     text-align: center;
@@ -81,7 +72,7 @@ label.saveLocation {
     /* border: 2px solid #4f5660; */
     box-sizing: border-box;
     color: #eee;
-    border-radius: 7px;
+    border-radius: 0.25rem;
     font-size: 11pt;
     margin: 10px 0;
     min-width: 15cm;
