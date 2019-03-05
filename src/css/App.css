@@ -237,7 +237,7 @@ b {
     top: 25%;
     left: 50%;
     transform: translateX(-50%) translateY(-25%);
-    background: #181b1e;
+    background: #202225;
     color: #eeeeee;
     border-radius: 10px;
     padding: 20px;
@@ -253,7 +253,7 @@ input {
     border: none;
     /*box-shadow: 1px 0 3px 0 #8d9daf;*/
     color: #eee;
-    border-radius: 7px;
+    border-radius: 0.25rem;
     margin: 10px 0;
     min-width: 15cm;
     user-select: text;
@@ -271,7 +271,7 @@ input.required {
 input.required:focus {
     border-color: #ff2734 !important;
 }
-
+*/
 .right-align {
     width: 100%;
     display: flex;

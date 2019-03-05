@@ -36,8 +36,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+            <state relative-caret-position="323">
+              <caret line="19" column="11" lean-forward="true" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -408,7 +408,7 @@
       <workItem from="1551511134343" duration="29166000" />
       <workItem from="1551647101507" duration="6749000" />
       <workItem from="1551735235774" duration="1911000" />
-      <workItem from="1551751904220" duration="2538000" />
+      <workItem from="1551751904220" duration="2835000" />
     </task>
     <task id="LOCAL-00001" summary="My first attempt at python don't judge">
       <created>1548331683038</created>
@@ -519,7 +519,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="130185000" />
+    <option name="totallyTimeSpent" value="130482000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -834,8 +834,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/public/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+        <state relative-caret-position="323">
+          <caret line="19" column="11" lean-forward="true" selection-start-line="19" selection-start-column="11" selection-end-line="19" selection-end-column="11" />
         </state>
       </provider>
     </entry>

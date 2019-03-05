@@ -1,0 +1,102 @@
+.prompt_wrapper {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    background-color: rgba(0, 0, 0, 0.35);
+    left: 0;
+    top: 0;
+    z-index: 99;
+}
+.prompt_content_container {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    overflow: visible;
+    height: 80%;
+    width: 80%;
+    box-shadow: rgb(0.1,0.1,0.1) 0 10px 50px;
+    background: #202225;
+    color: #eeeeee;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+.prompt_content_wrapper {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+    margin: 0;
+    padding: 25px;
+    width: 100%;
+}
+.prompt_close_button {
+    display: block;
+    width: 0;
+    height: 0;
+    text-align: center;
+    line-height: 33px;
+    position: relative;
+    top: -14px;
+    left: calc(100% - 18px);
+    z-index: 10000;
+}
+.prompt_close_button .tool {
+    border-radius: 100%;
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+    background: #141517;
+    border: 2px solid #c3c3c3;
+}
+.prompt_close_button .tool:hover {
+
+}
+.standard_full_button {
+    display: block;
+    padding: 10px;
+    box-shadow: rgba(0.1,0.1,0.1,0.2) 0px 5px 30px;
+    border: none;
+    background: rgba(102, 112, 123, 0.55);
+    color: #eee;
+    border-radius: 0.25rem;
+    margin: 10px 0;
+    width: 100%;
+    user-select: none;
+    font-size: 11pt;
+}
+.standard_full_button:hover {
+    color: white;
+    background: rgba(102, 112, 123, 1);
+}
+.standard_path_input {
+    display: block;
+    padding: 10px;
+    color: #eee;
+    border-radius: 0.25rem;
+    font-size: 11pt;
+    margin: 10px 0;
+    width: 100%;
+    user-select: text;
+    /*position: absolute;*/
+    cursor: pointer;
+    font-family: monospace;
+    box-shadow: rgba(0.1,0.1,0.1,0.05) 0px 0px 50px;
+    background: rgba(36, 40, 44, 0.9);
+}
+.standard_radio {
+    -webkit-appearance: none;
+    border-radius: 100%;
+    width: 10px;
+    height: 10px;
+    transition: 0.125s;
+    box-sizing: border-box;
+    border: 2px solid #4f5660;
+    position: absolute;
+    right: 0;
+}
+.standard_radio:checked {
+    background: #4f5660;
+}
