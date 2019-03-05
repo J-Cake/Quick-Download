@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, dialog} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog,Menu} = require('electron');
 let mainWindow;
 
 let withFrame = false;
@@ -22,13 +22,80 @@ async function createWindow () {
 		withFrame = false;
 			mainWindow.close();
 		createWindow();
-	})
-
+	});
+	mainWindow.on('closed', function() {
+		// Dereference the window object, usually you would store windows
+		// in an array if your app supports multi windows, this is the time
+		// when you should delete the corresponding element.
+		mainWindow = null;
+	});
+	createMenu();
 }
 
 app.setAppUserModelId(process.execPath);
 
-app.on('ready', createWindow);
+app.on('ready',createWindow);
+
+function createMenu(){
+	const template = [
+		{
+			label: 'Quick Downloader',
+			submenu: [
+				{
+					label: 'About Quick Downloader',
+					click() {
+						/* TODO: Figure out a way to call the about function */
+					}
+				}
+			]
+		},
+		{
+			label: 'Edit',
+			submenu: [
+				{ role: 'undo' },
+				{ role: 'redo' },
+				{ type: 'separator' },
+				{ role: 'cut' },
+				{ role: 'copy' },
+				{ role: 'paste' },
+				{ role: 'pasteandmatchstyle' },
+				{ role: 'delete' },
+				{ role: 'selectall' }
+			]
+		},
+		{
+			label: 'View',
+			submenu: [
+				{ role: 'reload' },
+				{ role: 'forcereload' },
+				{ role: 'toggledevtools' },
+				{ type: 'separator' },
+				{ role: 'resetzoom' },
+				{ role: 'zoomin' },
+				{ role: 'zoomout' },
+				{ type: 'separator' },
+				{ role: 'togglefullscreen' }
+			]
+		},
+		{
+			role: 'window',
+			submenu: [
+				{ role: 'minimize' },
+				{ role: 'close' }
+			]
+		},
+		{
+			role: 'help',
+			submenu: [
+				{
+					label: 'Learn More',
+					click () { require('electron').shell.openExternal('https://electronjs.org') }
+				}
+			]
+		}
+	];
+	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
 
 app.on('window-all-closed', function () {
 	if (process.platform !== 'darwin') {
