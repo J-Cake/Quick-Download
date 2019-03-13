@@ -378,7 +378,8 @@ class App extends Component {
                                                onBlur={() => this.setState({focused: null})}
                                                value={this.state.downloadName}
                                                onChange={e => this.setState({downloadName: e.target.value})}
-                                               className={"mousetrap dl-name"} id={"dl-name"}
+                                               className={"mousetrap dl-name input_standard"}
+                                               id={"dl-name"}
                                                placeholder={"Download Name"}/>
                                         <div className={"suggestions"}>
                                             {this.getDownloadNames().map((i, a) => <div key={a}
@@ -393,7 +394,7 @@ class App extends Component {
                                                onBlur={() => this.setState({focused: null})}
                                                value={this.state.downloadURL}
                                                onChange={e => this.setState({downloadURL: e.target.value})}
-                                               className={"mousetrap url" + " " + this.state.required ? "required" : ""}
+                                               className={"input_standard mousetrap url"}
                                                id={"dl-url"}
                                                placeholder={"Download URL"}/>
                                         <div className={"suggestions"}>
@@ -436,7 +437,7 @@ class App extends Component {
                                                         window.localStorage.theme = "dark";
                                                     this.forceUpdate();
                                                 }}
-                                                className={"standard_radio"}
+                                                className={"standard_radio right_aligned"}
                                                 name={"theme"}
                                                 id={"dark"}
                                                 type={"radio"}
@@ -450,7 +451,7 @@ class App extends Component {
                                                         window.localStorage.theme = "dark";
                                                     this.forceUpdate();
                                                 }}
-                                                className={"standard_radio"}
+                                                className={"standard_radio right_aligned"}
                                                 name={"theme"}
                                                 id={"light"}
                                                 type={"radio"}
@@ -475,6 +476,7 @@ class App extends Component {
                                                type={"number"}
                                                min={5}
                                                max={30}
+                                               className={"inline_input"}
                                                value={window.localStorage.getItem("partsToCreate")}
                                                onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
                                         <label htmlFor={"numOfParts"}>How many parts to use during download</label>
@@ -488,7 +490,7 @@ class App extends Component {
                                         <hr/>
 
                                         <div className={"setting"}>
-                                            <input type={"radio"} className={"standard_radio"} name={"unit"}
+                                            <input type={"radio"} className={"standard_radio right_aligned"} name={"unit"}
                                                    onChange={field => {
                                                        if (field.target.value === "on") window.localStorage.preferredUnit = "bin";
                                                        this.forceUpdate();
@@ -498,7 +500,7 @@ class App extends Component {
                                         </div>
 
                                         <div className={"setting"}>
-                                            <input type={"radio"} className={"standard_radio"} name={"unit"}
+                                            <input type={"radio"} className={"standard_radio right_aligned"} name={"unit"}
                                                    onChange={field => {
                                                        if (field.target.value === "on") window.localStorage.preferredUnit = "dec";
                                                        this.forceUpdate();
@@ -532,7 +534,7 @@ class App extends Component {
 
                                     <div className={"setting"}>
                                         <label htmlFor={"none"}>None</label>
-                                        <input type={"radio"} name={"proxy-auth-type"}
+                                        <input  className={"standard_radio right_aligned"} type={"radio"} name={"proxy-auth-type"}
                                                checked={window.localStorage.getItem('proxySettings') === 'none'}
                                                id={"none"}
                                                onChange={field => {
@@ -543,7 +545,7 @@ class App extends Component {
 
                                     <div className={"setting"}>
                                         <label htmlFor={"none"}>Pac Script</label>
-                                        <input type={"radio"} name={"proxy-auth-type"}
+                                        <input className={"standard_radio right_aligned"} type={"radio"} name={"proxy-auth-type"}
                                                checked={window.localStorage.getItem('proxySettings') === 'pac'}
                                                id={"pac"}
                                                onChange={field => {
@@ -554,7 +556,8 @@ class App extends Component {
 
                                     <div className={"setting"}>
                                         <label htmlFor={"none"}>With Credentials</label>
-                                        <input type={"radio"}
+                                        <input className={"standard_radio right_aligned"}
+                                               type={"radio"}
                                                name={"proxy-auth-type"}
                                                checked={window.localStorage.getItem('proxySettings') === 'auth'}
                                                id={"auth"}
@@ -568,6 +571,7 @@ class App extends Component {
                                         window.localStorage.getItem('proxySettings') === "pac" ?
                                             <div>
                                                 <input placeholder={"https://example.com/proxy/proxy.pac"}
+                                                       className={"input_standard"}
                                                        value={window.localStorage.getItem('pacFile') || ""}
                                                        onChange={field => void window.localStorage.setItem('pacFile', field.target.value) || this.forceUpdate()}
                                                        id={"pac-location"}/>
@@ -576,12 +580,14 @@ class App extends Component {
                                             (window.localStorage.getItem('proxySettings') === "auth" ? (
                                                 <div>
                                                     <input placeholder={"proxy.example.com"}
+                                                           className={"input_standard"}
                                                            value={window.localStorage.getItem('proxyHost') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyHost', field.target.value) || this.forceUpdate()}
                                                            id={"proxy-host"}/>
                                                     <label htmlFor={"proxy-host"}>Proxy Host</label>
 
                                                     <input placeholder={8080}
+                                                           className={"inline_input"}
                                                            type={"number"}
                                                            value={window.localStorage.getItem('proxyPort') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
@@ -596,10 +602,14 @@ class App extends Component {
                                                     {(window.localStorage.proxyRequiresCredentials === "true" ?
                                                         <div>
                                                             <input placeholder={"Proxy Username"}
+                                                                   type={"text"}
+                                                                   className={"input_standard"}
                                                                    onChange={field => void (window.localStorage.proxyUsername = field.target.value) || this.forceUpdate()}
                                                                    value={window.localStorage.proxyUsername || ""}
                                                                    id={"proxy-username"}/>
-                                                            <input placeholder={"Proxy Password"} type={"password"}
+                                                            <input placeholder={"Proxy Password"}
+                                                                   type={"password"}
+                                                                   className={"input_standard"}
                                                                    onChange={field => void (window.localStorage.proxyPassword = field.target.value) || this.forceUpdate()}
                                                                    value={window.localStorage.proxyPassword || ""}
                                                                    id={"proxy-password"}/>
@@ -615,14 +625,16 @@ class App extends Component {
                         : null}
                     {/*------------------------------------------------------------------------------------------------Past Downloads------------------------------------------------------------------------------------------------*/}
                     {this.state.pastDownloadsVisible ?
-                        <div className={"prompt past-downloads"}>
-                            <header>
-                                <h1>History</h1>
-                                <div className={"right-align"}>
-                                    <Tool className={"prompt-close-btn"} icon={"fas fa-times"}
+                        <div className={"prompt_wrapper"}>
+                            <div className={"prompt_content_container"}>
+                                <div className={"prompt_close_button"}>
+                                    <Tool icon={"fas fa-times"}
                                           onClick={e => this.setState({pastDownloadsVisible: false})}/>
 
                                 </div>
+                                <div className={"prompt_content_wrapper"}>
+                            <header>
+                                <h1>History</h1>
                             </header>
                             {
                                 JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div key={a}
@@ -643,6 +655,8 @@ class App extends Component {
                                     </div>
                                 </div>)
                             }
+                        </div>
+                            </div>
                         </div>
                         : null}
                 </div>

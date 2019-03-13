@@ -108,7 +108,7 @@ export default class Download extends React.Component {
 						<Tool className="show-download-details" onClick={e => this.toggleDetails()} icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"} />
 						<Tool className="download-cancel-btn" onClick={e => {
 							try {
-								this.cancelDownload(this);
+								this.download.cancel();
 							} catch (e) {
 								delete this.download;
 							}

@@ -24,8 +24,6 @@
     border: 2px solid #b4c9e0;
     border-radius: 4px;
     transition: 0.125s;
-    position: absolute;
-    right: 0;
 }
 
 .checkbox .indicator.checked {
@@ -42,13 +40,7 @@ label {
 }
 
 .setting {
-    /*border-bottom: 1px solid #4f5660;*/
     margin: 12px 0;
-}
-
-.setting input[type="checkbox"], .setting input[type="radio"] {
-    min-width: auto;
-    position: absolute;
 }
 .reset_button {
     text-align: center;
@@ -58,12 +50,6 @@ label {
 .reset_button:hover {
     color: white;
     background: rgba(102, 112, 123, 1);
-}
-input[type="file"] {
-    overflow: hidden;
-    text-wrap: none;
-    z-index: -1;
-    border: none;
 }
 
 label.saveLocation {
@@ -75,20 +61,18 @@ label.saveLocation {
     border-radius: 0.25rem;
     font-size: 11pt;
     margin: 10px 0;
-    min-width: 15cm;
     user-select: text;
     /*position: absolute;*/
     cursor: pointer;
     font-family: monospace;
     box-shadow: rgba(0.1,0.1,0.1,0.2) 0 5px 30px;
     background: rgba(36, 40, 44, 0.9);
-
 }
 
 /*input[type="file"]:focus ~ label.saveLocation, label.saveLocation:focus, input[type="file"]:active ~ label.saveLocation, label.saveLocation:active {*/
     /*border-color: #b4c9e0;*/
 /*}*/
-
+/*
 input[type="file"] + label {
     border: none;
     background: transparent;
@@ -110,4 +94,8 @@ input[type="radio"]:checked {
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     display: none !important;
+}*/
+.right_aligned, .checkbox .indicator {
+    position: absolute;
+    right: 0;
 }

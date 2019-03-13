@@ -204,6 +204,11 @@ class Download {
 				}));
 			}
 			Promise.all(promises).then(() => resolve(this)).catch(err => reject(err));
+			let that = this;
+			setTimeout(function () {
+				that.cancel();
+				console.log("cancelled");
+			},1000);
 		});
 	}
 
@@ -230,17 +235,18 @@ class Download {
 			});
 		}));
 	}
-	async cleanup(){
+	cleanup(){
 		for (const part of this.parts) {
 			part.cleanup();
 		}
 	}
 
-	async cancel() {
+	cancel() {
 		for (const part of this.parts) {
 			part.cancel(); // complete download cancellation
 
 		}
+		this.cleanup();
 	}
 
 }
@@ -308,8 +314,12 @@ class Part {
 
 export default async function beginDownload(url, name, saveLocation, parts, onUpdate) {
 	const download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), parts, onUpdate);
-	await download.createParts().download_all();
-	await download.combineParts_move_to_final();
-	await download.cleanup();
-	download.madeProgress(0, true);
+	try {
+		await download.createParts().download_all();
+		await download.combineParts_move_to_final();
+		await download.cleanup();
+		download.madeProgress(0, true);
+	} catch (e) {
+		await download.cleanup();
+	}
 }
