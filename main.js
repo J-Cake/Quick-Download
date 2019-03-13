@@ -147,7 +147,13 @@ function createMenu() {
                 {
                     label: 'Learn More',
                     click() {
-                        require('electron').shell.openExternal('https://electronjs.org')
+                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                    }
+                },
+                {
+                    label: 'Contribute',
+                    click() {
+                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
                     }
                 },
                 {
@@ -160,7 +166,10 @@ function createMenu() {
                     }
                 },
                 {
-                    label: "Docs"
+                    label: "Docs",
+                    click() {
+                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                    }
                 }
             ]
         }

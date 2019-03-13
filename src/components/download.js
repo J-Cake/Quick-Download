@@ -26,7 +26,7 @@ export default class Download extends React.Component {
 			path: "",
 			id: this.props.id
 		};
-
+		this.past_percent = 0;
 		console.log(this.state);
 
 		this.startDownload();
@@ -57,12 +57,20 @@ export default class Download extends React.Component {
 		return parseFloat(output).toFixed(2) + " " + units[steps];
 	}
 
+	update_percent(percent){
+		percent = Math.round(percent*1000)/1000;
+		if(percent - this.past_percent >= 1){
+			this.past_percent = percent;
+			this.setState({
+				progress: percent
+			})
+		}
+	}
 	startDownload() {
 		this.download = beginDownload(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
-			// console.log(info);
 			this.setState({
-				progress: info.percentage,
 				size: info.size,
+				progress: Math.round(info.percentage *1000)/1000,
 				friendlySize: Download.calculateSize(info.size),
 				total_chunks: info.total_chunks,
 				chunks_done: info.chunks_done,
@@ -107,11 +115,8 @@ export default class Download extends React.Component {
 							<Tool className="retry" onClick={e => this.startDownload()} icon={"fas fa-redo-alt"} /> : null}
 						<Tool className="show-download-details" onClick={e => this.toggleDetails()} icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"} />
 						<Tool className="download-cancel-btn" onClick={e => {
-							try {
+								console.log("cancelling");
 								this.download.cancel();
-							} catch (e) {
-								delete this.download;
-							}
 						}} icon={"fas fa-times"} />
 					</div>
 				</div>

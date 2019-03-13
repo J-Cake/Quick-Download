@@ -237,11 +237,15 @@ class Download {
 	}
 
 	cancel() {
+		console.log("Canceling parts...");
 		for (const part of this.parts) {
 			part.cancel(); // complete download cancellation
 
 		}
 		this.cleanup();
+		this.onUpdate({
+			status: 1
+		});
 	}
 
 }
@@ -270,6 +274,13 @@ class Part {
 
 	async download_bytes() {
 		return await new Promise((resolve, reject) => {
+			let needUpdate = true;
+			const startTimer = () => {
+				setTimeout(function () {
+					needUpdate = true;
+				},100);
+			};
+			startTimer();
 			try {
 				const q = url_lib.parse(this.url);
 				this.download = this.protocol.get({
@@ -282,7 +293,11 @@ class Part {
 					}
 				}, res => {
 					res.on('data',  res => {
-						this.parent.madeProgress(Buffer.byteLength(res));
+						if(needUpdate){
+							needUpdate = false;
+							this.parent.madeProgress(Buffer.byteLength(res));
+							startTimer();
+						}
 						this.file.writeSync(res);
 						this.current_byte += res.length;
 						this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
@@ -315,6 +330,9 @@ export default async function beginDownload(url, name, saveLocation, parts, onUp
 		await download.cleanup();
 		download.madeProgress(0, true);
 	} catch (e) {
+		onUpdate({
+			status: 1
+		});
 		await download.cleanup();
 	}
 }
