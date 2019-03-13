@@ -204,11 +204,6 @@ class Download {
 				}));
 			}
 			Promise.all(promises).then(() => resolve(this)).catch(err => reject(err));
-			let that = this;
-			setTimeout(function () {
-				that.cancel();
-				console.log("cancelled");
-			},1000);
 		});
 	}
 

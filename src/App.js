@@ -26,6 +26,21 @@ let platform = remote.require('os').platform();
 if (platform !== "win32" && platform !== "darwin")
     platform = "other";
 
+
+window.require('electron').ipcRenderer.on('menu-about', function(event) {
+    window.App.about();
+});
+window.require('electron').ipcRenderer.on('menu-settings', function(event) {
+    window.App.showSettings();
+});
+window.require('electron').ipcRenderer.on('menu-new_download', function(event) {
+    window.App.show();
+});
+window.require('electron').ipcRenderer.on('menu-close', function(event) {
+    window.App.close();
+});
+
+
 class App extends Component {
 
     constructor(...args) {
@@ -165,7 +180,8 @@ class App extends Component {
             showPastDownloads: () => this.pastDownloads(),
             close: () => App.confirmExit(),
             toggleFullScreen: () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()),
-            about: () => this.about()
+            about: () => this.about(),
+            showSettings: () => this.showSettings(),
         };
 
         // _electron.remote.getCurrentWindow().setMenu;

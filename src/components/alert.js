@@ -9,15 +9,19 @@ export default class Alert extends React.Component {
 	render() {
 		if (this.state.showing)
 			return (
-				<div className="alert">
-					<div className="alert-header">
-						{this.props.header}
-					</div>
-					<div className="alert-body">
-						{this.props.body}
-					</div>
-					<div className={"right-align"}>
-						<Tool className={"prompt-close-btn"} icon={"fas fa-check"} onClick={e => this.setState({showing: false})} />
+				<div className={"prompt_wrapper"}>
+					<div className={"prompt_content_container"}>
+						<div className={"prompt_close_button"}>
+							<Tool icon={"fas fa-times"}
+								  onClick={e => this.setState({showing: false})}/>
+
+						</div>
+						<div className={"prompt_content_wrapper"}>
+							<header className={"settings_header"}>
+								{this.props.header}
+							</header>
+							{this.props.body}
+						</div>
 					</div>
 				</div>
 			);

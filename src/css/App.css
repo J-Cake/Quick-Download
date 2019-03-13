@@ -26,7 +26,7 @@ header {
     /*  background: #24282c; */
     background: #202225;
     padding: 7px;
-    box-shadow: 0 0 5px 0 #181b1e;
+   /*  box-shadow: 0 0 5px 0 #181b1e; */
     grid-row: 1;
 }
 
