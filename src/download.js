@@ -293,12 +293,8 @@ class Part {
 					}
 				}, res => {
 					res.on('data',  res => {
-						if(needUpdate){
-							needUpdate = false;
-							this.parent.madeProgress(Buffer.byteLength(res));
-							startTimer();
-						}
 						this.file.writeSync(res);
+						this.parent.madeProgress(Buffer.byteLength(res));
 						this.current_byte += res.length;
 						this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
 						this.parent.average_in(this.percent_done, this);

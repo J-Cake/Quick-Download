@@ -20,6 +20,7 @@ const Mousetrap = window.require('mousetrap');
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
+const { ipcRenderer } = window.require('electron');
 
 let platform = remote.require('os').platform();
 
@@ -27,17 +28,20 @@ if (platform !== "win32" && platform !== "darwin")
     platform = "other";
 
 
-window.require('electron').ipcRenderer.on('menu-about', function(event) {
+ipcRenderer.on('menu-about', function(event) {
     window.App.about();
 });
-window.require('electron').ipcRenderer.on('menu-settings', function(event) {
+ipcRenderer.on('menu-settings', function(event) {
     window.App.showSettings();
 });
-window.require('electron').ipcRenderer.on('menu-new_download', function(event) {
+ipcRenderer.on('menu-new_download', function(event) {
     window.App.show();
 });
-window.require('electron').ipcRenderer.on('menu-close', function(event) {
+ipcRenderer.on('menu-close', function(event) {
     window.App.close();
+});
+ipcRenderer.on('menu_contact', function(event) {
+    window.App.contact();
 });
 
 
@@ -182,6 +186,8 @@ class App extends Component {
             toggleFullScreen: () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()),
             about: () => this.about(),
             showSettings: () => this.showSettings(),
+            alert: (box) => this.alert(box),
+            contact: () => this.contact(),
         };
 
         // _electron.remote.getCurrentWindow().setMenu;
@@ -237,7 +243,21 @@ class App extends Component {
         window.localStorage.saveLocation = _electron.ipcRenderer.sendSync('pickDir') || window.localStorage.saveLocation;
         this.forceUpdate();
     }
-
+    contact() {
+        console.log("contact");
+        this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<ul>
+            <li><a
+                href="mailto:josh.stackexchange@gmail.com">Joshua
+                Brown
+                (josh.stackexchange@gmail.com)</a>
+            </li>
+            <li><a
+                href="mailto:jakieschneider13@gmail.com">Jacob
+                Schneider
+                (jakieschneider13@gmail.com)</a>
+            </li>
+        </ul>}/>)
+    }
     about() {
         this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<div>
             <ul className={"about-details"}>

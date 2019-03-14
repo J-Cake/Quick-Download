@@ -70,7 +70,7 @@ export default class Download extends React.Component {
 		this.download = beginDownload(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
 			this.setState({
 				size: info.size,
-				progress: Math.round(info.percentage *1000)/1000,
+				progress: info.percentage,
 				friendlySize: Download.calculateSize(info.size),
 				total_chunks: info.total_chunks,
 				chunks_done: info.chunks_done,
@@ -78,14 +78,13 @@ export default class Download extends React.Component {
 				path: info.path,
 				elapsedTime: info.elapsedTime
 			});
-
 			if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
 				new Notification('Download Complete', {body: `Download of ${this.state.fileName} has been completed`, icon: "./favicon.ico"}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
 			}
 
 			this.props.updateTaskBarProgress(this.state.id, this.state.progress);
 
-			this.cancelDownload = info.cancel;
+			this.cancelDownload = this.download.cancel();
 
 		}).catch(e => {
 			console.error(e);
@@ -114,10 +113,7 @@ export default class Download extends React.Component {
 						{this.state.status === 1 ?
 							<Tool className="retry" onClick={e => this.startDownload()} icon={"fas fa-redo-alt"} /> : null}
 						<Tool className="show-download-details" onClick={e => this.toggleDetails()} icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"} />
-						<Tool className="download-cancel-btn" onClick={e => {
-								console.log("cancelling");
-								this.download.cancel();
-						}} icon={"fas fa-times"} />
+						<Tool className="download-cancel-btn" onClick={e => this.download.cancel()} icon={"fas fa-times"} />
 					</div>
 				</div>
 				{this.state.details ?

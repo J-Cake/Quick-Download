@@ -22,8 +22,11 @@
     display: flex;
     justify-content: flex-end;
 }
+.download-name {
+    word-wrap: break-word;
+}
 .download-url {
     font-size: 9pt;
     font-weight: 300;
-
+    word-wrap: break-word;
 }

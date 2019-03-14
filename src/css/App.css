@@ -120,6 +120,7 @@ b {
     margin: 0 10px;
     display: block;
     color: #aaa;
+    word-wrap: break-word;
 }
 
 .download.done .download-detail, .download.failed .download-detail {

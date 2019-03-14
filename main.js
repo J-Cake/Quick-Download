@@ -149,8 +149,17 @@ function createMenu() {
             ]
         },
         {
-            label: 'help',
+            label: 'Help',
             submenu: [
+                {
+                  label: 'Contact Developers',
+                  async click() {
+                      if (mainWindow === null) {
+                          await createWindow();
+                      }
+                      mainWindow.webContents.send("menu-contact")
+                  }
+                },
                 {
                     label: 'Learn More',
                     click() {
