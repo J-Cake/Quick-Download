@@ -8,7 +8,7 @@ import './css/standard_prompt.css';
 // import * as Mousetrap from "Mousetrap";
 
 import Tool from './components/tool';
-import Download from './components/download';
+import DownloadComp from './components/downloadComp';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils'
@@ -20,7 +20,7 @@ const Mousetrap = window.require('mousetrap');
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
-const { ipcRenderer } = window.require('electron');
+const {ipcRenderer} = window.require('electron');
 
 let platform = remote.require('os').platform();
 
@@ -28,19 +28,19 @@ if (platform !== "win32" && platform !== "darwin")
     platform = "other";
 
 
-ipcRenderer.on('menu-about', function(event) {
+ipcRenderer.on('menu-about', function (event) {
     window.App.about();
 });
-ipcRenderer.on('menu-settings', function(event) {
+ipcRenderer.on('menu-settings', function (event) {
     window.App.showSettings();
 });
-ipcRenderer.on('menu-new_download', function(event) {
+ipcRenderer.on('menu-new_download', function (event) {
     window.App.show();
 });
-ipcRenderer.on('menu-close', function(event) {
+ipcRenderer.on('menu-close', function (event) {
     window.App.close();
 });
-ipcRenderer.on('menu_contact', function(event) {
+ipcRenderer.on('menu-contact', function (event) {
     window.App.contact();
 });
 
@@ -95,9 +95,9 @@ class App extends Component {
         if (this.state.downloadURL) {
             this.setState({
                 downloads: [...this.state.downloads,
-                    <Download id={this.state.downloads.length + 1}
-                              updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-                              key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]
+                    <DownloadComp id={this.state.downloads.length + 1}
+                                  updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
+                                  key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]
             });
             this.closePrompt();
 
@@ -193,7 +193,7 @@ class App extends Component {
         // _electron.remote.getCurrentWindow().setMenu;
         _electron.remote.getCurrentWindow().setMenu(_electron.remote.Menu.buildFromTemplate([{
             label: "File",
-            submenu: [{label: "New Download", click: window.App.show}, {
+            submenu: [{label: "New DownloadComp", click: window.App.show}, {
                 label: "Show Past Downloads",
                 click: window.App.showPastDownloads
             }, {type: "separator"}, {label: "Exit", click: window.App.close}, {
@@ -243,21 +243,26 @@ class App extends Component {
         window.localStorage.saveLocation = _electron.ipcRenderer.sendSync('pickDir') || window.localStorage.saveLocation;
         this.forceUpdate();
     }
+
     contact() {
         console.log("contact");
-        this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<ul>
-            <li><a
-                href="mailto:josh.stackexchange@gmail.com">Joshua
-                Brown
-                (josh.stackexchange@gmail.com)</a>
-            </li>
-            <li><a
-                href="mailto:jakieschneider13@gmail.com">Jacob
-                Schneider
-                (jakieschneider13@gmail.com)</a>
-            </li>
-        </ul>}/>)
+        this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={
+            <ul>
+                <li><a target={"_blank"}
+                    href="https://joshbrown.info/#contact">Joshua
+                    Brown</a>
+                </li>
+                <li><a target={"_blank"}
+                    href="https://www.jacob-schneider.ga/contact.html">Jacob
+                    Schneider</a>
+                </li>
+                <br/>
+                <b>Please submit issues to Github.</b>
+            </ul>
+
+        }/>)
     }
+
     about() {
         this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<div>
             <ul className={"about-details"}>
@@ -375,15 +380,15 @@ class App extends Component {
                                                                               header={"Contact us"}
                                                                               body={<ul>
                                                                                   <li><a
-                                                                                      href="mailto:josh.stackexchange@gmail.com">Joshua
-                                                                                      Brown
-                                                                                      (josh.stackexchange@gmail.com)</a>
+                                                                                      href="https://joshbrown.info/#contact">Joshua
+                                                                                      Brown</a>
                                                                                   </li>
                                                                                   <li><a
-                                                                                      href="mailto:jakieschneider13@gmail.com">Jacob
-                                                                                      Schneider
-                                                                                      (jakieschneider13@gmail.com)</a>
+                                                                                      href="https://www.jacob-schneider.ga/contact.html">Jacob
+                                                                                      Schneider</a>
                                                                                   </li>
+                                                                                  <br/>
+                                                                                  <b>Please submit issues to Github.</b>
                                                                               </ul>}/>)}>Contact
                                             Developers
                                         </div>
@@ -416,7 +421,7 @@ class App extends Component {
                                                onChange={e => this.setState({downloadName: e.target.value})}
                                                className={"mousetrap dl-name input_standard"}
                                                id={"dl-name"}
-                                               placeholder={"Download Name"}/>
+                                               placeholder={"DownloadComp Name"}/>
                                         <div className={"suggestions"}>
                                             {this.getDownloadNames().map((i, a) => <div key={a}
                                                                                         className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
@@ -432,7 +437,7 @@ class App extends Component {
                                                onChange={e => this.setState({downloadURL: e.target.value})}
                                                className={"input_standard mousetrap url"}
                                                id={"dl-url"}
-                                               placeholder={"Download URL"}/>
+                                               placeholder={"DownloadComp URL"}/>
                                         <div className={"suggestions"}>
                                             {this.getDownloadUrls().map((i, a) => <div key={a}
                                                                                        className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
@@ -526,7 +531,8 @@ class App extends Component {
                                         <hr/>
 
                                         <div className={"setting"}>
-                                            <input type={"radio"} className={"standard_radio right_aligned"} name={"unit"}
+                                            <input type={"radio"} className={"standard_radio right_aligned"}
+                                                   name={"unit"}
                                                    onChange={field => {
                                                        if (field.target.value === "on") window.localStorage.preferredUnit = "bin";
                                                        this.forceUpdate();
@@ -536,7 +542,8 @@ class App extends Component {
                                         </div>
 
                                         <div className={"setting"}>
-                                            <input type={"radio"} className={"standard_radio right_aligned"} name={"unit"}
+                                            <input type={"radio"} className={"standard_radio right_aligned"}
+                                                   name={"unit"}
                                                    onChange={field => {
                                                        if (field.target.value === "on") window.localStorage.preferredUnit = "dec";
                                                        this.forceUpdate();
@@ -570,7 +577,8 @@ class App extends Component {
 
                                     <div className={"setting"}>
                                         <label htmlFor={"none"}>None</label>
-                                        <input  className={"standard_radio right_aligned"} type={"radio"} name={"proxy-auth-type"}
+                                        <input className={"standard_radio right_aligned"} type={"radio"}
+                                               name={"proxy-auth-type"}
                                                checked={window.localStorage.getItem('proxySettings') === 'none'}
                                                id={"none"}
                                                onChange={field => {
@@ -581,7 +589,8 @@ class App extends Component {
 
                                     <div className={"setting"}>
                                         <label htmlFor={"none"}>Pac Script</label>
-                                        <input className={"standard_radio right_aligned"} type={"radio"} name={"proxy-auth-type"}
+                                        <input className={"standard_radio right_aligned"} type={"radio"}
+                                               name={"proxy-auth-type"}
                                                checked={window.localStorage.getItem('proxySettings') === 'pac'}
                                                id={"pac"}
                                                onChange={field => {
@@ -669,29 +678,30 @@ class App extends Component {
 
                                 </div>
                                 <div className={"prompt_content_wrapper"}>
-                            <header>
-                                <h1>History</h1>
-                            </header>
-                            {
-                                JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div key={a}
-                                                                                                              className={"past-download"}>
-                                    <div className={"download-details"}>
-                                        <div className={"download-name"}>{i.name}:</div>
-                                        <div className={"download-url"}>{i.url}</div>
-                                    </div>
+                                    <header>
+                                        <h1>History</h1>
+                                    </header>
+                                    {
+                                        JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div
+                                            key={a}
+                                            className={"past-download"}>
+                                            <div className={"download-details"}>
+                                                <div className={"download-name"}>{i.name}:</div>
+                                                <div className={"download-url"}>{i.url}</div>
+                                            </div>
 
-                                    <div className={"delete"}>
-                                        <Tool icon={"fas fa-trash"} onClick={() => {
-                                            const history = JSON.parse(window.localStorage.downloadHistory);
-                                            history.splice(a, 1);
+                                            <div className={"delete"}>
+                                                <Tool icon={"fas fa-trash"} onClick={() => {
+                                                    const history = JSON.parse(window.localStorage.downloadHistory);
+                                                    history.splice(a, 1);
 
-                                            window.localStorage.downloadHistory = JSON.stringify(history);
-                                            this.forceUpdate();
-                                        }}/>
-                                    </div>
-                                </div>)
-                            }
-                        </div>
+                                                    window.localStorage.downloadHistory = JSON.stringify(history);
+                                                    this.forceUpdate();
+                                                }}/>
+                                            </div>
+                                        </div>)
+                                    }
+                                </div>
                             </div>
                         </div>
                         : null}

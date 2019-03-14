@@ -18,13 +18,13 @@ async function createWindow() {
         webPreferences: {webSecurity: false}
     });
 
-    //mainWindow.loadFile('./public/loading.html');
+    mainWindow.loadFile('./public/loading.html');
 
-    mainWindow.loadURL(url.format({
+   /*  mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'build/index.html'),
         protocol: 'file:',
         slashes: true
-    }));
+    })); */
     mainWindow.webContents.openDevTools();
     mainWindow.frame = withFrame;
 
@@ -95,7 +95,7 @@ function createMenu() {
             label: 'File',
             submenu: [
                 {
-                    label: 'New Download...',
+                    label: 'New DownloadComp...',
                     async click() {
                         if (mainWindow === null) {
                             await createWindow();

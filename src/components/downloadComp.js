@@ -5,11 +5,12 @@ import Progress from './progress';
 import * as path from "path";
 
 import beginDownload from '../download.js';
+import Download from '../download';
 
 const os = window.require('os');
 const {shell} = window.require('electron');
 
-export default class Download extends React.Component {
+export default class DownloadComp extends React.Component {
 	constructor() {
 		super(...arguments);
 		this.state = {
@@ -66,32 +67,44 @@ export default class Download extends React.Component {
 			})
 		}
 	}
-	startDownload() {
-		this.download = beginDownload(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
-			this.setState({
-				size: info.size,
-				progress: info.percentage,
-				friendlySize: Download.calculateSize(info.size),
-				total_chunks: info.total_chunks,
-				chunks_done: info.chunks_done,
-				status: info.done ? 2 : 0,
-				path: info.path,
-				elapsedTime: info.elapsedTime
-			});
-			if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
-				new Notification('Download Complete', {body: `Download of ${this.state.fileName} has been completed`, icon: "./favicon.ico"}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
+	async startDownload() {
+		this.download = new Download();
+		await this.download.init(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
+				this.setState({
+					size: info.size,
+					progress: info.percentage,
+					friendlySize: DownloadComp.calculateSize(info.size),
+					total_chunks: info.total_chunks,
+					chunks_done: info.chunks_done,
+					status: info.done ? 2 : 0,
+					path: info.path,
+					elapsedTime: info.elapsedTime
+				});
 			}
-
+		);
+		this.download.beginDownload().then(() => {
+			if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
+				new Notification('DownloadComp Complete', {
+					body: `Download of ${this.state.fileName} has been completed`,
+					icon: "./favicon.ico"
+				}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
+			}
 			this.props.updateTaskBarProgress(this.state.id, this.state.progress);
-
-			this.cancelDownload = this.download.cancel();
-
 		}).catch(e => {
 			console.error(e);
 			this.setState({
 				status: 1
-			})
+			});
 		});
+		console.log("not done but downloading");
+
+		/*
+                }).catch(e => {
+                    console.error(e);
+                    this.setState({
+                        status: 1
+                    })
+                }); */
 	}
 
 	toggleDetails() {

@@ -7,7 +7,7 @@ const http = window.require('http');
 const https = window.require('https');
 const fs = window.require('fs');
 
-class Download {
+export default class Download {
 	async init(url, name, save_location, parts, onUpdate) {
 		this.save_location = save_location;
 		this.extension = Download.get_extension(url);
@@ -157,13 +157,14 @@ class Download {
 	}
 
 	createParts() {
-		/* let num_of_parts_to_create = parseInt( Download.download_speed() / Download.throttled_speed(this.url)) - 1;
+		/* let num_of_parts_to_create = parseInt( DownloadComp.download_speed() / DownloadComp.throttled_speed(this.url)) - 1;
 		this.totalParts = num_of_parts_to_create;
 		if (num_of_parts_to_create <= 0) {
 			num_of_parts_to_create = 1;
 		} */
 		this.num_of_parts_to_create = this.numOfParts || 10;
 		let last_int = -1;
+		console.log(this.parts);
 		for (let i = 0; i < this.num_of_parts_to_create; i++) {
 			let to_byte = parseInt((this.total_length / this.num_of_parts_to_create) * (i + 1));
 			this.parts.push(new Part(this.url, last_int + 1, to_byte, this));
@@ -247,6 +248,22 @@ class Download {
 			status: 1
 		});
 	}
+	async beginDownload(){
+			try {
+				console.log("Creating parts...");
+				await this.createParts();
+				console.log("Downloading parts...");
+				await this.download_all();
+				console.log("Combining parts...");
+				await this.combineParts_move_to_final();
+				console.log("Cleaning up parts...");
+				await this.cleanup();
+				this.madeProgress(0, true);
+			} catch (e) {
+                await this.cleanup();
+				throw Error(e);
+			}
+}
 
 }
 
@@ -318,7 +335,7 @@ class Part {
 	}
 }
 
-export default async function beginDownload(url, name, saveLocation, parts, onUpdate) {
+/* export default async function beginDownload(url, name, saveLocation, parts, onUpdate) {
 	const download = await new Download().init(url, name, saveLocation || (path.join(os.homedir(), 'Downloads')), parts, onUpdate);
 	try {
 		await download.createParts().download_all();
@@ -331,4 +348,4 @@ export default async function beginDownload(url, name, saveLocation, parts, onUp
 		});
 		await download.cleanup();
 	}
-}
+} */

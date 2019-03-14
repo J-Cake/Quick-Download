@@ -29,7 +29,13 @@ header {
    /*  box-shadow: 0 0 5px 0 #181b1e; */
     grid-row: 1;
 }
-
+a {
+    color: #eee;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
 .App {
     max-height: 100vh;
     overflow: hidden;
