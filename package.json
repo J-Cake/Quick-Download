@@ -6,12 +6,10 @@
 		"abort-controller": "^2.0.2",
 		"bad-words": "^3.0.1",
 		"electron": "latest",
-		"frameless-titlebar": "^1.0.3",
-		"mousetrap": "latest",
+		"mousetrap": "^1.6.3",
 		"react": "^16.7.0",
 		"react-dom": "^16.7.0",
-		"react-scripts": "2.1.3",
-		"Mousetrap": "latest"
+		"react-scripts": "2.1.3"
 	},
 	"scripts": {
 		"start": "react-scripts start",

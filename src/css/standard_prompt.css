@@ -6,7 +6,7 @@
     background-color: transparent;
     left: 0;
     top: 0;
-    z-index: 99;
+    z-index: 130;
 }
 
 .prompt_content_container {
@@ -17,13 +17,19 @@
     left: 50%;
     transform: translate(-50%, -25%);
     max-height: 95%;
-    max-width: 1000px;
+    max-width: 80%;
     overflow: auto;
     box-shadow: 0 0 3px 3px #181b1e;
     background: #202225;
     color: #eeeeee;
     border-radius: 10px;
     box-sizing: border-box;
+}
+
+@media screen and (min-width: 1000px) {
+    .prompt_content_container {
+        max-width: 1000px;
+    }
 }
 
 .prompt_content_wrapper {
