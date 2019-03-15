@@ -3,29 +3,30 @@
     width: 100%;
     height: 100%;
     overflow: visible;
-    background-color: rgba(0, 0, 0, 0.35);
+    background-color: transparent;
     left: 0;
     top: 0;
     z-index: 99;
 }
+
 .prompt_content_container {
     position: relative;
     margin: 0;
     padding: 0;
-    top: 50%;
+    top: 25%;
     left: 50%;
-    transform: translate(-50%,-50%);
-    overflow: visible;
-    height: 80%;
-    width: 80%;
-    box-shadow: rgb(0.1,0.1,0.1) 0 10px 50px;
+    transform: translate(-50%, -25%);
+    max-height: 95%;
+    max-width: 1000px;
+    overflow: auto;
+    box-shadow: 0 0 3px 3px #181b1e;
     background: #202225;
     color: #eeeeee;
     border-radius: 10px;
     box-sizing: border-box;
 }
+
 .prompt_content_wrapper {
-    position: relative;
     height: 100%;
     overflow: auto;
     margin: 0;
@@ -33,37 +34,51 @@
     width: 100%;
     box-sizing: border-box;
 }
+
 .prompt_close_button {
     display: block;
-    width: 0;
-    height: 0;
     text-align: center;
     line-height: 33px;
-    position: relative;
-    top: -14px;
-    left: calc(100% - 18px);
+    position: absolute;
     z-index: 10000;
 }
+
 .prompt_close_button i {
     height: 10px;
 }
-.prompt_close_button .tool {
-    border-radius: 100%;
-    width: 25px;
-    height: 25px;
-    font-size: 12px;
-    background: #141517;
-    border: 2px solid #c3c3c3;
+
+.prompt_header * {
+    margin: 0;
+    position: relative;
+    display: block;
 }
+
+.prompt_header {
+    padding: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.prompt_close_button .tool {
+    /*border-radius: 100%;*/
+    /*width: 25px;*/
+    /*height: 25px;*/
+    /*font-size: 12px;*/
+    /*background: #141517;*/
+    /*border: 2px solid #c3c3c3;*/
+}
+
 .prompt_close_button .tool:hover {
 
 }
+
 .standard_full_button {
     display: block;
     padding: 10px;
-    box-shadow: rgba(0.1,0.1,0.1,0.2) 0px 5px 30px;
     border: none;
-    background: rgba(102, 112, 123, 0.55);
+    background: #4f5660;
+    cursor: pointer;
     color: #eee;
     border-radius: 0.25rem;
     margin: 10px 0;
@@ -71,10 +86,12 @@
     user-select: none;
     font-size: 11pt;
 }
+
 .standard_full_button:hover {
     color: white;
-    background: rgba(102, 112, 123, 1);
+    background: #66727f;
 }
+
 .standard_path_input {
     display: block;
     padding: 10px;
@@ -87,21 +104,23 @@
     /*position: absolute;*/
     cursor: pointer;
     font-family: monospace;
-    box-shadow: rgba(0.1,0.1,0.1,0.05) 0px 0px 50px;
-    background: rgba(36, 40, 44, 0.9);
+    background: #3e444b;
 }
+
 .standard_radio {
     -webkit-appearance: none;
     border-radius: 100%;
-    width: 10px;
-    height: 10px;
+    width: 15px;
+    height: 15px;
     transition: 0.125s;
     box-sizing: border-box;
-    border: 2px solid #4f5660;
+    border: 2px solid #b4c9e0;
 }
+
 .standard_radio:checked {
-    background: #4f5660;
+    background: #b4c9e0;
 }
+
 .standard_checkbox {
     display: block;
     box-sizing: border-box;
@@ -112,18 +131,27 @@
     border-radius: 4px;
     transition: 0.125s;
 }
+
 .standard_checkbox:checked {
     background: #b4c9e0;
 }
+
 .inline_input {
     display: inline-block;
     margin: 0 5px;
-    border: 1px solid #4f5660;
+    border: none;
+    padding: 8px;
 }
+
 .input_standard {
-    border: 1px solid #4f5660;
+    border: none;
     display: block;
-    width: 100%;
-    height: 20px;
+    width: 100%;;
+    padding: 8px;
     margin: 5px 0;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    display: none !important;
 }

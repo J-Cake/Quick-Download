@@ -163,7 +163,8 @@ class App extends Component {
                 this.closePrompt();
                 this.setState({
                     settingsVisible: false,
-                    pastDownloadsVisible: false
+                    pastDownloadsVisible: false,
+					boxes: []
                 })
             });
             Mousetrap.bind('mod+j', () => this.pastDownloads());
@@ -405,12 +406,15 @@ class App extends Component {
                     {this.state.promptShowing ?
                         <div className={"prompt_wrapper"}>
                             <div className={"prompt_content_container"}>
-                                <div className={"prompt_close_button"}>
-                                    <Tool icon={"fas fa-times"}
-                                          onClick={e => this.setState({promptShowing: false})}/>
-
-                                </div>
                                 <div className={"prompt_content_wrapper"}>
+									<header className={"prompt_header"}>
+										<h1>New Download</h1>
+										<div className={"prompt_close_button"}>
+											<Tool icon={"fas fa-times"}
+												  onClick={e => this.closePrompt()}/>
+
+										</div>
+									</header>
 
                                     <div className={"formItem"}>
                                         <label htmlFor={"dl-name"}>The file name of the download</label>
@@ -418,7 +422,12 @@ class App extends Component {
                                                onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
                                                value={this.state.downloadName}
-                                               onChange={e => this.setState({downloadName: e.target.value})}
+                                               onChange={e => void ((() => {
+                                               		if (this.state.stopSave)
+                                               			this.setState({
+															stopSave: false
+														});
+											   })()) || this.setState({downloadName: e.target.value})}
                                                className={"mousetrap dl-name input_standard"}
                                                id={"dl-name"}
                                                placeholder={"DownloadComp Name"}/>
@@ -434,7 +443,12 @@ class App extends Component {
                                         <input onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
                                                value={this.state.downloadURL}
-                                               onChange={e => this.setState({downloadURL: e.target.value})}
+                                               onChange={e => void ((() => {
+												   if (this.state.stopSave)
+													   this.setState({
+														   stopSave: false
+													   });
+											   })()) || this.setState({downloadURL: e.target.value})}
                                                className={"input_standard mousetrap url"}
                                                id={"dl-url"}
                                                placeholder={"DownloadComp URL"}/>
@@ -458,14 +472,14 @@ class App extends Component {
                     {this.state.settingsVisible ?
                         <div className={"prompt_wrapper"}>
                             <div className={"prompt_content_container"}>
-                                <div className={"prompt_close_button"}>
-                                    <Tool icon={"fas fa-times"}
-                                          onClick={e => this.setState({settingsVisible: false})}/>
-
-                                </div>
                                 <div className={"prompt_content_wrapper"}>
-                                    <header className={"settings_header"}>
+                                    <header className={"settings_header prompt_header"}>
                                         <h1>Settings</h1>
+										<div className={"prompt_close_button"}>
+											<Tool icon={"fas fa-times"}
+												  onClick={e => this.setState({settingsVisible: false})}/>
+
+										</div>
                                     </header>
 
                                     <h2>Appearance</h2>
@@ -506,13 +520,13 @@ class App extends Component {
                                     <div className={"settingsGroup"}>
 
                                         {/*<div className={"setting"}>*/}
-                                        <label onClick={() => this.changePath()} htmlFor="save-location"
-                                               className={"standard_path_input"}>{window.localStorage.saveLocation}</label>
-                                        <label htmlFor={"save-location"}>Save Location</label>
-                                        {/*</div>*/}
+										<label htmlFor={"save-location"}>Save Location</label>
+										<label onClick={() => this.changePath()} htmlFor="save-location"
+											className={"standard_path_input"}>{window.localStorage.saveLocation}</label>
 
-                                        {/*<div className={"setting"}>*/}
-                                        <input id={"numOfParts"}
+										<label htmlFor={"numOfParts"}>How many parts to use during download</label>
+										<br/>
+										<input id={"numOfParts"}
                                                placeholder={"Number of parts to use during download"}
                                                type={"number"}
                                                min={5}
@@ -520,8 +534,6 @@ class App extends Component {
                                                className={"inline_input"}
                                                value={window.localStorage.getItem("partsToCreate")}
                                                onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
-                                        <label htmlFor={"numOfParts"}>How many parts to use during download</label>
-                                        {/*</div>*/}
                                         {/* //TODO: Add reference to docs explaining how to find the optimum part number */}
 
                                         <br/>
@@ -549,7 +561,7 @@ class App extends Component {
                                                        this.forceUpdate();
                                                    }} id={"dec"}
                                                    checked={window.localStorage.getItem('preferredUnit') === "dec"}/>
-                                            <label htmlFor={"dec"}>Decimal Units (MB = 1000 KB)</label>
+                                            <label htmlFor={"dec"}>Decimal Units (mB = 1000 kB)</label>
                                         </div>
 
                                         <hr/>
@@ -624,20 +636,24 @@ class App extends Component {
                                                 <label htmlFor={"pac-location"}>Pac Script Location</label></div> :
                                             (window.localStorage.getItem('proxySettings') === "auth" ? (
                                                 <div>
-                                                    <input placeholder={"proxy.example.com"}
+													<label htmlFor={"proxy-host"}>Proxy Host</label>
+													<input placeholder={"proxy.example.com"}
                                                            className={"input_standard"}
                                                            value={window.localStorage.getItem('proxyHost') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyHost', field.target.value) || this.forceUpdate()}
                                                            id={"proxy-host"}/>
-                                                    <label htmlFor={"proxy-host"}>Proxy Host</label>
 
-                                                    <input placeholder={8080}
+													<label htmlFor={"proxy-port"}>Proxy Port</label>
+													<br />
+													<input placeholder={8080}
                                                            className={"inline_input"}
                                                            type={"number"}
                                                            value={window.localStorage.getItem('proxyPort') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
                                                            id={"proxy-port"}/>
-                                                    <label htmlFor={"proxy-port"}>Proxy Port</label>
+
+													<br />
+													<br />
 
                                                     <Checkbox
                                                         checked={window.localStorage.proxyRequiresCredentials === "true"}
@@ -672,15 +688,15 @@ class App extends Component {
                     {this.state.pastDownloadsVisible ?
                         <div className={"prompt_wrapper"}>
                             <div className={"prompt_content_container"}>
-                                <div className={"prompt_close_button"}>
-                                    <Tool icon={"fas fa-times"}
-                                          onClick={e => this.setState({pastDownloadsVisible: false})}/>
-
-                                </div>
                                 <div className={"prompt_content_wrapper"}>
-                                    <header>
-                                        <h1>History</h1>
-                                    </header>
+									<header className={"prompt_header"}>
+										<h1>History</h1>
+										<div className={"prompt_close_button"}>
+											<Tool icon={"fas fa-times"}
+												  onClick={e => this.setState({pastDownloadsVisible: false})}/>
+
+										</div>
+									</header>
                                     {
                                         JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div
                                             key={a}

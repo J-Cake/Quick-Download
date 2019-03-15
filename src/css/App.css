@@ -1,20 +1,19 @@
 
-/** {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 
     outline: none;
 
-    !*font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;*!
-    !* font-family: "Source Sans Pro"; *!
+    font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    /* font-family: "Source Sans Pro"; */
     user-select: none;
 }
 
 *::selection {
     background: rgba(102, 112, 123, 0.55);
-    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-}*/
+}
 
 body {
     background: #3e444b;
@@ -255,25 +254,19 @@ b {
 }
 
 input {
-    box-shadow: rgba(0.1, 0.1, 0.1, 0.2) 0 5px 30px;
+    /*box-shadow: rgba(0.1, 0.1, 0.1, 0.2) 0 5px 30px;*/
     /* border: 2px solid #4f5660; */
-    background: rgba(36, 40, 44, 0.9);
+    background: #303237;
     color: #eee;
-    border-radius: 0.25rem;
+    border-radius: 6px;
     font-size: 11pt;
 }
-/*
-input:focus {
-    border-color: #b4c9e0 !important;
-}
 
-input.required {
-    border-color: #b81d27;
+.formItem input {
+    border-radius: 8px 8px 0 0;
+    /*border-bottom-right-radius: 0;*/
+    /*border-bottom-left-radius: 0;*/
 }
-
-input.required:focus {
-    border-color: #ff2734 !important;
-}*/
 
 .right-align {
     width: 100%;
@@ -284,17 +277,19 @@ input.required:focus {
 .formItem .suggestions {
     width: 100%;
     color: #eee;
-    background: rgba(36, 40, 44, 0.9);
+    background: #3e444b;
     z-index: 10;
-    border: 2px solid #4f5660;
-    border-bottom-left-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
+    /*border: 2px solid #4f5660;*/
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     position: relative;
     top: 100%;
     bottom: 5px;
+    overflow: hidden;
 }
 
 .suggestion {
+    padding: 4px 8px;
     color: #eee;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -306,9 +301,9 @@ input.required:focus {
     background: rgba(24, 27, 31, 0.64);
 }
 
-
 .formItem {
     position: relative;
+    border-radius: 10px;
 }
 
 .formItem .suggestions:focus {
@@ -323,7 +318,7 @@ input.required:focus {
 .about-details li {
     display: flex;
     width: 100%;
-    border-bottom: 2px solid #4f5660;
+    border-bottom: 1px solid #3c434b;
     padding: 5px 0;
 }
 
@@ -338,18 +333,3 @@ input.required:focus {
 .suggestion.focused {
     background: #4f5660;
 }
-/*
-a {
-    color: #b4c9e0;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-*/
-
-/*header * {*/
-/*background: transparent;*/
-/*}*/

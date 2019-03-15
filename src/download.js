@@ -1,6 +1,5 @@
 import * as url_lib from 'url';
 import * as TempFile from './tempfile';
-import * as os from 'os';
 import * as path from 'path';
 
 const http = window.require('http');
@@ -11,7 +10,7 @@ export default class Download {
 	async init(url, name, save_location, parts, onUpdate) {
 		this.save_location = save_location;
 		this.extension = Download.get_extension(url);
-		this.final_file = path.join(save_location,name + this.extension);
+		this.final_file = path.join(save_location, name + this.extension);
 		this.url = url;
 		this.progress = 0;
 		this.total_length = await Download.get_length(url);
@@ -45,17 +44,17 @@ export default class Download {
 
 	static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
 		return `.${url.split('/').pop().split('.').pop()}`;
-	// 	// Remove everything to the last slash in URL
-	// 	url = url.substr(1 + url.lastIndexOf("."));
-	//
-	// 	// Break URL at ? and take first part (file name, extension)
-	// 	url = url.split('?')[0];
-	//
-	// 	// Sometimes URL doesn't have ? but #, so we should also do the same for #
-	// 	url = url.split('#')[0];
-	//
-	// 	// Now we have only extension
-	// 	return "."+url;
+		// 	// Remove everything to the last slash in URL
+		// 	url = url.substr(1 + url.lastIndexOf("."));
+		//
+		// 	// Break URL at ? and take first part (file name, extension)
+		// 	url = url.split('?')[0];
+		//
+		// 	// Sometimes URL doesn't have ? but #, so we should also do the same for #
+		// 	url = url.split('#')[0];
+		//
+		// 	// Now we have only extension
+		// 	return "."+url;
 	}
 
 	static async get_length(url) {
@@ -213,25 +212,28 @@ export default class Download {
 		this.madeProgress(0);
 	}
 
-	 combineParts_move_to_final() {
+	combineParts_move_to_final() {
 		return new Promise((resolve => {
 			let final = fs.createWriteStream(this.final_file, {flags: 'a'});
-			final.on('finish',resolve);
-			final.on('open',async () => {
+			final.on('finish', resolve);
+			final.on('open', async () => {
 				for (const part of this.parts) {
 					console.log(part.file.path);
-					await new Promise((resolve,reject)=>{
+					await new Promise((resolve, reject) => {
 						const r = fs.createReadStream(part.file.path);
 						r.on('close', resolve);
-						r.on('error', (err)=>{console.log(err)});
-					    r.pipe(final,{end:false});
+						r.on('error', (err) => {
+							console.log(err)
+						});
+						r.pipe(final, {end: false});
 					});
 				}
 				final.end();
 			});
 		}));
 	}
-	cleanup(){
+
+	cleanup() {
 		for (const part of this.parts) {
 			part.cleanup();
 		}
@@ -248,22 +250,23 @@ export default class Download {
 			status: 1
 		});
 	}
-	async beginDownload(){
-			try {
-				console.log("Creating parts...");
-				await this.createParts();
-				console.log("Downloading parts...");
-				await this.download_all();
-				console.log("Combining parts...");
-				await this.combineParts_move_to_final();
-				console.log("Cleaning up parts...");
-				await this.cleanup();
-				this.madeProgress(0, true);
-			} catch (e) {
-                await this.cleanup();
-				throw Error(e);
-			}
-}
+
+	async beginDownload() {
+		try {
+			console.log("Creating parts...");
+			await this.createParts();
+			console.log("Downloading parts...");
+			await this.download_all();
+			console.log("Combining parts...");
+			await this.combineParts_move_to_final();
+			console.log("Cleaning up parts...");
+			await this.cleanup();
+			this.madeProgress(0, true);
+		} catch (e) {
+			await this.cleanup();
+			throw Error(e);
+		}
+	}
 
 }
 
@@ -274,7 +277,7 @@ class Part {
 		this.to_byte = parseInt(to_byte);
 		this.current_byte = parseInt(from_byte);
 		this.stop_byte = parseInt(to_byte);
-		this.file = new TempFile.TmpFile(Date.now()+from_byte);
+		this.file = new TempFile.TmpFile(Date.now() + from_byte);
 		// console.log(this.file.path);
 		this.percent_done = 0;
 		this.parent = parent;
@@ -295,7 +298,7 @@ class Part {
 			const startTimer = () => {
 				setTimeout(function () {
 					needUpdate = true;
-				},100);
+				}, 100);
 			};
 			startTimer();
 			try {
@@ -309,7 +312,7 @@ class Part {
 						'Range': `bytes=${this.from_byte}-${this.to_byte}`
 					}
 				}, res => {
-					res.on('data',  res => {
+					res.on('data', res => {
 						this.file.writeSync(res);
 						this.parent.madeProgress(Buffer.byteLength(res));
 						this.current_byte += res.length;
@@ -327,9 +330,11 @@ class Part {
 			}
 		});
 	}
+
 	async cancel() {
 		this.download.abort();
 	}
+
 	async cleanup() {
 		this.file.deleteSync();
 	}
