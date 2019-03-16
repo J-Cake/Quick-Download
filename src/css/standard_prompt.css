@@ -13,13 +13,13 @@
     position: relative;
     margin: 0;
     padding: 0;
-    top: 25%;
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -25%);
-    max-height: 95%;
-    max-width: 80%;
-    overflow: auto;
-    box-shadow: 0 0 3px 3px #181b1e;
+    transform: translate(-50%,-50%);
+    overflow: visible;
+    height: 80%;
+    width: 80%;
+    box-shadow: rgb(0.1,0.1,0.1) 0 10px 50px;
     background: #202225;
     color: #eeeeee;
     border-radius: 10px;
@@ -45,8 +45,9 @@
     display: block;
     text-align: center;
     line-height: 33px;
-    position: absolute;
     z-index: 10000;
+    position: sticky;
+    position: -webkit-sticky;
 }
 
 .prompt_close_button i {
@@ -155,6 +156,7 @@
     width: 100%;;
     padding: 8px;
     margin: 5px 0;
+    box-sizing: border-box;
 }
 
 input::-webkit-outer-spin-button,

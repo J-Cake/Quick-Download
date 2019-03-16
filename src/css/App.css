@@ -1,4 +1,4 @@
-
+/*
 * {
     margin: 0;
     padding: 0;
@@ -7,13 +7,13 @@
     outline: none;
 
     font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    /* font-family: "Source Sans Pro"; */
+    !* font-family: "Source Sans Pro"; *!
     user-select: none;
 }
 
 *::selection {
     background: rgba(102, 112, 123, 0.55);
-}
+}*/
 
 body {
     background: #3e444b;

@@ -7,19 +7,39 @@ const https = window.require('https');
 const fs = window.require('fs');
 
 export default class Download {
-	async init(url, name, save_location, parts, onUpdate) {
-		this.save_location = save_location;
-		this.extension = Download.get_extension(url);
-		this.final_file = path.join(save_location, name + this.extension);
-		this.url = url;
-		this.progress = 0;
-		this.total_length = await Download.get_length(url);
-		this.name = name;
+	constructor(){
 		this.average_percentage = 0;
 		this.average_index = 0;
 		this.last_print = 0;
 		this.parts = [];
 		this.parts_done = 0;
+		this.progress = 0;
+	}
+
+	/**
+	 *
+	 * @param url
+	 * @param name
+	 * @param save_location
+	 * @param parts
+	 * @param onUpdate
+	 * @param proxyOptions - Object or false
+	 * @param proxyOptions.auth - boolean - if proxy requires auth details
+	 * @param proxyOptions.auth.username - string - required if proxyOptions.auth is true - username for auth
+	 * @param proxyOptions.auth.password - string - required if proxyOptions.auth is true - password for auth
+	 * @param proxyOptions.hostname - string required - hostname of proxy (proxy.example.com)
+	 * @param proxyOptions.port - integer required - port of proxy
+	 * @param proxyOptions.protocol - string -  "http" || "https"
+	 * @returns {Promise<Download>}
+	 */
+	async init(url, name, save_location, parts, onUpdate, proxyOptions) {
+		this.save_location = save_location;
+		this.proxyOptions = proxyOptions || false;
+		this.extension = Download.get_extension(url);
+		this.final_file = path.join(save_location, name + this.extension);
+		this.url = url;
+		this.total_length = await Download.get_length(url,this.proxyOptions);
+		this.name = name;
 		this.onUpdate = onUpdate;
 		this.numOfParts = parts || 10;
 		this.startTime = Date.now();
@@ -34,8 +54,9 @@ export default class Download {
 		return this;
 	}
 
-	static get_lib(url) {
-		if (url_lib.parse(url).protocol === "http:") {
+	static get_lib(url, proxyOptions) {
+		proxyOptions = proxyOptions || false;
+		if (url_lib.parse(url).protocol === "http:" || proxyOptions){
 			return http;
 		} else {
 			return https;
@@ -57,32 +78,34 @@ export default class Download {
 		// 	return "."+url;
 	}
 
-	static async get_length(url) {
+	static async get_length(url,proxyOptions) {
 		return await new Promise(resolve => {
 			const q = url_lib.parse(url);
-			Download.get_lib(url).request({
+			Download.get_lib(url,proxyOptions).request(Download.proxify_headers({
 				method: 'HEAD',
 				path: q.pathname,
 				host: q.hostname,
-				port: (q.protocol === "http:") ? 80 : 443
-			}, res => {
+				port: (q.protocol === "http:") ? 80 : 443,
+				url: url,
+			},proxyOptions), res => {
 				resolve(Number(res.headers['content-length'] || "0"));
 			}).end();
 		});
 	}
 
-	static async byte_request_supported(url) {
+	static async byte_request_supported(url,proxyOptions) {
 		return await new Promise(resolve => {
 			const q = url_lib.parse(url);
-			Download.get_lib(url).request({
+			Download.get_lib(url,proxyOptions).request(Download.proxify_headers({
 				method: 'GET',
 				headers: {
 					'Range': 'bytes=0-1'
 				},
 				path: q.pathname,
 				host: q.hostname,
-				port: (q.protocol === "http:") ? 80 : 443
-			}, res => {
+				port: (q.protocol === "http:") ? 80 : 443,
+				url: url,
+			},proxyOptions), res => {
 				res.on("data", (chunk) => {
 					res.destroy();
 					resolve(res.statusCode);
@@ -90,7 +113,33 @@ export default class Download {
 			}).end();
 		});
 	}
-
+	static proxify_headers(headers, proxyOptions){
+		if(!proxyOptions){
+			delete headers.url;
+			return headers;
+		}
+		const proxySplit = url_lib.parse(proxyOptions.url);
+		let returnHeaders =  {
+			method: headers.method,
+			host: proxyOptions.hostname,
+			port: proxyOptions.port,
+			path: headers.url,
+			headers: {
+				...headers.headers,
+				Host: headers.hostname
+			}
+		};
+		if(proxyOptions.auth){
+			const username = proxyOptions.auth.username;
+			const password = proxyOptions.auth.password;
+			const auth = 'Basic ' + Buffer.from(username + ':' + password).toString('base64');
+			returnHeaders = {
+				...returnHeaders,
+				'Authorization' : auth
+			};
+		}
+		return returnHeaders;
+	}
 	static async download_speed() {
 		const url = "http://speedtest.ftp.otenet.gr/files/test1Gb.db";
 		const start = Date.now();
@@ -115,12 +164,12 @@ export default class Download {
 		});
 	}
 
-	static async throttled_speed(url) {
+	static async throttled_speed(url,porxyOptions) {
 		const start = Date.now();
 		let dl = 0;
 		let time_difference = 0;
-		return await new Promise(resolve => {
-			Download.get_lib(url).get(url, (resp) => {
+		return await new Promise((resolve,proxyOptions) => {
+			Download.get_lib(url,proxyOptions).get(url, (resp) => {
 				setTimeout(function () {
 					resp.destroy();
 				}, 5000);
@@ -246,9 +295,14 @@ export default class Download {
 
 		}
 		this.cleanup();
-		this.onUpdate({
-			status: 1
-		});
+		try {
+			this.onUpdate({
+				status: 1
+			});
+		} catch (e) {
+			console.error(e);
+		}
+
 	}
 
 	async beginDownload() {
@@ -303,7 +357,7 @@ class Part {
 			startTimer();
 			try {
 				const q = url_lib.parse(this.url);
-				this.download = this.protocol.get({
+				this.download = this.protocol.get(Download.proxify_headers({
 					port: this.port,
 					protocol: q.protocol,
 					path: q.pathname,
@@ -311,10 +365,12 @@ class Part {
 					headers: {
 						'Range': `bytes=${this.from_byte}-${this.to_byte}`
 					}
-				}, res => {
+				},this.parent.proxyOptions), res => {
 					res.on('data', res => {
 						this.file.writeSync(res);
-						this.parent.madeProgress(Buffer.byteLength(res));
+						const bufferLength = Buffer.byteLength(res);
+						console.log("Same? :" + res.length/bufferLength);
+						this.parent.madeProgress(bufferLength);
 						this.current_byte += res.length;
 						this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
 						this.parent.average_in(this.percent_done, this);
