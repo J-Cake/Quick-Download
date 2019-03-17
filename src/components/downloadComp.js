@@ -126,7 +126,12 @@ export default class DownloadComp extends React.Component {
 						{this.state.status === 1 ?
 							<Tool className="retry" onClick={e => this.startDownload()} icon={"fas fa-redo-alt"} /> : null}
 						<Tool className="show-download-details" onClick={e => this.toggleDetails()} icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"} />
-						<Tool className="download-cancel-btn" onClick={e => this.download.cancel()} icon={"fas fa-times"} />
+						<Tool className="download-cancel-btn" onClick={e => {
+							this.download.cancel();
+							this.setState({
+								status: 1,
+							});
+						}} icon={"fas fa-times"} />
 					</div>
 				</div>
 				{this.state.details ?

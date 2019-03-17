@@ -13,7 +13,7 @@
     position: relative;
     margin: 0;
     padding: 0;
-    top: 25%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -25%);
     max-height: 95%;
@@ -46,6 +46,8 @@
     text-align: center;
     line-height: 33px;
     z-index: 10000;
+    position: sticky;
+    position: -webkit-sticky;
 }
 
 .prompt_close_button i {
@@ -142,6 +144,7 @@
     width: 100%;;
     padding: 8px;
     margin: 5px 0;
+    box-sizing: border-box;
 }
 
 input::-webkit-outer-spin-button,

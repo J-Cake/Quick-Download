@@ -4,8 +4,13 @@
     margin: 15px 0;
     border-radius: 15px;
     cursor: pointer;
+    -webkit-transition: 0.125s;
     transition: 0.125s;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
 }
 .past-download:hover {
     background: #3c434b;
@@ -21,6 +26,9 @@
 
     display: flex;
     justify-content: flex-end;
+}
+.download-details {
+    width: 90%;
 }
 .download-name {
     word-wrap: break-word;
