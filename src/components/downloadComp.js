@@ -87,7 +87,7 @@ export default class DownloadComp extends React.Component {
 				new Notification('DownloadComp Complete', {
 					body: `Download of ${this.state.fileName} has been completed`,
 					icon: "./favicon.ico"
-				}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
+		 		}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
 			}
 			this.props.updateTaskBarProgress(this.state.id, this.state.progress);
 		}).catch(e => {

@@ -35,8 +35,9 @@ class TmpFile {
 	}
 
 	async delete() {
+		let that = this;
 		return new Promise(function (resolve, reject) {
-			fs.unlink(this.path, err => {
+			fs.unlink(that.path, err => {
 				if (err)
 					reject({success: false, err});
 				resolve({success: true});
