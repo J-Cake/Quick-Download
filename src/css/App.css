@@ -4,6 +4,9 @@
     padding: 0;
     box-sizing: border-box;
 
+    /*outline-color: cornflowerblue;*/
+    /*outline-width: 2px;*/
+    /* outline-style: solid; */
     outline: none;
 
     font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -13,6 +16,10 @@
 
 *::selection {
     background: rgba(102, 112, 123, 0.55);
+}
+
+*:focus {
+    background: #334c79 !important;
 }
 
 body {
