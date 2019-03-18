@@ -95,7 +95,7 @@ function createMenu() {
             label: 'File',
             submenu: [
                 {
-                    label: 'New DownloadComp...',
+                    label: 'New Download...',
                     async click() {
                         if (mainWindow === null) {
                             await createWindow();
