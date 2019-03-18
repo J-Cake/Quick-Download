@@ -194,7 +194,7 @@ class App extends Component {
         // _electron.remote.getCurrentWindow().setMenu;
         _electron.remote.getCurrentWindow().setMenu(_electron.remote.Menu.buildFromTemplate([{
             label: "File",
-            submenu: [{label: "New DownloadComp", click: window.App.show}, {
+            submenu: [{label: "New Download", click: window.App.show}, {
                 label: "Show Past Downloads",
                 click: window.App.showPastDownloads
             }, {type: "separator"}, {label: "Exit", click: window.App.close}, {
