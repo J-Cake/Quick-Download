@@ -531,13 +531,10 @@ class App extends Component {
                                                type={"number"}
                                                min={5}
                                                max={30}
-                                               className={"inline_input"}
+                                               className={"input_short"}
                                                value={window.localStorage.getItem("partsToCreate")}
                                                onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
                                         {/* //TODO: Add reference to docs explaining how to find the optimum part number */}
-
-                                        <br/>
-                                        <br/>
                                         <h3>Units</h3>
 
                                         <hr/>
@@ -646,7 +643,7 @@ class App extends Component {
 													<label htmlFor={"proxy-port"}>Proxy Port</label>
 													<br />
 													<input placeholder={8080}
-                                                           className={"inline_input"}
+                                                           className={"input_standard"}
                                                            type={"number"}
                                                            value={window.localStorage.getItem('proxyPort') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}

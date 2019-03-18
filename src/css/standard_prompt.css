@@ -137,13 +137,15 @@
     padding: 8px;
 }
 
-.input_standard {
+.input_standard,.input_short {
     border: none;
     display: block;
-    width: 100%;;
     padding: 8px;
     margin: 5px 0;
     box-sizing: border-box;
+}
+.input_standard {
+    width: 100%;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
