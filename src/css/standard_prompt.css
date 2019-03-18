@@ -13,12 +13,13 @@
     position: relative;
     margin: 0;
     padding: 0;
-    top: 25%;
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -25%);
-    max-height: 95%;
-    max-width: 80%;
-    box-shadow: 0 0 3px 3px #181b1e;
+    transform: translate(-50%,-50%);
+    overflow: visible;
+    height: 80%;
+    width: 80%;
+    box-shadow: rgb(0.1,0.1,0.1) 0 10px 50px;
     background: #202225;
     color: #eeeeee;
     border-radius: 10px;
@@ -33,10 +34,9 @@
 
 .prompt_content_wrapper {
     height: 100%;
-    display: block;
-    /*position: absolute;*/
+    overflow: auto;
     margin: 0;
-    padding: 20px;
+    padding: 25px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -62,7 +62,6 @@
 
 .prompt_header {
     padding: 0;
-    /* padding: 20px; */
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -147,7 +146,7 @@
     box-sizing: border-box;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
     display: none !important;
 }
