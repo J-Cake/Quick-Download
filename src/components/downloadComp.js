@@ -4,9 +4,8 @@ import Progress from './progress';
 
 import * as path from "path";
 
-import HTTPProxy from '../httpproxy';
-
 import Download from '../download';
+import HTTPProxy from '../httpproxy';
 
 const os = window.require('os');
 const {shell} = window.require('electron');

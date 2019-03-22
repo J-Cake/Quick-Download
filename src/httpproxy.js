@@ -1,5 +1,8 @@
-import pac from "node-pac-resolver";
-import * as url from 'url';
+// import pac from "node-pac-resolver";
+// import * as url from 'url';
+
+const pac = window.require('node-pac-resolver');
+const url = window.require('url');
 
 export default class HTTPProxy {
 	constructor (props) {
@@ -15,7 +18,7 @@ export default class HTTPProxy {
 			this.pacScript = window.localStorage.pacFile;
 		}
 
-		this.resolveProxy();
+		void this.resolveProxy();
 	}
 
 	async resolveProxy() {

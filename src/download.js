@@ -24,7 +24,7 @@ export default class Download {
      * @param parts
      * @param onUpdate
      * @param proxyOptions - Object or false
-     * @param proxyOptions.awaiting - boolean - if proxy object is still busy
+     * @param proxyOptions.awaiting - boolean - if proxy object is still busy. Preferably, wait for object to finish before commencing download
      * @param proxyOptions.auth - boolean - if proxy requires auth details
      * @param proxyOptions.auth.username - string - required if proxyOptions.auth is true - username for auth
      * @param proxyOptions.auth.password - string - required if proxyOptions.auth is true - password for auth
@@ -66,17 +66,6 @@ export default class Download {
 
     static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
         return `.${url.split('/').pop().split('.').pop()}`;
-        // 	// Remove everything to the last slash in URL
-        // 	url = url.substr(1 + url.lastIndexOf("."));
-        //
-        // 	// Break URL at ? and take first part (file name, extension)
-        // 	url = url.split('?')[0];
-        //
-        // 	// Sometimes URL doesn't have ? but #, so we should also do the same for #
-        // 	url = url.split('#')[0];
-        //
-        // 	// Now we have only extension
-        // 	return "."+url;
     }
 
     static async get_length(url, proxyOptions) {
@@ -203,7 +192,7 @@ export default class Download {
         if (this.average_percentage - this.last_print > 0.01) {
             // console.log(this.average_percentage);
 
-            this.madeProgress(0);
+            void this.madeProgress(0);
 
             this.last_print = this.average_percentage;
         }
@@ -392,7 +381,7 @@ class Part {
                 }, this.parent.proxyOptions), res => {
                     res.on('data', res => {
                         this.file.writeSync(res);
-                        this.parent.madeProgress(res.length);
+                        void this.parent.madeProgress(res.length);
                         this.current_byte += res.length;
                         this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
                         this.parent.average_in(this.percent_done, this);
