@@ -4,7 +4,8 @@ import Progress from './progress';
 
 import * as path from "path";
 
-import beginDownload from '../download.js';
+import HTTPProxy from '../httpproxy';
+
 import Download from '../download';
 
 const os = window.require('os');
@@ -58,36 +59,42 @@ export default class DownloadComp extends React.Component {
 		return parseFloat(output).toFixed(2) + " " + units[steps];
 	}
 
-	update_percent(percent){
-		percent = Math.round(percent*1000)/1000;
-		if(percent - this.past_percent >= 1){
+	update_percent(percent) {
+		percent = Math.round(percent * 1000) / 1000;
+		if (percent - this.past_percent >= 1) {
 			this.past_percent = percent;
 			this.setState({
 				progress: percent
 			})
 		}
 	}
+
 	async startDownload() {
 		this.download = new Download();
 		await this.download.init(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
-				this.setState({
-					size: info.size,
-					progress: info.percentage,
-					friendlySize: DownloadComp.calculateSize(info.size),
-					total_chunks: info.total_chunks,
-					chunks_done: info.chunks_done,
-					status: info.done ? 2 : 0,
-					path: info.path,
-					elapsedTime: info.elapsedTime
-				});
-			}
-		);
+			this.setState({
+				size: info.size,
+				progress: info.percentage,
+				friendlySize: DownloadComp.calculateSize(info.size),
+				total_chunks: info.total_chunks,
+				chunks_done: info.chunks_done,
+				status: info.done ? 2 : 0,
+				path: info.path,
+				elapsedTime: info.elapsedTime
+			});
+		}, new HTTPProxy({
+			useCredentials: true,
+			value: {
+				username: window.localStorage
+			},
+			url: this.state.url
+		}));
 		this.download.beginDownload().then(() => {
 			if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
 				new Notification('DownloadComp Complete', {
 					body: `Download of ${this.state.fileName} has been completed`,
 					icon: "./favicon.ico"
-		 		}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
+				}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
 			}
 			this.props.updateTaskBarProgress(this.state.id, this.state.progress);
 		}).catch(e => {
@@ -117,21 +124,24 @@ export default class DownloadComp extends React.Component {
 
 	render() {
 		return (
-			<div className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : "")}>
+			<div
+				className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : "")}>
 				<div className="header">
 					<h2>{this.state.fileName}</h2>
 					<div className="tools">
 						{this.state.status === 2 ?
-							<Tool className="open-in-folder" onClick={e => this.open()} icon={"fas fa-folder"} /> : null}
+							<Tool className="open-in-folder" onClick={() => this.open()} icon={"fas fa-folder"}/> : null}
 						{this.state.status === 1 ?
-							<Tool className="retry" onClick={e => this.startDownload()} icon={"fas fa-redo-alt"} /> : null}
-						<Tool className="show-download-details" onClick={e => this.toggleDetails()} icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"} />
-						<Tool className="download-cancel-btn" onClick={e => {
+							<Tool className="retry" onClick={() => this.startDownload()}
+								  icon={"fas fa-redo-alt"}/> : null}
+						<Tool className="show-download-details" onClick={() => this.toggleDetails()}
+							  icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"}/>
+						<Tool className="download-cancel-btn" onClick={() => {
 							this.download.cancel();
 							this.setState({
 								status: 1,
 							});
-						}} icon={"fas fa-times"} />
+						}} icon={"fas fa-times"}/>
 					</div>
 				</div>
 				{this.state.details ?
@@ -139,7 +149,8 @@ export default class DownloadComp extends React.Component {
 						<span className="download-detail"><b>Elapsed Time: </b>{this.state.elapsedTime}</span>
 						<span className="download-detail"><b>Final File Destination: </b>{this.state.path}</span>
 						<span className="download-detail"><b>Source: </b>{this.state.url}</span>
-						<span className="download-detail"><b>Size: </b>{this.state.friendlySize} ({this.state.size} bytes)</span>
+						<span
+							className="download-detail"><b>Size: </b>{this.state.friendlySize} ({this.state.size} bytes)</span>
 						<span
 							className="download-detail"><b>Estimated Time of completion: </b>{/*Calculate completion time*/}Today</span>
 						<span
@@ -149,7 +160,9 @@ export default class DownloadComp extends React.Component {
 					: undefined
 				}
 
-				{this.state.status === 0 ? <Progress className={this.state.status === 1 ? "failed" : this.state.status === 2 ? "done" : ""} value={this.state.progress} /> : null}
+				{this.state.status === 0 ?
+					<Progress className={this.state.status === 1 ? "failed" : this.state.status === 2 ? "done" : ""}
+							  value={this.state.progress}/> : null}
 			</div>
 		);
 	}
