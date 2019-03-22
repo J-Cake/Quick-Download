@@ -24,6 +24,7 @@ export default class Download {
      * @param parts
      * @param onUpdate
      * @param proxyOptions - Object or false
+     * @param proxyOptions.awaiting - boolean - if proxy object is still busy. Preferably, wait for object to finish before commencing download
      * @param proxyOptions.auth - boolean - if proxy requires auth details
      * @param proxyOptions.auth.username - string - required if proxyOptions.auth is true - username for auth
      * @param proxyOptions.auth.password - string - required if proxyOptions.auth is true - password for auth
@@ -65,17 +66,6 @@ export default class Download {
 
     static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
         return `.${url.split('/').pop().split('.').pop()}`;
-        // 	// Remove everything to the last slash in URL
-        // 	url = url.substr(1 + url.lastIndexOf("."));
-        //
-        // 	// Break URL at ? and take first part (file name, extension)
-        // 	url = url.split('?')[0];
-        //
-        // 	// Sometimes URL doesn't have ? but #, so we should also do the same for #
-        // 	url = url.split('#')[0];
-        //
-        // 	// Now we have only extension
-        // 	return "."+url;
     }
 
     static async get_length(url, proxyOptions) {
@@ -106,7 +96,7 @@ export default class Download {
                 port: (q.protocol === "http:") ? 80 : 443,
                 url: url,
             }, proxyOptions), res => {
-                res.on("data", (chunk) => {
+                res.on("data", () => {
                     res.destroy();
                     resolve(res.statusCode);
                 });
@@ -168,7 +158,7 @@ export default class Download {
         });
     }
 
-    static async throttled_speed(url, porxyOptions) {
+    static async throttled_speed(url) {
         const start = Date.now();
         let dl = 0;
         let time_difference = 0;
@@ -202,7 +192,7 @@ export default class Download {
         if (this.average_percentage - this.last_print > 0.01) {
             // console.log(this.average_percentage);
 
-            this.madeProgress(0);
+            void this.madeProgress(0);
 
             this.last_print = this.average_percentage;
         }
@@ -287,7 +277,7 @@ export default class Download {
             final.on('open', async () => {
                 for (const part of this.parts) {
                     console.log(part.file.path);
-                    await new Promise((resolve, reject) => {
+                    await new Promise(resolve => {
                         const r = fs.createReadStream(part.file.path);
                         r.on('close', resolve);
                         r.on('error', (err) => {
@@ -373,10 +363,8 @@ class Part {
 
     async download_bytes() {
         return await new Promise((resolve, reject) => {
-            let needUpdate = true;
             const startTimer = () => {
                 setTimeout(function () {
-                    needUpdate = true;
                 }, 100);
             };
             startTimer();
@@ -393,12 +381,12 @@ class Part {
                 }, this.parent.proxyOptions), res => {
                     res.on('data', res => {
                         this.file.writeSync(res);
-                        this.parent.madeProgress(res.length);
+                        void this.parent.madeProgress(res.length);
                         this.current_byte += res.length;
                         this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
                         this.parent.average_in(this.percent_done, this);
                     });
-                    res.on('end', data => {
+                    res.on('end', () => {
                         // console.log(data);
                         this.parent.imDone();
                         resolve();

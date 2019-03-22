@@ -1,30 +1,22 @@
-/** {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-
-    !*outline-color: cornflowerblue;*!
-    !*outline-width: 2px;*!
-    !* outline-style: solid; *!
+input:focus, button:focus {
+    background: #334c79 !important;
     outline: none;
+}
 
-    font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    !*font-family: "Source Sans Pro";*!
-    user-select: none;
+input {
+    user-select: text;
 }
 
 *::selection {
-    background: rgba(102, 112, 123, 0.55);
+    background: #3c434b;
+    color: #b4c9e0;
 }
-
-*:focus {
-    background: #334c79 !important;
-}*/
 
 body {
     font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     background: #3e444b;
     overflow: hidden;
+    user-select: none;
 }
 
 header {
@@ -111,6 +103,12 @@ b {
     font-weight: 900;
 }
 
+.download * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 .download.done {
     background: #00ca56;
 }
@@ -130,9 +128,13 @@ b {
 
 .download .download-detail {
     margin: 0 10px;
+    padding: 0;
     display: block;
     color: #aaa;
     word-wrap: break-word;
+}
+.download.failed .download-detail {
+    color: #202225 !important;
 }
 
 .download.done .download-detail, .download.failed .download-detail {
@@ -157,6 +159,8 @@ b {
     float: left;
     display: block;
     color: #eee;
+    margin-block-start: 0;
+    margin-block-end: 0;
 }
 
 .download.done .header h2, .download.failed .header h2 {

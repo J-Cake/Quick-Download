@@ -536,6 +536,18 @@ class App extends Component {
                                                onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
                                         {/* //TODO: Add reference to docs explaining how to find the optimum part number */}
                                         <h3>Units</h3>
+											   placeholder={"Number of parts to use during download"}
+											   type={"number"}
+											   min={5}
+											   max={30}
+											   className={"inline_input"}
+											   value={window.localStorage.getItem("partsToCreate")}
+											   onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
+										{/* //TODO: Add reference to docs explaining how to find the optimum part number */}
+
+										<br/>
+										<br/>
+										<h3>Units</h3>
 
                                         <hr/>
 
@@ -648,6 +660,11 @@ class App extends Component {
                                                            value={window.localStorage.getItem('proxyPort') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
                                                            id={"proxy-port"}/>
+														   className={"inline_input"}
+														   type={"number"}
+														   value={window.localStorage.getItem('proxyPort') || ""}
+														   onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
+														   id={"proxy-port"}/>
 
 													<br />
 													<br />
