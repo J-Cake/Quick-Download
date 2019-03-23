@@ -164,7 +164,7 @@ class App extends Component {
                 this.setState({
                     settingsVisible: false,
                     pastDownloadsVisible: false,
-					boxes: []
+                    boxes: []
                 })
             });
             Mousetrap.bind('mod+j', () => this.pastDownloads());
@@ -250,11 +250,11 @@ class App extends Component {
         this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={
             <ul>
                 <li><a target={"_blank"}
-                    href="https://joshbrown.info/#contact">Joshua
+                       href="https://joshbrown.info/#contact">Joshua
                     Brown</a>
                 </li>
                 <li><a target={"_blank"}
-                    href="https://www.jacob-schneider.ga/contact.html">Jacob
+                       href="https://www.jacob-schneider.ga/contact.html">Jacob
                     Schneider</a>
                 </li>
                 <br/>
@@ -407,14 +407,14 @@ class App extends Component {
                         <div className={"prompt_wrapper"}>
                             <div className={"prompt_content_container"}>
                                 <div className={"prompt_content_wrapper"}>
-									<header className={"prompt_header"}>
-										<h1>New Download</h1>
-										<div className={"prompt_close_button"}>
-											<Tool icon={"fas fa-times"}
-												  onClick={e => this.closePrompt()}/>
+                                    <header className={"prompt_header"}>
+                                        <h1>New Download</h1>
+                                        <div className={"prompt_close_button"}>
+                                            <Tool icon={"fas fa-times"}
+                                                  onClick={e => this.closePrompt()}/>
 
-										</div>
-									</header>
+                                        </div>
+                                    </header>
 
                                     <div className={"formItem"}>
                                         <label htmlFor={"dl-name"}>The file name of the download</label>
@@ -423,11 +423,11 @@ class App extends Component {
                                                onBlur={() => this.setState({focused: null})}
                                                value={this.state.downloadName}
                                                onChange={e => void ((() => {
-                                               		if (this.state.stopSave)
-                                               			this.setState({
-															stopSave: false
-														});
-											   })()) || this.setState({downloadName: e.target.value})}
+                                                   if (this.state.stopSave)
+                                                       this.setState({
+                                                           stopSave: false
+                                                       });
+                                               })()) || this.setState({downloadName: e.target.value})}
                                                className={"mousetrap dl-name input_standard"}
                                                id={"dl-name"}
                                                placeholder={"DownloadComp Name"}/>
@@ -444,11 +444,11 @@ class App extends Component {
                                                onBlur={() => this.setState({focused: null})}
                                                value={this.state.downloadURL}
                                                onChange={e => void ((() => {
-												   if (this.state.stopSave)
-													   this.setState({
-														   stopSave: false
-													   });
-											   })()) || this.setState({downloadURL: e.target.value})}
+                                                   if (this.state.stopSave)
+                                                       this.setState({
+                                                           stopSave: false
+                                                       });
+                                               })()) || this.setState({downloadURL: e.target.value})}
                                                className={"input_standard mousetrap url"}
                                                id={"dl-url"}
                                                placeholder={"DownloadComp URL"}/>
@@ -475,11 +475,11 @@ class App extends Component {
                                 <div className={"prompt_content_wrapper"}>
                                     <header className={"settings_header prompt_header"}>
                                         <h1>Settings</h1>
-										<div className={"prompt_close_button"}>
-											<Tool icon={"fas fa-times"}
-												  onClick={e => this.setState({settingsVisible: false})}/>
+                                        <div className={"prompt_close_button"}>
+                                            <Tool icon={"fas fa-times"}
+                                                  onClick={e => this.setState({settingsVisible: false})}/>
 
-										</div>
+                                        </div>
                                     </header>
 
                                     <h2>Appearance</h2>
@@ -520,13 +520,13 @@ class App extends Component {
                                     <div className={"settingsGroup"}>
 
                                         {/*<div className={"setting"}>*/}
-										<label htmlFor={"save-location"}>Save Location</label>
-										<label onClick={() => this.changePath()} htmlFor="save-location"
-											className={"standard_path_input"}>{window.localStorage.saveLocation}</label>
+                                        <label htmlFor={"save-location"}>Save Location</label>
+                                        <label onClick={() => this.changePath()} htmlFor="save-location"
+                                               className={"standard_path_input"}>{window.localStorage.saveLocation}</label>
 
-										<label htmlFor={"numOfParts"}>How many parts to use during download</label>
-										<br/>
-										<input id={"numOfParts"}
+                                        <label htmlFor={"numOfParts"}>How many parts to use during download</label>
+                                        <br/>
+                                        <input id={"numOfParts"}
                                                placeholder={"Number of parts to use during download"}
                                                type={"number"}
                                                min={5}
@@ -539,18 +539,6 @@ class App extends Component {
                                         <br/>
                                         <br/>
                                         <h3>Units</h3>
-											   placeholder={"Number of parts to use during download"}
-											   type={"number"}
-											   min={5}
-											   max={30}
-											   className={"inline_input"}
-											   value={window.localStorage.getItem("partsToCreate")}
-											   onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
-										{/* //TODO: Add reference to docs explaining how to find the optimum part number */}
-
-										<br/>
-										<br/>
-										<h3>Units</h3>
 
                                         <hr/>
 
@@ -648,29 +636,23 @@ class App extends Component {
                                                 <label htmlFor={"pac-location"}>Pac Script Location</label></div> :
                                             (window.localStorage.getItem('proxySettings') === "auth" ? (
                                                 <div>
-													<label htmlFor={"proxy-host"}>Proxy Host</label>
-													<input placeholder={"proxy.example.com"}
+                                                    <label htmlFor={"proxy-host"}>Proxy Host</label>
+                                                    <input placeholder={"proxy.example.com"}
                                                            className={"input_standard"}
                                                            value={window.localStorage.getItem('proxyHost') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyHost', field.target.value) || this.forceUpdate()}
                                                            id={"proxy-host"}/>
 
-													<label htmlFor={"proxy-port"}>Proxy Port</label>
-													<br />
-													<input placeholder={8080}
+                                                    <label htmlFor={"proxy-port"}>Proxy Port</label>
+                                                    <br/>
+                                                    <input placeholder={8080}
                                                            className={"inline_input"}
                                                            type={"number"}
                                                            value={window.localStorage.getItem('proxyPort') || ""}
                                                            onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
                                                            id={"proxy-port"}/>
-														   className={"inline_input"}
-														   type={"number"}
-														   value={window.localStorage.getItem('proxyPort') || ""}
-														   onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
-														   id={"proxy-port"}/>
-
-													<br />
-													<br />
+                                                    <br/>
+                                                    <br/>
 
                                                     <Checkbox
                                                         checked={window.localStorage.proxyRequiresCredentials === "true"}
@@ -706,14 +688,14 @@ class App extends Component {
                         <div className={"prompt_wrapper"}>
                             <div className={"prompt_content_container"}>
                                 <div className={"prompt_content_wrapper"}>
-									<header className={"prompt_header"}>
-										<h1>History</h1>
-										<div className={"prompt_close_button"}>
-											<Tool icon={"fas fa-times"}
-												  onClick={e => this.setState({pastDownloadsVisible: false})}/>
+                                    <header className={"prompt_header"}>
+                                        <h1>History</h1>
+                                        <div className={"prompt_close_button"}>
+                                            <Tool icon={"fas fa-times"}
+                                                  onClick={e => this.setState({pastDownloadsVisible: false})}/>
 
-										</div>
-									</header>
+                                        </div>
+                                    </header>
                                     {
                                         JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div
                                             key={a}
