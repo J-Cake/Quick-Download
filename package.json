@@ -7,7 +7,7 @@
 		"bad-words": "^3.0.1",
 		"electron": "latest",
 		"mousetrap": "^1.6.3",
-		"pac-resolver": "github:J-Cake/Node-PAC",
+		"pac-resolver": "^3.0.0",
 		"react": "^16.7.0",
 		"react-dom": "^16.7.0",
 		"react-scripts": "^2.1.8"
