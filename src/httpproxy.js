@@ -1,7 +1,7 @@
 // import pac from "node-pac-resolver";
 // import * as url from 'url';
 
-const pac = window.require('node-pac-resolver');
+const pac = window.require('pac-resolver');
 const url = window.require('url');
 
 export default class HTTPProxy {

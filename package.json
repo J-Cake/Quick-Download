@@ -1,0 +1,64 @@
+{
+	"name": "quick_downloader",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"abort-controller": "^2.0.2",
+		"bad-words": "^3.0.1",
+		"electron": "latest",
+		"mousetrap": "^1.6.3",
+		"pac-resolver": "github:J-Cake/Node-PAC",
+		"react": "^16.7.0",
+		"react-dom": "^16.7.0",
+		"react-scripts": "^2.1.8"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build && node post-build.js",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject",
+		"electron": "electron .",
+		"pack-osx": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=darwin --arch=x64 --overwrite --icon=./build/favicon.ico",
+		"pack-win": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=win32 --arch=x64 --overwrite --icon=./build/favicon.ico",
+		"run-build": "electron ./build"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": [
+		">0.2%",
+		"not dead",
+		"not ie <= 11",
+		"not op_mini all"
+	],
+	"description": "We Download Things Quickly!",
+	"main": "./main.js",
+	"devDependencies": {
+		"electron-packager": "latest"
+	},
+	"productName": "Quick Downloader",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jbis9051/quick_download.git"
+	},
+	"keywords": [
+		"Quick",
+		"Download"
+	],
+	"author": "JBis, J-Cake",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/jbis9051/quick_download/issues"
+	},
+	"homepage": "./",
+	"build": {
+		"appId": "com.quick-downloader",
+		"files": [
+			"build/**/*",
+			"node_modules/**/*"
+		],
+		"directories": {
+			"buildResources": "assets"
+		}
+	}
+}
