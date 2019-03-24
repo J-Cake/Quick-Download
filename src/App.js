@@ -594,7 +594,9 @@ class App extends Component {
                                                checked={window.localStorage.getItem('proxySettings') === 'none'}
                                                id={"none"}
                                                onChange={field => {
-                                                   if (field.target.value === "on") window.localStorage.setItem('proxySettings', 'none');
+                                                   if (field.target.value === "on"){
+                                                       window.localStorage.setItem('proxySettings', 'none');
+                                                   }
                                                    this.forceUpdate();
                                                }}/>
                                     </div>
@@ -606,7 +608,9 @@ class App extends Component {
                                                checked={window.localStorage.getItem('proxySettings') === 'pac'}
                                                id={"pac"}
                                                onChange={field => {
-                                                   if (field.target.value === "on") window.localStorage.setItem('proxySettings', 'pac');
+                                                   if (field.target.value === "on"){
+                                                       window.localStorage.setItem('proxySettings', 'pac');
+                                                   }
                                                    this.forceUpdate();
                                                }}/>
                                     </div>
@@ -619,7 +623,9 @@ class App extends Component {
                                                checked={window.localStorage.getItem('proxySettings') === 'auth'}
                                                id={"auth"}
                                                onChange={field => {
-                                                   if (field.target.value === "on") window.localStorage.setItem('proxySettings', 'auth');
+                                                   if (field.target.value === "on"){
+                                                       window.localStorage.setItem('proxySettings', 'auth');
+                                                   }
                                                    this.forceUpdate();
                                                }}/>
                                     </div>

@@ -34,6 +34,7 @@ export default class Download {
      * @returns {Promise<Download>}
      */
     async init(url, name, save_location, parts, onUpdate, proxyOptions) {
+        console.log(JSON.stringify(proxyOptions));
         this.save_location = save_location;
         this.proxyOptions = proxyOptions || false;
         this.extension = Download.get_extension(url);
