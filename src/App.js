@@ -57,7 +57,8 @@ class App extends Component {
 			settingsVisible: false,
 			currentSelection: 0,
 			latestDownloadProgress: 0,
-			pastDownloadsVisible: false
+			pastDownloadsVisible: false,
+			currentDownload: 0
 		};
 
 		App.loadSettings();
@@ -88,14 +89,25 @@ class App extends Component {
 		this.setState({downloadName: "", downloadURL: "", promptShowing: false});
 	}
 
+	next() {
+		this.state.downloads[this.state.currentDownload].startDownload();
+		this.setState(prev => ({
+			currentDownload: prev.currentDownload + 1
+		}))
+	}
+
 	beginDownload() {
 		if (this.state.downloadURL) {
 			this.setState({
 				downloads: [...this.state.downloads,
 					<DownloadComp id={this.state.downloads.length + 1}
 								  updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-								  key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]
+								  key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName} next={() => this.next()}/>]
 			});
+
+			if (this.state.downloads.length === 1)
+				this.state.downloads[0].startDownload();
+
 			this.closePrompt();
 
 			if (!this.state.stopSave)

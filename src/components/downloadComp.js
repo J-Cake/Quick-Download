@@ -28,9 +28,6 @@ export default class DownloadComp extends React.Component {
 			id: this.props.id
 		};
 		this.past_percent = 0;
-		console.log(this.state);
-
-		this.startDownload();
 	}
 
 	static calculateSize(bytes) {
@@ -94,6 +91,7 @@ export default class DownloadComp extends React.Component {
 					body: `Download of ${this.state.fileName} has been completed`,
 					icon: "./favicon.ico"
 				}).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
+				this.props.next();
 			}
 			this.props.updateTaskBarProgress(this.state.id, this.state.progress);
 		}).catch(e => {
@@ -101,16 +99,8 @@ export default class DownloadComp extends React.Component {
 			this.setState({
 				status: 1
 			});
+			this.next();
 		});
-		console.log("not done but downloading");
-
-		/*
-                }).catch(e => {
-                    console.error(e);
-                    this.setState({
-                        status: 1
-                    })
-                }); */
 	}
 
 	toggleDetails() {
