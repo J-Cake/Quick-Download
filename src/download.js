@@ -34,13 +34,21 @@ export default class Download {
      * @returns {Promise<Download>}
      */
     async init(url, name, save_location, parts, onUpdate, proxyOptions) {
-        console.log(JSON.stringify(proxyOptions));
         this.save_location = save_location;
         this.proxyOptions = proxyOptions || false;
         this.extension = Download.get_extension(url);
         this.final_file = path.join(save_location, name + this.extension);
         this.url = url;
-        this.total_length = await Download.get_length(url, this.proxyOptions);
+        try {
+            this.total_length = await Download.get_length(url, this.proxyOptions);
+        } catch (e) {
+            console.log("error");
+            console.error(e);
+            this.onUpdate({
+                status: 1,
+                error: e,
+            })
+        }
         this.name = name;
         this.onUpdate = onUpdate;
         this.numOfParts = parts || 10;
@@ -72,9 +80,10 @@ export default class Download {
     static async get_length(url, proxyOptions) {
         return await new Promise(resolve => {
             const q = url_lib.parse(url);
+            console.log(JSON.stringify(q));
             Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
                 method: 'HEAD',
-                path: q.pathname,
+                path: q.path,
                 host: q.hostname,
                 port: (q.protocol === "http:") ? 80 : 443,
                 url: url,
@@ -92,7 +101,7 @@ export default class Download {
                 headers: {
                     'Range': 'bytes=0-1'
                 },
-                path: q.pathname,
+                path: q.path,
                 host: q.hostname,
                 port: (q.protocol === "http:") ? 80 : 443,
                 url: url,
@@ -106,7 +115,6 @@ export default class Download {
     }
 
     static proxify_headers(headers, proxyOptions) {
-        console.log("Proxifiying");
         if (!proxyOptions) {
             console.log("No Proxy");
             delete headers.url;
@@ -333,6 +341,9 @@ export default class Download {
             await this.cleanup();
             await this.madeProgress(0, true);
         } catch (e) {
+            this.onUpdate({
+                status: 1,
+            });
             await this.cleanup();
             throw Error(e);
         }
@@ -374,7 +385,7 @@ class Part {
                 this.download = this.protocol.get(Download.proxify_headers({
                     port: this.port,
                     protocol: q.protocol,
-                    path: q.pathname,
+                    path: q.path,
                     host: q.hostname,
                     headers: {
                         'Range': `bytes=${this.from_byte}-${this.to_byte}`
