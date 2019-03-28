@@ -60,7 +60,8 @@ class App extends Component {
             settingsVisible: false,
             currentSelection: 0,
             latestDownloadProgress: 0,
-            pastDownloadsVisible: false
+            pastDownloadsVisible: false,
+            customHeaders: "",
         };
 
         App.loadSettings();
@@ -97,7 +98,7 @@ class App extends Component {
                 downloads: [...this.state.downloads,
                     <DownloadComp id={this.state.downloads.length + 1}
                                   updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-                                  key={Date.now()} url={this.state.downloadURL} name={this.state.downloadName}/>]
+                                  key={Date.now()} url={this.state.downloadURL} customHeaders={this.state.customHeaders} name={this.state.downloadName}/>]
             });
             this.closePrompt();
 
@@ -462,11 +463,13 @@ class App extends Component {
                                         <label htmlFor={"dl-headers"}>Custom Headers (JSON)</label>
                                         <input onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
-                                               value={window.localStorage.getItem("customHeaders" || "")}
-                                               onChange={e => void (() => {
-                                                  window.localStorage.setItem("customHeaders",  e.target.value);
-                                                   this.forceUpdate();
-                                               })}
+                                               value={this.state.customHeaders}
+                                               onChange={e => void ((() => {
+                                                   if (this.state.stopSave)
+                                                       this.setState({
+                                                           stopSave: false
+                                                       });
+                                               })()) || this.setState({customHeaders: e.target.value})}
                                                className={"input_standard mousetrap url"}
                                                id={"dl-headers"}
                                                placeholder={'{"token","randomlogintoken"}'}/>
