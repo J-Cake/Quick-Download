@@ -23,6 +23,7 @@ export default class Download {
      * @param save_location
      * @param parts
      * @param onUpdate
+     * @param custom_headers - object of custom headers
      * @param proxyOptions - Object or false
      * @param proxyOptions.awaiting - boolean - if proxy object is still busy. Preferably, wait for object to finish before commencing download
      * @param proxyOptions.auth - boolean - if proxy requires auth details
@@ -33,14 +34,15 @@ export default class Download {
      * @param proxyOptions.protocol - string -  "http" || "https"
      * @returns {Promise<Download>}
      */
-    async init(url, name, save_location, parts, onUpdate, proxyOptions) {
+    async init(url, name, save_location, parts, onUpdate, custom_headers, proxyOptions) {
         this.save_location = save_location;
         this.proxyOptions = proxyOptions || false;
+        this.custom_headers = custom_headers || {};
         this.extension = Download.get_extension(url);
         this.final_file = path.join(save_location, name + this.extension);
         this.url = url;
         try {
-            this.total_length = await Download.get_length(url, this.proxyOptions);
+            this.total_length = await Download.get_length(url,this.custom_headers, this.proxyOptions );
         } catch (e) {
             console.log("error");
             console.error(e);
@@ -74,10 +76,10 @@ export default class Download {
     }
 
     static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
-        return `.${url.split('/').pop().split('.').pop()}`;
+        return `.${url.split('/').pop().split('.').pop().split('?')[0].split('#')[0]}`;
     }
 
-    static async get_length(url, proxyOptions) {
+    static async get_length(url, customHeaders,proxyOptions) {
         return await new Promise(resolve => {
             const q = url_lib.parse(url);
             console.log(JSON.stringify(q));
@@ -87,19 +89,23 @@ export default class Download {
                 host: q.hostname,
                 port: (q.protocol === "http:") ? 80 : 443,
                 url: url,
+                headers: {
+                    ...customHeaders,
+                }
             }, proxyOptions), res => {
                 resolve(Number(res.headers['content-length'] || "0"));
             }).end();
         });
     }
 
-    static async byte_request_supported(url, proxyOptions) {
+    static async byte_request_supported(url, customHeaders, proxyOptions) {
         return await new Promise(resolve => {
             const q = url_lib.parse(url);
             Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
                 method: 'GET',
                 headers: {
-                    'Range': 'bytes=0-1'
+                    'Range': 'bytes=0-1',
+                    ...customHeaders
                 },
                 path: q.path,
                 host: q.hostname,
@@ -388,6 +394,7 @@ class Part {
                     path: q.path,
                     host: q.hostname,
                     headers: {
+                        ...this.parent.custom_headers,
                         'Range': `bytes=${this.from_byte}-${this.to_byte}`
                     }
                 }, this.parent.proxyOptions), res => {

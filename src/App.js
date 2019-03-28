@@ -430,7 +430,7 @@ class App extends Component {
                                                })()) || this.setState({downloadName: e.target.value})}
                                                className={"mousetrap dl-name input_standard"}
                                                id={"dl-name"}
-                                               placeholder={"DownloadComp Name"}/>
+                                               placeholder={"Download Name"}/>
                                         <div className={"suggestions"}>
                                             {this.getDownloadNames().map((i, a) => <div key={a}
                                                                                         className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
@@ -451,7 +451,25 @@ class App extends Component {
                                                })()) || this.setState({downloadURL: e.target.value})}
                                                className={"input_standard mousetrap url"}
                                                id={"dl-url"}
-                                               placeholder={"DownloadComp URL"}/>
+                                               placeholder={"Download URL"}/>
+                                        <div className={"suggestions"}>
+                                            {this.getDownloadUrls().map((i, a) => <div key={a}
+                                                                                       className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
+                                                onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
+                                        </div>
+                                    </div>
+                                    <div className={"formItem"}>
+                                        <label htmlFor={"dl-headers"}>Custom Headers (JSON)</label>
+                                        <input onFocus={field => this.setState({focused: field.target})}
+                                               onBlur={() => this.setState({focused: null})}
+                                               value={window.localStorage.getItem("customHeaders" || "")}
+                                               onChange={e => void (() => {
+                                                  window.localStorage.setItem("customHeaders",  e.target.value);
+                                                   this.forceUpdate();
+                                               })}
+                                               className={"input_standard mousetrap url"}
+                                               id={"dl-headers"}
+                                               placeholder={'{"token","randomlogintoken"}'}/>
                                         <div className={"suggestions"}>
                                             {this.getDownloadUrls().map((i, a) => <div key={a}
                                                                                        className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
@@ -529,11 +547,12 @@ class App extends Component {
                                         <input id={"numOfParts"}
                                                placeholder={"Number of parts to use during download"}
                                                type={"number"}
-                                               min={5}
-                                               max={30}
+                                               min={0}
+                                               max={50}
                                                className={"inline_input"}
                                                value={window.localStorage.getItem("partsToCreate")}
-                                               onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value) || 10)) || this.forceUpdate()}/>
+                                               onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value))) || this.forceUpdate()}
+                                        />
                                         {/* //TODO: Add reference to docs explaining how to find the optimum part number */}
 
                                         <br/>
@@ -594,7 +613,7 @@ class App extends Component {
                                                checked={window.localStorage.getItem('proxySettings') === 'none'}
                                                id={"none"}
                                                onChange={field => {
-                                                   if (field.target.value === "on"){
+                                                   if (field.target.value === "on") {
                                                        window.localStorage.setItem('proxySettings', 'none');
                                                    }
                                                    this.forceUpdate();
@@ -608,7 +627,7 @@ class App extends Component {
                                                checked={window.localStorage.getItem('proxySettings') === 'pac'}
                                                id={"pac"}
                                                onChange={field => {
-                                                   if (field.target.value === "on"){
+                                                   if (field.target.value === "on") {
                                                        window.localStorage.setItem('proxySettings', 'pac');
                                                    }
                                                    this.forceUpdate();
@@ -623,7 +642,7 @@ class App extends Component {
                                                checked={window.localStorage.getItem('proxySettings') === 'auth'}
                                                id={"auth"}
                                                onChange={field => {
-                                                   if (field.target.value === "on"){
+                                                   if (field.target.value === "on") {
                                                        window.localStorage.setItem('proxySettings', 'auth');
                                                    }
                                                    this.forceUpdate();

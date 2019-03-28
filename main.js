@@ -127,7 +127,7 @@ function createMenu() {
                 {
                     label: "Theme",
                     submenu: [
-                        {label: "Dark"}, {label: "Light"}
+                        {label: "Dark",type:"radio", checked: true}, {label: "Light",type:"radio", enabled: false}
                     ]
                 },
                 {role: 'reload'},
@@ -152,13 +152,13 @@ function createMenu() {
             label: 'Help',
             submenu: [
                 {
-                  label: 'Contact Developers',
-                  async click() {
-                      if (mainWindow === null) {
-                          await createWindow();
-                      }
-                      mainWindow.webContents.send("menu-contact")
-                  }
+                    label: 'Contact Developers',
+                    async click() {
+                        if (mainWindow === null) {
+                            await createWindow();
+                        }
+                        mainWindow.webContents.send("menu-contact")
+                    }
                 },
                 {
                     label: 'Learn More',
