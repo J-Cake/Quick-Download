@@ -1,17 +1,3 @@
-input:focus, button:focus {
-    background: #334c79 !important;
-    outline: none;
-}
-
-input {
-    user-select: text;
-}
-
-*::selection {
-    background: #3c434b;
-    color: #b4c9e0;
-}
-
 body {
     font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     background: #3e444b;

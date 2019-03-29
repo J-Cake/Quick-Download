@@ -89,7 +89,7 @@ function createMenu() {
 			label: 'File',
 			submenu: [
 				{
-					label: 'New Download...',
+					label: 'New Download1...',
 					async click() {
 						if (mainWindow === null) {
 							await createWindow();
@@ -121,7 +121,7 @@ function createMenu() {
 				{
 					label: "Theme",
 					submenu: [
-						{label: "Dark"}, {label: "Light"}
+						{label: "Dark",type:"radio", checked: true}, {label: "Light",type:"radio", enabled: false}
 					]
 				},
 				{role: 'reload'},

@@ -99,6 +99,7 @@
     cursor: pointer;
     font-family: monospace;
     background: #3e444b;
+    box-sizing: border-box;
 }
 
 .standard_radio {
@@ -132,9 +133,9 @@
 
 .inline_input {
     display: inline-block;
-    margin: 0 5px;
     border: none;
     padding: 8px;
+    margin: 5px 0;
 }
 
 .input_standard {
