@@ -12,7 +12,7 @@ We download things quickly.
 ## Usage
 
 1. Open the application
-2. Go to preferences and adjust the amount of parts. Default is 10. Try different number of parts and try to find a sweet spot for your connection.  We currently have no way to calculate the best number of the parts, but we are working on that.
+2. Go to preferences and adjust the amount of parts. Default is 15 Try different number of parts and try to find a sweet spot for your connection.  We currently have no way to calculate the best number of the parts, but we are working on that.
 3. Click the "+" button
 4. Enter a name, location, and URL and click "Done"
 
@@ -33,7 +33,7 @@ Using HTTP Byte Requests, Quick Downloader splits the download up into parts and
 
 ## Contributing
 
-Contributions are gladly accepted and encouraged! Please submit pull requests and issues as needed.  Make sure your issue has not been reported yet. 
+Contributions are gladly accepted and encouraged! Please submit pull requests and issues as needed. Make sure your issue has not been reported yet. 
 
 ## Legal Notices
 
@@ -45,4 +45,4 @@ Contributions are gladly accepted and encouraged! Please submit pull requests an
 You can do what ever you want with this. Just please give credit to the creators:
 
 - Josh Brown - @jbis9051 - https://joshbrown.info
-- Jake Schneider - https://www.jacob-schneider.ga
+- Jake Schneider - @J-Cake - https://www.jacob-schneider.ga
