@@ -28,6 +28,12 @@ input:focus, button:focus, textarea:focus {
     color: #b4c9e0;
 }
 
+/* Be more specific. This looks weird on radio buttons. */
+input:not(input[type="radio"]):focus, button:focus {
+    background: #334c79 !important;
+    outline: none;
+}
+
 a {
     color: #eee;
     text-decoration: none;
