@@ -105,7 +105,7 @@ export default class DownloadComp extends React.Component {
                 path: info.path,
                 elapsedTime: info.elapsedTime
             });
-        }, JSON.parse(this.state.customHeaders),proxyOptions);
+        }, JSON.parse(this.state.customHeaders || '{}'),proxyOptions);
         this.download.beginDownload().then(() => {
             if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
                 new Notification('DownloadComp Complete', {
