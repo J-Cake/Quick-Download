@@ -461,7 +461,7 @@ class App extends Component {
                                     </div>
                                     <div className={"formItem"}>
                                         <label htmlFor={"dl-headers"}>Custom Headers (JSON)</label>
-                                        <input onFocus={field => this.setState({focused: field.target})}
+                                        <textarea onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
                                                value={this.state.customHeaders}
                                                onChange={e => void ((() => {

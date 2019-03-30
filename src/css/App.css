@@ -1,5 +1,5 @@
 body {
-    font-family: "Montserrat", "Tisa Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     background: #3e444b;
     overflow: hidden;
     user-select: none;
@@ -14,9 +14,18 @@ header {
     grid-row: 1;
 }
 
-input:focus, button:focus {
+textarea {
+    resize: none;
+}
+
+input:focus, button:focus, textarea:focus {
     background: #334c79 !important;
     outline: none;
+}
+
+*::selection {
+    background: #3c434b;
+    color: #b4c9e0;
 }
 
 a {
@@ -256,7 +265,7 @@ b {
     box-shadow: 0 0 2px 0 #3e444b;
 }
 
-input {
+input, textarea {
     /*box-shadow: rgba(0.1, 0.1, 0.1, 0.2) 0 5px 30px;*/
     /* border: 2px solid #4f5660; */
     background: #303237;
@@ -265,7 +274,7 @@ input {
     font-size: 11pt;
 }
 
-.formItem input {
+.formItem input, .formItem textarea {
     border-radius: 8px 8px 0 0;
     /*border-bottom-right-radius: 0;*/
     /*border-bottom-left-radius: 0;*/
