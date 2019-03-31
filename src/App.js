@@ -95,10 +95,9 @@ class App extends Component {
     beginDownload() {
         if (this.state.downloadURL) {
             this.setState({
-                downloads: [...this.state.downloads,
-                    <DownloadComp id={this.state.downloads.length + 1}
+                downloads: [<DownloadComp id={this.state.downloads.length + 1}
                                   updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-                                  key={Date.now()} url={this.state.downloadURL} customHeaders={this.state.customHeaders} name={this.state.downloadName}/>]
+                                  key={Date.now()} url={this.state.downloadURL} customHeaders={this.state.customHeaders} name={this.state.downloadName}/>,...this.state.downloads]
             });
             this.closePrompt();
 
@@ -129,7 +128,7 @@ class App extends Component {
 
     static addToDownloadHistory(url, name) {
         const _downloadHistory = JSON.parse(window.localStorage.downloadHistory);
-        _downloadHistory.push({url, name});
+        _downloadHistory.unshift({url, name});
 
         window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
     }
@@ -144,7 +143,7 @@ class App extends Component {
 
     getDownloadNames() {
         window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-        return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name).toLowerCase().indexOf((this.state.downloadName).toLowerCase()) >= 0).map(i => i.name);
+        return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name || "").toLowerCase().indexOf((this.state.downloadName).toLowerCase()) >= 0).map(i => i.name);
     }
 
     getDownloadUrls() {
@@ -455,8 +454,8 @@ class App extends Component {
                                                placeholder={"Download URL"}/>
                                         <div className={"suggestions"}>
                                             {this.getDownloadUrls().map((i, a) => <div key={a}
-                                                                                       className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
-                                                onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
+                                                                                       onClick={() => this.acceptSuggestion(a)}
+                                                                                       className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span>{i}</span><br/></div>)}
                                         </div>
                                     </div>
                                     <div className={"formItem"}>
@@ -472,12 +471,7 @@ class App extends Component {
                                                })()) || this.setState({customHeaders: e.target.value})}
                                                className={"input_standard mousetrap url"}
                                                id={"dl-headers"}
-                                               placeholder={'{"token","randomlogintoken"}'}/>
-                                        <div className={"suggestions"}>
-                                            {this.getDownloadUrls().map((i, a) => <div key={a}
-                                                                                       className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
-                                                onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
-                                        </div>
+                                               placeholder={'{"Cookie","token=quickdownloader"}'}/>
                                     </div>
 
                                     <div className={"right-align"}>

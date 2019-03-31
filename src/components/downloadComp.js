@@ -107,7 +107,7 @@ export default class DownloadComp extends React.Component {
                 elapsedTime: info.elapsedTime,
                 error: info.error || "None",
             });
-        }, JSON.parse(this.state.customHeaders || '{}'),proxyOptions);
+        }, JSON.parse(this.state.customHeaders || '{}'), proxyOptions);
         console.log("done initing");
         this.download.beginDownload().then(() => {
             if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
@@ -157,12 +157,16 @@ export default class DownloadComp extends React.Component {
                                   icon={"fas fa-redo-alt"}/> : null}
                         <Tool className="show-download-details" onClick={() => this.toggleDetails()}
                               icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"}/>
-                        <Tool className="download-cancel-btn" onClick={() => {
-                            this.download.cancel();
-                            this.setState({
-                                status: 1,
-                            });
-                        }} icon={"fas fa-times"}/>
+                        {this.state.status === 0 ?
+                            <Tool className="download-cancel-btn" onClick={() => {
+                                this.download.cancel();
+                                this.setState({
+                                    status: 1,
+                                });
+                            }} icon={"fas fa-times"}/> : <Tool className="download-trash-btn" onClick={() => {
+                                // TODO: remove from download list
+                            }} icon={"fas fa-trash"}/>
+                        }
                     </div>
                 </div>
                 {this.state.details ?
