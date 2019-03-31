@@ -42,18 +42,28 @@ export default class Download {
         this.final_file = path.join(save_location, name + this.extension);
         this.onUpdate = onUpdate;
         this.url = url;
+        this.full_fail = false;
         this.bytes_request_supported = true;
-        if(!await Download.byte_request_supported(url,this.custom_headers, this.proxyOptions)){
+        try {
+            if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)) {
+                this.bytes_request_supported = false;
+                this.onUpdate({
+                    status: 1,
+                    error: "Byte Requests not supported",
+                });
+            }
+        } catch (e) {
+            this.full_fail = true;
             this.bytes_request_supported = false;
             this.onUpdate({
                 status: 1,
-                error: "Byte Requests not supported",
+                error: "Unable to check if byte requests is supported. Invalid URL?",
             });
+            return this;
         }
         try {
-            this.total_length = await Download.get_length(url,this.custom_headers, this.proxyOptions);
+            this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions);
         } catch (e) {
-            console.log("error");
             console.error(e);
             this.onUpdate({
                 status: 1,
@@ -84,13 +94,13 @@ export default class Download {
     }
 
     static get_extension(url) {
-        if(url.split('/').pop().split('?')[0].split('#')[0].indexOf('.') < 0){
+        if (url.split('/').pop().split('?')[0].split('#')[0].indexOf('.') < 0) {
             return '';
         }
         return `.${url.split('/').pop().split('?')[0].split('#')[0].split('.').pop()}`;
     }
 
-    static async get_length(url, customHeaders,proxyOptions) {
+    static async get_length(url, customHeaders, proxyOptions) {
         return await new Promise(resolve => {
             const q = url_lib.parse(url);
             console.log(JSON.stringify(q));
@@ -110,9 +120,9 @@ export default class Download {
     }
 
     static byte_request_supported(url, customHeaders, proxyOptions) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             const q = url_lib.parse(url);
-            Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
+            const request = Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
                 method: 'GET',
                 headers: {
                     'Range': 'bytes=0-1',
@@ -123,11 +133,16 @@ export default class Download {
                 port: (q.protocol === "http:") ? 80 : 443,
                 url: url,
             }, proxyOptions), res => {
+                resolve(res.statusCode === 206);
                 res.on("data", () => {
-                    res.destroy();
                     resolve(res.statusCode === 206);
+                    res.destroy();
                 });
-            }).end();
+            });
+            request.on('error', (e) => {
+                reject(e);
+            });
+            request.end();
         });
     }
 
@@ -261,7 +276,8 @@ export default class Download {
             });
         }
     }
-    async forceUpdate(done){
+
+    async forceUpdate(done) {
         const now = Date.now();
         const time = new Date(now - this.startTime);
         this.onUpdate({
@@ -317,9 +333,9 @@ export default class Download {
         }));
     }
 
-    async cleanup(){
+    async cleanup() {
         for (const part of this.parts) {
-            part.cleanup().then(()=>{
+            part.cleanup().then(() => {
                 this.madeProgress(0);
                 this.forceUpdate();
             });
@@ -344,8 +360,9 @@ export default class Download {
     }
 
     async beginDownload() {
+        console.log("Beginning download sequence...");
         try {
-            if(this.bytes_request_supported){
+            if (this.bytes_request_supported) {
                 console.log("Creating parts...");
                 await this.createParts();
                 this.forceUpdate();
@@ -372,23 +389,23 @@ export default class Download {
 }
 
 class Part {
-	constructor(url, from_byte, to_byte, parent) {
-		this.url = url;
-		this.from_byte = parseInt(from_byte);
-		this.to_byte = parseInt(to_byte);
-		this.current_byte = parseInt(from_byte);
-		this.stop_byte = parseInt(to_byte);
-		this.file = new TempFile.TmpFile(Date.now() + from_byte);
-		// console.log(this.file.path);
-		this.percent_done = 0;
-		this.parent = parent;
-		if (url_lib.parse(url).protocol === "http:") {
-			this.protocol = http;
-			this.port = "80";
-		} else {
-			this.protocol = https;
-			this.port = "443";
-		}
+    constructor(url, from_byte, to_byte, parent) {
+        this.url = url;
+        this.from_byte = parseInt(from_byte);
+        this.to_byte = parseInt(to_byte);
+        this.current_byte = parseInt(from_byte);
+        this.stop_byte = parseInt(to_byte);
+        this.file = new TempFile.TmpFile(Date.now() + from_byte);
+        // console.log(this.file.path);
+        this.percent_done = 0;
+        this.parent = parent;
+        if (url_lib.parse(url).protocol === "http:") {
+            this.protocol = http;
+            this.port = "80";
+        } else {
+            this.protocol = https;
+            this.port = "443";
+        }
 
         this.download = null
     };
