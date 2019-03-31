@@ -621,6 +621,7 @@ class App extends Component {
                                                    this.forceUpdate();
                                                }}/>
                                     </div>
+{/*
 
                                     <div className={"setting"}>
                                         <label htmlFor={"none"}>Pac Script</label>
@@ -635,9 +636,10 @@ class App extends Component {
                                                    this.forceUpdate();
                                                }}/>
                                     </div>
+*/}
 
                                     <div className={"setting"}>
-                                        <label htmlFor={"none"}>With Credentials</label>
+                                        <label htmlFor={"none"}>HTTPS Proxy</label>
                                         <input className={"standard_radio right_aligned"}
                                                type={"radio"}
                                                name={"proxy-auth-type"}

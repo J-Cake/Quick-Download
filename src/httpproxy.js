@@ -4,21 +4,11 @@
 const pac = window.require('pac-resolver');
 const url = window.require('url');
 
+
 export default class HTTPProxy {
 	constructor (props) {
-		this.urlRequested = props.url;
-		this.usesCredentials = props.useCredentials;
-
-		if (this.usesCredentials) {
-			this.credentials = {
-				username: window.localStorage.proxyUsername,
-				password: window.localStorage.proxyPassword
-			}
-		} else {
-			this.pacScript = window.localStorage.pacFile;
-		}
-
-		void this.resolveProxy();
+		this.hostname = props.hostname;
+		this.auth = props.auth;
 	}
 
 	async resolveProxy() {

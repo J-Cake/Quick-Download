@@ -26,7 +26,7 @@ export default class Download {
      * @param custom_headers - object of custom headers
      * @param proxyOptions - Object or false
      * @param proxyOptions.awaiting - boolean - if proxy object is still busy. Preferably, wait for object to finish before commencing download
-     * @param proxyOptions.auth - boolean - if proxy requires auth details
+     * @param proxyOptions.auth - Object or false - if proxy requires auth details
      * @param proxyOptions.auth.username - string - required if proxyOptions.auth is true - username for auth
      * @param proxyOptions.auth.password - string - required if proxyOptions.auth is true - password for auth
      * @param proxyOptions.hostname - string required - hostname of proxy (proxy.example.com)
@@ -172,6 +172,7 @@ export default class Download {
                 'Authorization': auth
             };
         }
+        debugger;
         return returnHeaders;
     }
 

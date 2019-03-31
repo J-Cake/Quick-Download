@@ -76,25 +76,15 @@ export default class DownloadComp extends React.Component {
         proxyOptions = false;
         this.download = new Download();
         if (window.localStorage.proxySettings === "auth") {
+            debugger;
             proxyOptions = {
-                url: window.localStorage.proxyURL,
+                hostname: window.localStorage.proxyHost,
                 port: window.localStorage.proxyPort,
+                auth: (window.localStorage.proxyRequiresCredentials === "true") ? {
+                    username: window.localStorage.proxyUsername,
+                    password: window.localStorage.proxyPassword,
+                } : false,
             };
-            if (window.localStorage.proxyRequiresCredentials) {
-                proxyOptions = new HTTPProxy({
-                    ...proxyOptions,
-                    useCredentials: true,
-                    value: {
-                        username: window.localStorage.proxyUsername,
-                        password: window.localStorage.proxyPassword,
-                    },
-                });
-            } else {
-                proxyOptions = new HTTPProxy({
-                    ...proxyOptions,
-                    useCredentials: false,
-                });
-            }
         }
         await this.download.init(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
             this.setState({
