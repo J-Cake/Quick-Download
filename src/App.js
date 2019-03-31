@@ -474,9 +474,10 @@ class App extends Component {
                                                            stopSave: false
                                                        });
                                                })()) || this.setState({customHeaders: e.target.value})}
-                                               className={"input_standard mousetrap url"}
+                                               className={"input_standard standard_code mousetrap url"}
                                                id={"dl-headers"}
-                                               placeholder={'{"Cookie","token=quickdownloader"}'}/>
+                                               placeholder={'{"Cookie","token=quickdownloader"}'}
+                                        />
                                     </div>
 
                                     <div className={"right-align"}>
