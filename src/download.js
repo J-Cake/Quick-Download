@@ -40,9 +40,18 @@ export default class Download {
         this.custom_headers = custom_headers || {};
         this.extension = Download.get_extension(url);
         this.final_file = path.join(save_location, name + this.extension);
+        this.onUpdate = onUpdate;
         this.url = url;
+        this.bytes_request_supported = true;
+        if(!await Download.byte_request_supported(url,this.custom_headers, this.proxyOptions)){
+            this.bytes_request_supported = false;
+            this.onUpdate({
+                status: 1,
+                error: "Byte Requests not supported",
+            });
+        }
         try {
-            this.total_length = await Download.get_length(url,this.custom_headers, this.proxyOptions );
+            this.total_length = await Download.get_length(url,this.custom_headers, this.proxyOptions);
         } catch (e) {
             console.log("error");
             console.error(e);
@@ -52,7 +61,6 @@ export default class Download {
             })
         }
         this.name = name;
-        this.onUpdate = onUpdate;
         this.numOfParts = parts || 10;
         this.startTime = Date.now();
 
@@ -75,8 +83,11 @@ export default class Download {
         }
     }
 
-    static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
-        return `.${url.split('/').pop().split('.').pop().split('?')[0].split('#')[0]}`;
+    static get_extension(url) {
+        if(url.split('/').pop().split('?')[0].split('#')[0].indexOf('.') < 0){
+            return '';
+        }
+        return `.${url.split('/').pop().split('?')[0].split('#')[0].split('.').pop()}`;
     }
 
     static async get_length(url, customHeaders,proxyOptions) {
@@ -98,8 +109,8 @@ export default class Download {
         });
     }
 
-    static async byte_request_supported(url, customHeaders, proxyOptions) {
-        return await new Promise(resolve => {
+    static byte_request_supported(url, customHeaders, proxyOptions) {
+        return new Promise(resolve => {
             const q = url_lib.parse(url);
             Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
                 method: 'GET',
@@ -114,7 +125,7 @@ export default class Download {
             }, proxyOptions), res => {
                 res.on("data", () => {
                     res.destroy();
-                    resolve(res.statusCode);
+                    resolve(res.statusCode === 206);
                 });
             }).end();
         });
@@ -334,21 +345,24 @@ export default class Download {
 
     async beginDownload() {
         try {
-            console.log("Creating parts...");
-            await this.createParts();
-            this.forceUpdate();
-            console.log("Downloading parts...");
-            await this.download_all();
-            this.forceUpdate();
-            console.log("Combining parts...");
-            await this.combineParts_move_to_final();
-            this.forceUpdate();
-            console.log("Cleaning up parts...");
-            await this.cleanup();
-            await this.madeProgress(0, true);
+            if(this.bytes_request_supported){
+                console.log("Creating parts...");
+                await this.createParts();
+                this.forceUpdate();
+                console.log("Downloading parts...");
+                await this.download_all();
+                this.forceUpdate();
+                console.log("Combining parts...");
+                await this.combineParts_move_to_final();
+                this.forceUpdate();
+                console.log("Cleaning up parts...");
+                await this.cleanup();
+                await this.madeProgress(0, true);
+            }
         } catch (e) {
             this.onUpdate({
                 status: 1,
+                error: e,
             });
             await this.cleanup();
             throw Error(e);

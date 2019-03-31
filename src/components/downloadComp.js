@@ -26,7 +26,8 @@ export default class DownloadComp extends React.Component {
             fileName: this.props.name,
             status: 0,
             path: "",
-            id: this.props.id
+            id: this.props.id,
+            error: "None",
         };
         this.past_percent = 0;
         console.log(this.state);
@@ -103,7 +104,8 @@ export default class DownloadComp extends React.Component {
                 chunks_done: info.chunks_done,
                 status: info.done ? 2 : 0,
                 path: info.path,
-                elapsedTime: info.elapsedTime
+                elapsedTime: info.elapsedTime,
+                error: info.error || "None",
             });
         }, JSON.parse(this.state.customHeaders || '{}'),proxyOptions);
         this.download.beginDownload().then(() => {
@@ -167,6 +169,7 @@ export default class DownloadComp extends React.Component {
                         <span className="download-detail"><b>Elapsed Time: </b>{this.state.elapsedTime}</span>
                         <span className="download-detail"><b>Final File Destination: </b>{this.state.path}</span>
                         <span className="download-detail"><b>Source: </b>{this.state.url}</span>
+                        <span className="download-detail"><b>Error: </b>{this.state.error}</span>
                         <span
                             className="download-detail"><b>Size: </b>{this.state.friendlySize} ({this.state.size} bytes)</span>
                         <span
