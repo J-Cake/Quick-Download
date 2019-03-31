@@ -342,20 +342,20 @@ export default class Download {
         }
     }
 
-    cancel() {
-        console.log("Canceling parts...");
-        for (const part of this.parts) {
-            part.cancel(); // complete download cancellation
+     async cancel() {
+            console.log("Canceling parts...");
+            for (const part of this.parts) {
+                part.cancel(); // complete download cancellation
 
-        }
-        this.cleanup();
-        try {
-            this.onUpdate({
-                status: 1
-            });
-        } catch (e) {
-            console.error(e);
-        }
+            }
+            await this.cleanup();
+            try {
+                this.onUpdate({
+                    status: 1
+                });
+            } catch (e) {
+                console.error(e);
+            }
 
     }
 
@@ -448,7 +448,7 @@ class Part {
         });
     }
 
-    async cancel() {
+    cancel() {
         this.download.abort();
     }
 

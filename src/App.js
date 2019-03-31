@@ -96,6 +96,11 @@ class App extends Component {
         if (this.state.downloadURL) {
             this.setState({
                 downloads: [<DownloadComp id={this.state.downloads.length + 1}
+                                          remove={() => this.setState({
+                                              download:[
+                                                  this.state.downloads.splice(this.state.downloads.indexOf(this),1)
+                                              ]
+                                          })}
                                   updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
                                   key={Date.now()} url={this.state.downloadURL} customHeaders={this.state.customHeaders} name={this.state.downloadName}/>,...this.state.downloads]
             });
@@ -577,7 +582,7 @@ class App extends Component {
                                                        this.forceUpdate();
                                                    }} id={"dec"}
                                                    checked={window.localStorage.getItem('preferredUnit') === "dec"}/>
-                                            <label htmlFor={"dec"}>Decimal Units (mB = 1000 kB)</label>
+                                            <label htmlFor={"dec"}>Decimal Units (MB = 1000 KB)</label>
                                         </div>
 
                                         <hr/>

@@ -16,6 +16,7 @@ export default class DownloadComp extends React.Component {
         this.state = {
             url: arguments[0].url,
             customHeaders: arguments[0].customHeaders,
+            remove: arguments[0].remove,
             size: "Calculating...",
             progress: 0,
             timeStarted: Date.now(),
@@ -49,7 +50,7 @@ export default class DownloadComp extends React.Component {
                 steps++;
             }
         } else if (window.localStorage.getItem('preferredUnit') === "dec") {
-            units = ["B", "kB", "mB", "gB", "tB", "pB", "eB"];
+            units = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
 
             while (output > 1000) {
                 output /= 1000;
@@ -108,7 +109,6 @@ export default class DownloadComp extends React.Component {
                 error: info.error || "None",
             });
         }, JSON.parse(this.state.customHeaders || '{}'), proxyOptions);
-        console.log("done initing");
         this.download.beginDownload().then(() => {
             if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
                 new Notification('DownloadComp Complete', {
@@ -123,15 +123,6 @@ export default class DownloadComp extends React.Component {
                 status: 1
             });
         });
-        console.log("not done but downloading");
-
-        /*
-                }).catch(e => {
-                    console.error(e);
-                    this.setState({
-                        status: 1
-                    })
-                }); */
     }
 
     toggleDetails() {
@@ -158,13 +149,13 @@ export default class DownloadComp extends React.Component {
                         <Tool className="show-download-details" onClick={() => this.toggleDetails()}
                               icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"}/>
                         {this.state.status === 0 ?
-                            <Tool className="download-cancel-btn" onClick={() => {
-                                this.download.cancel();
+                            <Tool className="download-cancel-btn" onClick={async () => {
+                                await this.download.cancel();
                                 this.setState({
                                     status: 1,
                                 });
                             }} icon={"fas fa-times"}/> : <Tool className="download-trash-btn" onClick={() => {
-                                // TODO: remove from download list
+                                this.state.remove();
                             }} icon={"fas fa-trash"}/>
                         }
                     </div>
