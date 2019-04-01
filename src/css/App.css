@@ -29,9 +29,14 @@ input:focus, button:focus, textarea:focus {
 }
 
 /* Be more specific. This looks weird on radio buttons. */
-input:not(input[type="radio"]):focus, button:focus {
+input:focus, button:focus {
     background: #334c79 !important;
     outline: none;
+}
+
+input[type="radio"]:focus {
+    background: #b4c9e0 !important;
+    border-color: #334c79;
 }
 
 a {
@@ -350,4 +355,9 @@ input, textarea {
 
 .suggestion.focused {
     background: #4f5660;
+}
+
+textarea {
+    height: auto !important;
+    min-height: 2rem !important;
 }
