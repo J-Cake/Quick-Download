@@ -18,6 +18,7 @@ textarea {
     resize: none;
 }
 
+/*
 input:focus, button:focus, textarea:focus {
     background: #334c79 !important;
     outline: none;
@@ -33,6 +34,7 @@ input:focus, button:focus {
     background: #334c79 !important;
     outline: none;
 }
+*/
 
 input[type="radio"]:focus {
     background: #b4c9e0 !important;

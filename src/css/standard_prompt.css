@@ -146,6 +146,12 @@
     margin: 5px 0;
     box-sizing: border-box;
 }
+.standard_code {
+    font-family: monospace;
+    resize: none;
+    overflow: auto;
+    min-height: 10px;
+}
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {

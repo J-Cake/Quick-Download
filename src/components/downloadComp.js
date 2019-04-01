@@ -16,6 +16,7 @@ export default class DownloadComp extends React.Component {
         this.state = {
             url: arguments[0].url,
             customHeaders: arguments[0].customHeaders,
+            remove: arguments[0].remove,
             size: "Calculating...",
             progress: 0,
             timeStarted: Date.now(),
@@ -26,7 +27,8 @@ export default class DownloadComp extends React.Component {
             fileName: this.props.name,
             status: 0,
             path: "",
-            id: this.props.id
+            id: this.props.id,
+            error: "None",
         };
         this.past_percent = 0;
         console.log(this.state);
@@ -48,7 +50,7 @@ export default class DownloadComp extends React.Component {
                 steps++;
             }
         } else if (window.localStorage.getItem('preferredUnit') === "dec") {
-            units = ["B", "kB", "mB", "gB", "tB", "pB", "eB"];
+            units = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
 
             while (output > 1000) {
                 output /= 1000;
@@ -74,25 +76,15 @@ export default class DownloadComp extends React.Component {
         proxyOptions = false;
         this.download = new Download();
         if (window.localStorage.proxySettings === "auth") {
+            debugger;
             proxyOptions = {
-                url: window.localStorage.proxyURL,
+                hostname: window.localStorage.proxyHost,
                 port: window.localStorage.proxyPort,
+                auth: (window.localStorage.proxyRequiresCredentials === "true") ? {
+                    username: window.localStorage.proxyUsername,
+                    password: window.localStorage.proxyPassword,
+                } : false,
             };
-            if (window.localStorage.proxyRequiresCredentials) {
-                proxyOptions = new HTTPProxy({
-                    ...proxyOptions,
-                    useCredentials: true,
-                    value: {
-                        username: window.localStorage.proxyUsername,
-                        password: window.localStorage.proxyPassword,
-                    },
-                });
-            } else {
-                proxyOptions = new HTTPProxy({
-                    ...proxyOptions,
-                    useCredentials: false,
-                });
-            }
         }
         await this.download.init(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
             this.setState({
@@ -103,9 +95,10 @@ export default class DownloadComp extends React.Component {
                 chunks_done: info.chunks_done,
                 status: info.done ? 2 : 0,
                 path: info.path,
-                elapsedTime: info.elapsedTime
+                elapsedTime: info.elapsedTime,
+                error: info.error || "None",
             });
-        }, JSON.parse(this.state.customHeaders || '{}'),proxyOptions);
+        }, JSON.parse(this.state.customHeaders || '{}'), proxyOptions);
         this.download.beginDownload().then(() => {
             if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
                 new Notification('DownloadComp Complete', {
@@ -120,15 +113,6 @@ export default class DownloadComp extends React.Component {
                 status: 1
             });
         });
-        console.log("not done but downloading");
-
-        /*
-                }).catch(e => {
-                    console.error(e);
-                    this.setState({
-                        status: 1
-                    })
-                }); */
     }
 
     toggleDetails() {
@@ -154,12 +138,16 @@ export default class DownloadComp extends React.Component {
                                   icon={"fas fa-redo-alt"}/> : null}
                         <Tool className="show-download-details" onClick={() => this.toggleDetails()}
                               icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"}/>
-                        <Tool className="download-cancel-btn" onClick={() => {
-                            this.download.cancel();
-                            this.setState({
-                                status: 1,
-                            });
-                        }} icon={"fas fa-times"}/>
+                        {this.state.status === 0 ?
+                            <Tool className="download-cancel-btn" onClick={async () => {
+                                await this.download.cancel();
+                                this.setState({
+                                    status: 1,
+                                });
+                            }} icon={"fas fa-times"}/> : <Tool className="download-trash-btn" onClick={() => {
+                                this.state.remove();
+                            }} icon={"fas fa-trash"}/>
+                        }
                     </div>
                 </div>
                 {this.state.details ?
@@ -167,6 +155,7 @@ export default class DownloadComp extends React.Component {
                         <span className="download-detail"><b>Elapsed Time: </b>{this.state.elapsedTime}</span>
                         <span className="download-detail"><b>Final File Destination: </b>{this.state.path}</span>
                         <span className="download-detail"><b>Source: </b>{this.state.url}</span>
+                        <span className="download-detail"><b>Error: </b>{this.state.error}</span>
                         <span
                             className="download-detail"><b>Size: </b>{this.state.friendlySize} ({this.state.size} bytes)</span>
                         <span

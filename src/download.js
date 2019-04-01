@@ -26,7 +26,7 @@ export default class Download {
      * @param custom_headers - object of custom headers
      * @param proxyOptions - Object or false
      * @param proxyOptions.awaiting - boolean - if proxy object is still busy. Preferably, wait for object to finish before commencing download
-     * @param proxyOptions.auth - boolean - if proxy requires auth details
+     * @param proxyOptions.auth - Object or false - if proxy requires auth details
      * @param proxyOptions.auth.username - string - required if proxyOptions.auth is true - username for auth
      * @param proxyOptions.auth.password - string - required if proxyOptions.auth is true - password for auth
      * @param proxyOptions.hostname - string required - hostname of proxy (proxy.example.com)
@@ -40,11 +40,30 @@ export default class Download {
         this.custom_headers = custom_headers || {};
         this.extension = Download.get_extension(url);
         this.final_file = path.join(save_location, name + this.extension);
+        this.onUpdate = onUpdate;
         this.url = url;
+        this.full_fail = false;
+        this.bytes_request_supported = true;
         try {
-            this.total_length = await Download.get_length(url,this.custom_headers, this.proxyOptions );
+            if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)) {
+                this.bytes_request_supported = false;
+                this.onUpdate({
+                    status: 1,
+                    error: "Byte Requests not supported",
+                });
+            }
         } catch (e) {
-            console.log("error");
+            this.full_fail = true;
+            this.bytes_request_supported = false;
+            this.onUpdate({
+                status: 1,
+                error: "Unable to check if byte requests is supported. Invalid URL?",
+            });
+            return this;
+        }
+        try {
+            this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions);
+        } catch (e) {
             console.error(e);
             this.onUpdate({
                 status: 1,
@@ -52,7 +71,6 @@ export default class Download {
             })
         }
         this.name = name;
-        this.onUpdate = onUpdate;
         this.numOfParts = parts || 10;
         this.startTime = Date.now();
 
@@ -75,11 +93,14 @@ export default class Download {
         }
     }
 
-    static get_extension(url) { // https://stackoverflow.com/a/6997591/7886229
-        return `.${url.split('/').pop().split('.').pop().split('?')[0].split('#')[0]}`;
+    static get_extension(url) {
+        if (url.split('/').pop().split('?')[0].split('#')[0].indexOf('.') < 0) {
+            return '';
+        }
+        return `.${url.split('/').pop().split('?')[0].split('#')[0].split('.').pop()}`;
     }
 
-    static async get_length(url, customHeaders,proxyOptions) {
+    static async get_length(url, customHeaders, proxyOptions) {
         return await new Promise(resolve => {
             const q = url_lib.parse(url);
             console.log(JSON.stringify(q));
@@ -98,10 +119,10 @@ export default class Download {
         });
     }
 
-    static async byte_request_supported(url, customHeaders, proxyOptions) {
-        return await new Promise(resolve => {
+    static byte_request_supported(url, customHeaders, proxyOptions) {
+        return new Promise((resolve, reject) => {
             const q = url_lib.parse(url);
-            Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
+            const request = Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
                 method: 'GET',
                 headers: {
                     'Range': 'bytes=0-1',
@@ -112,11 +133,16 @@ export default class Download {
                 port: (q.protocol === "http:") ? 80 : 443,
                 url: url,
             }, proxyOptions), res => {
+                resolve(res.statusCode === 206);
                 res.on("data", () => {
+                    resolve(res.statusCode === 206);
                     res.destroy();
-                    resolve(res.statusCode);
                 });
-            }).end();
+            });
+            request.on('error', (e) => {
+                reject(e);
+            });
+            request.end();
         });
     }
 
@@ -146,6 +172,7 @@ export default class Download {
                 'Authorization': auth
             };
         }
+        debugger;
         return returnHeaders;
     }
 
@@ -250,7 +277,8 @@ export default class Download {
             });
         }
     }
-    async forceUpdate(done){
+
+    async forceUpdate(done) {
         const now = Date.now();
         const time = new Date(now - this.startTime);
         this.onUpdate({
@@ -306,49 +334,53 @@ export default class Download {
         }));
     }
 
-    async cleanup(){
+    async cleanup() {
         for (const part of this.parts) {
-            part.cleanup().then(()=>{
+            part.cleanup().then(() => {
                 this.madeProgress(0);
                 this.forceUpdate();
             });
         }
     }
 
-    cancel() {
-        console.log("Canceling parts...");
-        for (const part of this.parts) {
-            part.cancel(); // complete download cancellation
+     async cancel() {
+            console.log("Canceling parts...");
+            for (const part of this.parts) {
+                part.cancel(); // complete download cancellation
 
-        }
-        this.cleanup();
-        try {
-            this.onUpdate({
-                status: 1
-            });
-        } catch (e) {
-            console.error(e);
-        }
+            }
+            await this.cleanup();
+            try {
+                this.onUpdate({
+                    status: 1
+                });
+            } catch (e) {
+                console.error(e);
+            }
 
     }
 
     async beginDownload() {
+        console.log("Beginning download sequence...");
         try {
-            console.log("Creating parts...");
-            await this.createParts();
-            this.forceUpdate();
-            console.log("Downloading parts...");
-            await this.download_all();
-            this.forceUpdate();
-            console.log("Combining parts...");
-            await this.combineParts_move_to_final();
-            this.forceUpdate();
-            console.log("Cleaning up parts...");
-            await this.cleanup();
-            await this.madeProgress(0, true);
+            if (this.bytes_request_supported) {
+                console.log("Creating parts...");
+                await this.createParts();
+                this.forceUpdate();
+                console.log("Downloading parts...");
+                await this.download_all();
+                this.forceUpdate();
+                console.log("Combining parts...");
+                await this.combineParts_move_to_final();
+                this.forceUpdate();
+                console.log("Cleaning up parts...");
+                await this.cleanup();
+                await this.madeProgress(0, true);
+            }
         } catch (e) {
             this.onUpdate({
                 status: 1,
+                error: e,
             });
             await this.cleanup();
             throw Error(e);
@@ -358,23 +390,23 @@ export default class Download {
 }
 
 class Part {
-	constructor(url, from_byte, to_byte, parent) {
-		this.url = url;
-		this.from_byte = parseInt(from_byte);
-		this.to_byte = parseInt(to_byte);
-		this.current_byte = parseInt(from_byte);
-		this.stop_byte = parseInt(to_byte);
-		this.file = new TempFile.TmpFile(Date.now() + from_byte);
-		// console.log(this.file.path);
-		this.percent_done = 0;
-		this.parent = parent;
-		if (url_lib.parse(url).protocol === "http:") {
-			this.protocol = http;
-			this.port = "80";
-		} else {
-			this.protocol = https;
-			this.port = "443";
-		}
+    constructor(url, from_byte, to_byte, parent) {
+        this.url = url;
+        this.from_byte = parseInt(from_byte);
+        this.to_byte = parseInt(to_byte);
+        this.current_byte = parseInt(from_byte);
+        this.stop_byte = parseInt(to_byte);
+        this.file = new TempFile.TmpFile(Date.now() + from_byte);
+        // console.log(this.file.path);
+        this.percent_done = 0;
+        this.parent = parent;
+        if (url_lib.parse(url).protocol === "http:") {
+            this.protocol = http;
+            this.port = "80";
+        } else {
+            this.protocol = https;
+            this.port = "443";
+        }
 
         this.download = null
     };
@@ -417,7 +449,7 @@ class Part {
         });
     }
 
-    async cancel() {
+    cancel() {
         this.download.abort();
     }
 
