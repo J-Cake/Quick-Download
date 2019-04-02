@@ -30,16 +30,7 @@ input:focus, button:focus, textarea:focus {
 }
 
 /* Be more specific. This looks weird on radio buttons. */
-input:focus, button:focus {
-    background: #334c79 !important;
-    outline: none;
-}
-*/
 
-input[type="radio"]:focus {
-    background: #b4c9e0 !important;
-    border-color: #334c79;
-}
 
 a {
     color: #eee;
