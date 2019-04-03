@@ -8,7 +8,7 @@
 			const {ipcRenderer} = require('electron');
 			ipcRenderer.on('getPage', e => {
 				window.location.href = "http://localhost:3000";
-			})
+			});
 		</script>
 
 		<style>
@@ -200,7 +200,7 @@
 						});
 						// start server
 					} else {
-						load();
+						//load();
 					}
 				});
 

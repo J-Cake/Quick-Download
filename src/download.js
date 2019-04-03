@@ -100,6 +100,7 @@ export default class Download {
         return `.${url.split('/').pop().split('?')[0].split('#')[0].split('.').pop()}`;
     }
 
+
     static async get_length(url, customHeaders, proxyOptions) {
         return await new Promise(resolve => {
             const q = url_lib.parse(url);

@@ -12,21 +12,21 @@ async function createWindow() {
         width: 720,
         height: 360,
         titleBarStyle: "hidden",
-        frame: withFrame,
+        frame: false,
         nodeIntegration: true,
         icon: "./build/favicon.ico",
         webPreferences: {webSecurity: false}
     });
 
-    mainWindow.loadFile('./public/loading.html');
+   //mainWindow.loadFile('./public/loading.html');
 
-   /*  mainWindow.loadURL(url.format({
+    mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'build/index.html'),
         protocol: 'file:',
         slashes: true
-    })); */
+    }));
     mainWindow.webContents.openDevTools();
-    mainWindow.frame = withFrame;
+//    mainWindow.frame = withFrame;
 
     mainWindow.setTitle("Quick Downloader");
 
@@ -76,6 +76,18 @@ function createMenu() {
                 {
                     type: 'separator',
                 },
+                {
+                    label: 'Preferences...',
+                    click(){
+                        mainWindow.webContents.send("menu-settings");
+                    }
+                },
+                {
+                    role: 'services',
+                },
+                {
+                    type: 'separator',
+                },
 
                 {
                     role: 'services',
@@ -85,6 +97,9 @@ function createMenu() {
                 },
                 {
                     role: 'hideothers',
+                },
+                {
+                    type: 'separator',
                 },
                 {
                     role: 'Quit'

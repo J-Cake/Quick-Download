@@ -149,7 +149,7 @@
 .standard_code {
     font-family: monospace;
     resize: none;
-    overflow: auto;
+    overflow: hidden;
     min-height: 10px;
 }
 
