@@ -10,3 +10,6 @@ const pkg = JSON.parse(fs.readFileSync(path.join(buildLoc, 'package.json'), 'utf
 pkg.main = "./main.js";
 
 fs.writeFileSync(path.join(buildLoc, 'package.json'), JSON.stringify(pkg));
+
+fs.closeSync(fs.openSync('./build/main.js', 'w'));
+fs.writeFileSync('./build/main.js', fs.readFileSync('./main.js', 'utf8'));

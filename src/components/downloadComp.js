@@ -7,6 +7,8 @@ import * as path from "path";
 import Download from '../download';
 import HTTPProxy from '../httpproxy';
 
+import Alert from './alert';
+
 const os = window.require('os');
 const {shell} = window.require('electron');
 
@@ -98,7 +100,9 @@ export default class DownloadComp extends React.Component {
                 elapsedTime: info.elapsedTime,
                 error: info.error || "None",
             });
-        }, JSON.parse(this.state.customHeaders || '{}'), proxyOptions);
+        }, JSON.parse(this.state.customHeaders || '{}'), proxyOptions, error => {
+            this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>)
+        });
         this.download.beginDownload().then(() => {
             if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
                 new Notification('DownloadComp Complete', {

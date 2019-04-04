@@ -34,7 +34,7 @@ export default class Download {
      * @param proxyOptions.protocol - string -  "http" || "https"
      * @returns {Promise<Download>}
      */
-    async init(url, name, save_location, parts, onUpdate, custom_headers, proxyOptions) {
+    async init(url, name, save_location, parts, onUpdate, custom_headers, proxyOptions, error) {
         this.save_location = save_location;
         this.proxyOptions = proxyOptions || false;
         this.custom_headers = custom_headers || {};
@@ -44,20 +44,31 @@ export default class Download {
         this.url = url;
         this.full_fail = false;
         this.bytes_request_supported = true;
+        this.error = error;
         try {
             if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)) {
                 this.bytes_request_supported = false;
+
+                const err = "Byte Requests not supported"
+
+                this.error(err);
+
                 this.onUpdate({
                     status: 1,
-                    error: "Byte Requests not supported",
+                    error: err,
                 });
             }
         } catch (e) {
+            console.error(e);
             this.full_fail = true;
             this.bytes_request_supported = false;
+            const err = "Unable to check if byte requests is supported. Invalid URL?"
+
+            this.error(err);
+
             this.onUpdate({
                 status: 1,
-                error: "Unable to check if byte requests is supported. Invalid URL?",
+                error: err,
             });
             return this;
         }

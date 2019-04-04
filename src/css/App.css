@@ -29,7 +29,7 @@ input:focus, button:focus, textarea:focus {
 }
 
 /* Be more specific. This looks weird on radio buttons. */
-
+	
 
 a {
     color: #eee;

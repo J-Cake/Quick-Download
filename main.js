@@ -1,7 +1,12 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron');
 let mainWindow;
 
+const mainFile = require('./index_file.js');
+
+const disableFramePermanently = true;
+
 let withFrame = false;
+const path = require('path');
 
 async function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -10,40 +15,35 @@ async function createWindow() {
 		width: 720,
 		height: 360,
 		titleBarStyle: "hidden",
-		frame: false,
 		nodeIntegration: true,
+		frame: void withFrame || true, // will set to true, delete coalescing and remove `void` to disable
 		icon: "./build/favicon.ico",
-		webPreferences: { webSecurity: false }
+		webPreferences: {webSecurity: false}
 	});
 
-	//mainWindow.loadFile('./public/loading.html');
+	mainWindow.loadFile(path.join(__dirname, mainFile));
 
-	mainWindow.loadURL(url.format({
-		pathname: path.join(__dirname, 'build/index.html'),
-		protocol: 'file:',
-		slashes: true
-	}));
-	mainWindow.webContents.openDevTools();
-	//    mainWindow.frame = withFrame;
+	mainWindow.frame = withFrame;
+	mainWindow.frame = true;
 
 	mainWindow.setTitle("Quick Downloader");
+	if (!disableFramePermanently) {
+		ipcMain.on('withFrame', e => {
+			withFrame = true;
+			mainWindow.close();
+			createWindow();
+		});
+		ipcMain.on('noFrame', e => {
+			withFrame = false;
+			mainWindow.close();
+			createWindow();
+		});
 
-	ipcMain.on('withFrame', e => {
-		withFrame = true;
-		mainWindow.close();
-		createWindow();
-	});
-	ipcMain.on('noFrame', e => {
-		withFrame = false;
-		mainWindow.close();
-		createWindow();
-	});
-	mainWindow.on('closed', function() {
-		// Dereference the window object, usually you would store windows
-		// in an array if your app supports multi windows, this is the time
-		// when you should delete the corresponding element.
-		mainWindow = null;
-	});
+		mainWindow.on('closed', function () {
+			mainWindow = null;
+		});
+	}
+
 	createMenu();
 }
 
@@ -53,55 +53,55 @@ app.on('ready', createWindow);
 
 function createMenu() {
 	let template = [{
-			label: 'Quick Downloader',
-			submenu: [{
-					label: 'About Quick Downloader',
-					async click() {
-						if (mainWindow === null) {
-							await createWindow();
-						}
-						mainWindow.webContents.send("menu-about");
-					},
-				},
-				{
-					label: 'Check for updates...',
-					click() {
-						/* TODO */
-					}
-				},
-				{
-					type: 'separator',
-				},
-				{
-					label: 'Preferences...',
-					click() {
-						mainWindow.webContents.send("menu-settings");
-					}
-				},
-				{
-					role: 'services',
-				},
-				{
-					type: 'separator',
-				},
-
-				{
-					role: 'services',
-				},
-				{
-					role: 'hide',
-				},
-				{
-					role: 'hideothers',
-				},
-				{
-					type: 'separator',
-				},
-				{
-					role: 'Quit'
+		label: 'Quick Downloader',
+		submenu: [{
+			label: 'About Quick Downloader',
+			async click() {
+				if (mainWindow === null) {
+					await createWindow();
 				}
-			]
+				mainWindow.webContents.send("menu-about");
+			},
 		},
+			{
+				label: 'Check for updates...',
+				click() {
+					/* TODO */
+				}
+			},
+			{
+				type: 'separator',
+			},
+			{
+				label: 'Preferences...',
+				click() {
+					mainWindow.webContents.send("menu-settings");
+				}
+			},
+			{
+				role: 'services',
+			},
+			{
+				type: 'separator',
+			},
+
+			{
+				role: 'services',
+			},
+			{
+				role: 'hide',
+			},
+			{
+				role: 'hideothers',
+			},
+			{
+				type: 'separator',
+			},
+			{
+				role: 'Quit'
+			}
+		]
+	},
 		{
 			label: 'File',
 			submenu: [{
@@ -118,55 +118,55 @@ function createMenu() {
 		{
 			label: 'Edit',
 			submenu: [
-				{ role: 'undo' },
-				{ role: 'redo' },
-				{ type: 'separator' },
-				{ role: 'cut' },
-				{ role: 'copy' },
-				{ role: 'paste' },
-				{ role: 'pasteandmatchstyle' },
-				{ role: 'delete' },
-				{ role: 'selectall' }
+				{role: 'undo'},
+				{role: 'redo'},
+				{type: 'separator'},
+				{role: 'cut'},
+				{role: 'copy'},
+				{role: 'paste'},
+				{role: 'pasteandmatchstyle'},
+				{role: 'delete'},
+				{role: 'selectall'}
 			]
 		},
 
 		{
 			label: 'View',
 			submenu: [{
-					label: "Theme",
-					submenu: [
-						{ label: "Dark", type: "radio", checked: true }, { label: "Light", type: "radio", enabled: false }
-					]
-				},
-				{ role: 'reload' },
-				{ role: 'forcereload' },
-				{ role: 'toggledevtools' },
-				{ type: 'separator' },
-				{ role: 'resetzoom' },
-				{ role: 'zoomin' },
-				{ role: 'zoomout' },
-				{ type: 'separator' },
-				{ role: 'togglefullscreen' },
+				label: "Theme",
+				submenu: [
+					{label: "Dark", type: "radio", checked: true}, {label: "Light", type: "radio", enabled: false}
+				]
+			},
+				{role: 'reload'},
+				{role: 'forcereload'},
+				{role: 'toggledevtools'},
+				{type: 'separator'},
+				{role: 'resetzoom'},
+				{role: 'zoomin'},
+				{role: 'zoomout'},
+				{type: 'separator'},
+				{role: 'togglefullscreen'},
 			]
 		},
 		{
 			role: 'window',
 			submenu: [
-				{ role: 'minimize' },
-				{ role: 'close' }
+				{role: 'minimize'},
+				{role: 'close'}
 			]
 		},
 		{
 			label: 'Help',
 			submenu: [{
-					label: 'Contact Developers',
-					async click() {
-						if (mainWindow === null) {
-							await createWindow();
-						}
-						mainWindow.webContents.send("menu-contact")
+				label: 'Contact Developers',
+				async click() {
+					if (mainWindow === null) {
+						await createWindow();
 					}
-				},
+					mainWindow.webContents.send("menu-contact")
+				}
+			},
 				{
 					label: 'Learn More',
 					click() {
@@ -198,15 +198,16 @@ function createMenu() {
 		}
 	];
 	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+	// mainWindow.setMenu(Menu.buildFromTemplate(template));
 }
 
-app.on('window-all-closed', function() {
+app.on('window-all-closed', function () {
 	if (process.platform !== 'darwin') {
 		app.quit();
 	}
 });
 
-app.on('activate', function() {
+app.on('activate', function () {
 	if (mainWindow === null) {
 		createWindow();
 	}
@@ -215,22 +216,26 @@ app.on('activate', function() {
 ipcMain.on('minimise', e => {
 	try {
 		mainWindow.minimize()
-	} catch (e) {}
+	} catch (e) {
+	}
 });
 ipcMain.on('minimise', e => {
 	try {
 		mainWindow.maximize()
-	} catch (e) {}
+	} catch (e) {
+	}
 });
 ipcMain.on('minimise', e => {
 	try {
 		mainWindow.restore()
-	} catch (e) {}
+	} catch (e) {
+	}
 });
 ipcMain.on('minimise', e => {
 	try {
 		mainWindow.close()
-	} catch (e) {}
+	} catch (e) {
+	}
 });
 
 ipcMain.on('pickDir', e => {
