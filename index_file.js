@@ -1,1 +1,2 @@
-module.exports = "./public/loading.html";
+//module.exports = "./public/loading.html"; /* development */
+module.exports = "./build/index.html"; /* production */

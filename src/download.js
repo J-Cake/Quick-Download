@@ -450,6 +450,10 @@ class Part {
                         this.parent.imDone();
                         resolve();
                     });
+                });
+                this.download.on("error", (e)=>{
+                    console.error(e);
+                    debugger;
                 })
             } catch (e) {
                 console.error(e);
