@@ -13,6 +13,8 @@ import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils'
 
+const ReactDOM = require("react-dom");
+
 const path = window.require('path');
 const os = window.require('os');
 
@@ -97,12 +99,14 @@ class App extends Component {
             this.setState({
                 downloads: [<DownloadComp id={this.state.downloads.length + 1}
                                           remove={() => this.setState({
-                                              download:[
-                                                  this.state.downloads.splice(this.state.downloads.indexOf(this),1)
+                                              download: [
+                                                  this.state.downloads.splice(this.state.downloads.indexOf(this), 1)
                                               ]
                                           })}
-                                  updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-                                  key={Date.now()} url={this.state.downloadURL} customHeaders={this.state.customHeaders} name={this.state.downloadName}/>,...this.state.downloads]
+                                          updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
+                                          key={Date.now()} url={this.state.downloadURL}
+                                          customHeaders={this.state.customHeaders}
+                                          name={this.state.downloadName}/>, ...this.state.downloads]
             });
             this.closePrompt();
 
@@ -160,7 +164,7 @@ class App extends Component {
 
     getDownloadUrls() {
         window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-        return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.url).toLowerCase().indexOf((this.state.downloadURL).toLowerCase()) >= 0).map(i => i.url);
+        return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.url || "").toLowerCase().indexOf((this.state.downloadURL).toLowerCase()) >= 0).map(i => i.url);
     }
 
     componentDidMount() {
@@ -202,21 +206,6 @@ class App extends Component {
             alert: (box) => this.alert(box),
             contact: () => this.contact(),
         };
-
-        // _electron.remote.getCurrentWindow().setMenu;
-        _electron.remote.getCurrentWindow().setMenu(_electron.remote.Menu.buildFromTemplate([{
-            label: "File",
-            submenu: [{label: "New Download", click: window.App.show}, {
-                label: "Show Past Downloads",
-                click: window.App.showPastDownloads
-            }, {type: "separator"}, {label: "Exit", click: window.App.close}, {
-                label: "Open Settings",
-                click: () => this.showSettings()
-            }]
-        }, {
-            label: "View",
-            submenu: [{label: "Theme", submenu: [{label: "Dark"}, {label: "Light"}, {role: "togglefullscreen"}]}]
-        }, {label: "Help", submenu: [{label: "About", click: window.App.about}, {label: "Docs"}]}]));
     }
 
     acceptSuggestion(number) {
@@ -262,11 +251,11 @@ class App extends Component {
         this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={
             <ul>
                 <li><a target={"_blank"}
-                       href="https://joshbrown.info/#contact">Joshua
+                       onClick={() => _electron.shell.openExternal("https://joshbrown.info/#contact")}>Joshua
                     Brown</a>
                 </li>
                 <li><a target={"_blank"}
-                       href="https://www.jacob-schneider.ga/contact.html">Jacob
+                       onClick={() => _electron.shell.openExternal("https://www.jacob-schneider.ga/contact.html")}>Jacob
                     Schneider</a>
                 </li>
                 <br/>
@@ -318,7 +307,7 @@ class App extends Component {
                         <Tool
                             onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
                             icon={"fas fa-clock"}/>
-
+{/*
                         {platform !== "darwin" ?
                             <div className={"menu"}>
                                 <div className={"submenu"}>
@@ -393,11 +382,11 @@ class App extends Component {
                                                                               header={"Contact us"}
                                                                               body={<ul>
                                                                                   <li><a
-                                                                                      href="https://joshbrown.info/#contact">Joshua
+                                                                                      onClick={() => _electron.shell.openExternal("https://joshbrown.info/#contact")}>Joshua
                                                                                       Brown</a>
                                                                                   </li>
                                                                                   <li><a
-                                                                                      href="https://www.jacob-schneider.ga/contact.html">Jacob
+                                                                                      onClick={() => _electron.shell.openExternal("https://www.jacob-schneider.ga/contact.html")}>Jacob
                                                                                       Schneider</a>
                                                                                   </li>
                                                                                   <br/>
@@ -408,7 +397,7 @@ class App extends Component {
                                     </div>
                                 </div>
                             </div> : null
-                        }
+                        }*/}
                     </header>
 
                     <div className="downloads">
@@ -467,23 +456,40 @@ class App extends Component {
                                         <div className={"suggestions"}>
                                             {this.getDownloadUrls().map((i, a) => <div key={a}
                                                                                        onClick={() => this.acceptSuggestion(a)}
-                                                                                       className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span>{i}</span><br/></div>)}
+                                                                                       className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}>
+                                                <span>{i}</span><br/></div>)}
                                         </div>
                                     </div>
                                     <div className={"formItem"}>
                                         <label htmlFor={"dl-headers"}>Custom Headers (JSON)</label>
                                         <textarea onFocus={field => this.setState({focused: field.target})}
-                                               onBlur={() => this.setState({focused: null})}
-                                               value={this.state.customHeaders}
-                                               onChange={e => void ((() => {
-                                                   if (this.state.stopSave)
-                                                       this.setState({
-                                                           stopSave: false
-                                                       });
-                                               })()) || this.setState({customHeaders: e.target.value})}
-                                               className={"input_standard standard_code mousetrap url"}
-                                               id={"dl-headers"}
-                                               placeholder={'{"Cookie","token=quickdownloader"}'}
+                                                  onBlur={() => this.setState({focused: null})}
+                                                  value={this.state.customHeaders}
+                                                  onChange={e => void ((() => {
+                                                      /*
+                                                      const element = ReactDOM.findDOMNode(this);
+                                                     this.setState({
+                                                         height: "5px",
+                                                     });
+                                                      console.log(element.scrollHeight);
+                                                      this.setState({
+                                                          height: (element.scrollHeight)+"px",
+                                                      });
+                                                       */
+                                                      if (this.state.stopSave)
+                                                          this.setState({
+                                                              stopSave: false
+                                                          });
+                                                  })()) || this.setState({customHeaders: e.target.value})
+                                                  }
+
+                                                  /*
+                                                  style={{
+                                                      height: this.state.height || "auto"
+                                                  }}*/
+                                                  className={"input_standard standard_code mousetrap url"}
+                                                  id={"dl-headers"}
+                                                  placeholder={'{"Cookie","token=quickdownloader"}'}
                                         />
                                     </div>
 
@@ -629,7 +635,7 @@ class App extends Component {
                                                    this.forceUpdate();
                                                }}/>
                                     </div>
-{/*
+                                    {/*
 
                                     <div className={"setting"}>
                                         <label htmlFor={"none"}>Pac Script</label>

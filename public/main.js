@@ -10,7 +10,7 @@ async function createWindow() {
 		minHeight: 360,
 		width: 720,
 		height: 360,
-		titleBarStyle: "hidden",
+		titleBarStyle: "default",
 		frame: withFrame,
 		nodeIntegration: true,
 		icon: "./favicon.ico",
