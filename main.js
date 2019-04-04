@@ -1,8 +1,6 @@
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron');
 let mainWindow;
 
-const url = require('url');
-const path = require('path');
 let withFrame = false;
 
 async function createWindow() {
@@ -20,11 +18,6 @@ async function createWindow() {
 
     mainWindow.loadFile('./public/loading.html');
 
-   /*  mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'build/index.html'),
-        protocol: 'file:',
-        slashes: true
-    })); */
     mainWindow.webContents.openDevTools();
     mainWindow.frame = withFrame;
 

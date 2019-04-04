@@ -172,7 +172,7 @@ export default class Download {
                 'Authorization': auth
             };
         }
-        debugger;
+        // debugger;
         return returnHeaders;
     }
 

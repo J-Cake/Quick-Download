@@ -18,7 +18,6 @@ textarea {
     resize: none;
 }
 
-/*
 input:focus, button:focus, textarea:focus {
     background: #334c79 !important;
     outline: none;
@@ -29,12 +28,10 @@ input:focus, button:focus, textarea:focus {
     color: #b4c9e0;
 }
 
-/* Be more specific. This looks weird on radio buttons. */
 input:focus, button:focus {
     background: #334c79 !important;
     outline: none;
 }
-*/
 
 input[type="radio"]:focus {
     background: #b4c9e0 !important;

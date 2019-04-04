@@ -76,7 +76,7 @@ export default class DownloadComp extends React.Component {
         proxyOptions = false;
         this.download = new Download();
         if (window.localStorage.proxySettings === "auth") {
-            debugger;
+            // debugger;
             proxyOptions = {
                 hostname: window.localStorage.proxyHost,
                 port: window.localStorage.proxyPort,
@@ -106,7 +106,8 @@ export default class DownloadComp extends React.Component {
                     icon: "./favicon.ico"
                 }).onclick = () => window.require('electron').remote.getCurrentWindow().focus();
             }
-            this.props.updateTaskBarProgress(this.state.id, this.state.progress);
+
+            this.props.updateTaskBarProgress(this.state.id, this.state.progress || 0);
         }).catch(e => {
             console.error(e);
             this.setState({

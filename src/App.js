@@ -140,9 +140,16 @@ class App extends Component {
 
     updateTaskBarValue(index, progress) {
         if (index === this.state.downloads.length) {
-            remote.getCurrentWindow().setProgressBar(progress / 100);
-            if (progress === 100)
-                remote.getCurrentWindow().setProgressBar(-1);
+
+        	console.log(progress);
+
+			(async function (progress) {
+				window.require('electron').remote.getCurrentWindow().setProgressBar(progress / 100);
+			})(progress).catch(err => console.error(err) || err);
+
+			if (progress === 100) (async function () {
+				window.require('electron').remote.getCurrentWindow().setProgressBar(-1);
+            })().catch(err => console.error(err) || err);
         }
     }
 
@@ -764,10 +771,6 @@ class Checkbox extends React.Component {
     state = {
         checked: this.props.checked
     };
-
-    constructor(props) {
-        super(props);
-    }
 
     render() {
         return (
