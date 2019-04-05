@@ -19,6 +19,15 @@ textarea {
 }
 
 /* Be more specific. This looks weird on radio buttons. */
+.input_standard:focus, button:focus, textarea:focus {
+    background: #334c79 !important;
+    outline: none;
+}
+
+*::selection {
+    background: #3c434b;
+    color: #b4c9e0;
+}
 	
 
 a {

@@ -116,7 +116,9 @@ export default class WindowFrame extends React.Component {
 			);
 		} else {
 			return (
-				<div/>
+				<div>
+					No Header
+				</div>
 			)
 		}
 	}

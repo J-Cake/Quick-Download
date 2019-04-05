@@ -321,8 +321,7 @@ class App extends Component {
 		return (
 			<div className="wrapper">
 
-				{(() => true)() ?
-					<WindowFrame/> : null} {/* <-That won't render anything, but I don't want to delete the reference. */}
+				<WindowFrame/>
 
 				<div className="App">
 					<header>
