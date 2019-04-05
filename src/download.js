@@ -429,11 +429,6 @@ class Part {
 
     async download_bytes() {
         return await new Promise((resolve, reject) => {
-            const startTimer = () => {
-                setTimeout(function () {
-                }, 100);
-            };
-            startTimer();
             try {
                 const q = url_lib.parse(this.url);
                 this.download = this.protocol.get(Download.proxify_headers({
@@ -450,6 +445,7 @@ class Part {
                         this.file.writeSync(res);
                         void this.parent.madeProgress(res.length);
                         this.current_byte += res.length;
+                        console.log("data");
                         this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
                         this.parent.average_in(this.percent_done, this);
                     });
@@ -458,8 +454,13 @@ class Part {
                         this.parent.imDone();
                         resolve();
                     });
+                });
+                this.download.on("error", (e)=>{
+                    console.error(e);
+                    debugger;
                 })
             } catch (e) {
+                console.error(e);
                 reject(e);
             }
         });
