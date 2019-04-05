@@ -92,10 +92,11 @@ class App extends Component {
 		this.setState({downloadName: "", downloadURL: "", promptShowing: false});
 	}
 
-	beginDownload() {
+	async beginDownload() {
 		if (this.state.downloadURL) {
-			this.setState({
-				downloads: [<DownloadComp alert={box => this.alert(box)} id={this.state.downloads.length + 1}
+			await this.setState({
+				downloads: [<DownloadComp onComplete={() => this.next()}
+										  alert={box => this.alert(box)} id={this.state.downloads.length + 1}
 										  remove={() => this.setState({
 											  download: [
 												  this.state.downloads.splice(this.state.downloads.indexOf(this), 1)
@@ -104,8 +105,15 @@ class App extends Component {
 										  updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
 										  key={Date.now()} url={this.state.downloadURL}
 										  customHeaders={this.state.customHeaders}
-										  name={this.state.downloadName}/>, ...this.state.downloads]
+										  name={this.state.downloadName}
+										  ref={ref => this.shouldStart(ref)}
+				/>, ...this.state.downloads]
 			});
+
+			// if (this.state.downloads.filter(i => i.status === 0).length === 1) {
+			// 	this.next();
+			// }
+
 			this.closePrompt();
 
 			if (!this.state.stopSave)
@@ -114,6 +122,23 @@ class App extends Component {
 			this.setState({stopSave: true});
 		} else {
 			this.setState({requiredField: true});
+		}
+	}
+
+	shouldStart(ref) {
+
+	}
+
+	next() {
+		console.log('starting next');
+
+		const downloads = this.state.downloads;
+		while (downloads.length > 0) {
+			if (downloads[0].status === 3) {
+				downloads[0].startDownload();
+				downloads.pop();
+				break;
+			}
 		}
 	}
 
@@ -293,8 +318,10 @@ class App extends Component {
 	render() {
 		return (
 			<div className="wrapper">
-				{void (() => true)() ?
+
+				{(() => true)() ?
 					<WindowFrame/> : null} {/* <-That won't render anything, but I don't want to delete the reference. */}
+
 				<div className="App">
 					<header>
 						<Tool shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
@@ -631,7 +658,7 @@ class App extends Component {
 												   this.forceUpdate();
 											   }}/>
 									</div>
-									{void (() => true)() ? (
+									{(() => false)() ? (
 											<div className={"setting"}>
 												<label htmlFor={"none"}>Pac Script</label>
 												<input className={"standard_radio right_aligned"} type={"radio"}

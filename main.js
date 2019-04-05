@@ -1,9 +1,10 @@
+const os = require('os');
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron');
 let mainWindow;
 
 const mainFile = require('./index_file.js');
 
-const disableFramePermanently = true;
+const disableFramePermanently = false;
 
 let withFrame = false;
 const path = require('path');
@@ -16,7 +17,7 @@ async function createWindow() {
 		height: 360,
 		titleBarStyle: "hidden",
 		nodeIntegration: true,
-		frame: void withFrame || true, // will set to true, delete coalescing and remove `void` to disable
+		frame: os.platform() !== "win32",
 		icon: "./build/favicon.ico",
 		webPreferences: {webSecurity: false}
 	});
@@ -24,7 +25,6 @@ async function createWindow() {
 	mainWindow.loadFile(path.join(__dirname, mainFile));
 
 	mainWindow.frame = withFrame;
-	mainWindow.frame = true;
 
 	mainWindow.setTitle("Quick Downloader");
 	if (!disableFramePermanently) {
@@ -84,7 +84,6 @@ function createMenu() {
 			{
 				type: 'separator',
 			},
-
 			{
 				role: 'services',
 			},
@@ -124,7 +123,6 @@ function createMenu() {
 				{role: 'cut'},
 				{role: 'copy'},
 				{role: 'paste'},
-				{role: 'pasteandmatchstyle'},
 				{role: 'delete'},
 				{role: 'selectall'}
 			]

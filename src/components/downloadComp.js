@@ -27,7 +27,7 @@ export default class DownloadComp extends React.Component {
             chunkSize: 1024,
             details: false,
             fileName: this.props.name,
-            status: 0,
+            status: 3,
             path: "",
             id: this.props.id,
             error: "None",
@@ -35,7 +35,7 @@ export default class DownloadComp extends React.Component {
         this.past_percent = 0;
         console.log(this.state);
 
-        this.startDownload();
+        // this.startDownload();
     }
 
     static calculateSize(bytes) {
@@ -103,6 +103,11 @@ export default class DownloadComp extends React.Component {
         }, JSON.parse(this.state.customHeaders || '{}'), proxyOptions, error => {
             this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>)
         });
+
+        this.setState({
+            status: 3
+        });
+
         this.download.beginDownload().then(() => {
             if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
                 new Notification('DownloadComp Complete', {
@@ -128,10 +133,14 @@ export default class DownloadComp extends React.Component {
         shell.showItemInFolder(this.state.path);
     }
 
+    getStatus() {
+        return this.state.status;
+    }
+
     render() {
         return (
             <div
-                className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : "")}>
+                className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : (this.state.status === 3 ? " waiting" : ""))}>
                 <div className="header">
                     <h2>{this.state.fileName}</h2>
                     <div className="tools">

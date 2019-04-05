@@ -17,7 +17,6 @@ export default class Download {
     }
 
     /**
-     *
      * @param url
      * @param name
      * @param save_location
@@ -32,9 +31,10 @@ export default class Download {
      * @param proxyOptions.hostname - string required - hostname of proxy (proxy.example.com)
      * @param proxyOptions.port - integer required - port of proxy
      * @param proxyOptions.protocol - string -  "http" || "https"
+     * @param onError - function - a callback function in case an error occurs
      * @returns {Promise<Download>}
      */
-    async init(url, name, save_location, parts, onUpdate, custom_headers, proxyOptions, error) {
+    async init(url, name, save_location, parts, onUpdate, custom_headers, proxyOptions, onError) {
         this.save_location = save_location;
         this.proxyOptions = proxyOptions || false;
         this.custom_headers = custom_headers || {};
@@ -44,12 +44,12 @@ export default class Download {
         this.url = url;
         this.full_fail = false;
         this.bytes_request_supported = true;
-        this.error = error;
+        this.error = onError;
         try {
             if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)) {
                 this.bytes_request_supported = false;
 
-                const err = "Byte Requests not supported"
+                const err = "Byte Requests not supported";
 
                 this.error(err);
 
@@ -62,7 +62,7 @@ export default class Download {
             console.error(e);
             this.full_fail = true;
             this.bytes_request_supported = false;
-            const err = "Unable to check if byte requests is supported. Invalid URL?"
+            const err = "Unable to check if byte requests is supported. Invalid URL?";
 
             this.error(err);
 
@@ -75,7 +75,11 @@ export default class Download {
         try {
             this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions);
         } catch (e) {
-            console.error(e);
+
+            const error = e.message;
+
+            this.error(error);
+
             this.onUpdate({
                 status: 1,
                 error: e,

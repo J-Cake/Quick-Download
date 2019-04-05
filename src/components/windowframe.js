@@ -7,6 +7,8 @@ const _electron = window.require('electron');
 const remote = _electron.remote;
 const _window = remote.getCurrentWindow();
 
+const Mousetrap = window.require('mousetrap');
+
 window.localStorage.hasRelaunched = window.localStorage.hasRelaunched || "false";
 window.localStorage.withFrame = window.localStorage.withFrame || 'true';
 
@@ -39,11 +41,14 @@ export default class WindowFrame extends React.Component {
 		super(...args);
 
 		this.state = {
-			restore: false
+			restore: false,
+			showMenu: false
 		}
 	}
 
 	componentDidMount() {
+		Mousetrap.bind('alt', () => this.setState(prev => ({showMenu: !prev.showMenu})));
+
 		if ($(".titlebar")) {
 			$(".min-btn").on("click", e => {
 				_window.minimize();
@@ -75,9 +80,6 @@ export default class WindowFrame extends React.Component {
 	}
 
 	render() {
-
-		// console.log(platform);
-
 		if (!_window.frame) {
 			return (
 				<header style={{display: _window.isFullScreen() ? "none" : "block"}} className={`titlebar ${platform}`}>
@@ -86,6 +88,12 @@ export default class WindowFrame extends React.Component {
 							<img src={"./favicon.ico"} className={`icon ${platform}`} alt={"Quick Downloader"}/>
 							<span>Quick Downloader</span>
 						</div>
+
+						{this.state.showMenu ? <nav className="menu">
+							<div className={"category"}><div className="category-name">File</div><div className={"options"}>
+								<div className={"option"}>Hello World</div>
+							</div></div>
+						</nav> : null}
 
 						<div className={`window-controls ${platform}`}>
 							<div className={`button min-btn ${platform}`}>

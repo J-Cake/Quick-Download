@@ -1,6 +1,6 @@
 .titlebar.win32 .drag-region.win32 {
     color: #FFF;
-    display: block;
+    /*display: block;*/
     height: auto;
     -webkit-app-region: drag;
     font-family: "Segoe UI Light", "Helvetica Neue", sans-serif;
@@ -15,6 +15,8 @@
     height: 32px;
     font-family: "Segoe MDL2 Assets";
     font-size: 10px;
+    /*grid-column: 3;*/
+    justify-self: flex-end;
 }
 .window-controls.win32 * {
     font-family: "Segoe MDL2 Assets";
@@ -57,8 +59,9 @@
 }
 
 .titlebar.win32 .drag-region.win32 {
-    display: grid;
-    grid-template-columns: auto 138px;
+    display: flex;
+    width: 100vw;
+    overflow-y: visible;
 }
 .window-title.win32 {
     grid-column: 1;
@@ -68,10 +71,13 @@
     font-size: 12px;
     margin-left: 8px;
     overflow-x: hidden;
+    height: 26px;
 }
 .window-title.win32 span {
-    overflow: hidden;
+    overflow-x: hidden;
     text-overflow: ellipsis;
+    word-break: unset;
+    word-wrap: unset;
     line-height: 1.5;
     margin-left: 16px;
 }
@@ -197,7 +203,6 @@
 
     font-size: 11pt;
     height: 55px;
-    /*line-height: 55px;*/
     vertical-align: text-top;
     z-index: 100;
 }
@@ -212,8 +217,6 @@
     min-width: 250px;
     max-width: 600px;
     margin-left: 0;
-
-    /*margin-top: 12pt;*/
 
     text-overflow-ellipsis: ellipsis;
 
@@ -242,8 +245,6 @@
     color: #eee;
 
     overflow: visible;
-
-    /*display: flex;*/
 }
 .submenu > .menuTitle {
     display: block;
@@ -253,7 +254,6 @@
 .submenu:hover > .menuTitle {
     background: rgba(49,76,110,0.65);
     color: #eeeeee;
-    /*height: 110%;*/
 }
 
 .menu .submenu:hover > .options {
@@ -274,3 +274,56 @@ hr {
 .window-controls.darwin  {
     display: none !important;
 }
+
+.menu {
+    max-height: 26px !important;
+    overflow: visible !important;
+    grid-column: 2 !important;
+    height: 0;
+    position: relative;
+    margin-top: 0;
+    top: 0;
+    padding-top: 0;
+}
+
+.menu, .menu * {
+    line-height: 26px;
+    font-size: 10pt;
+    overflow: visible !important;
+}
+
+.menu * {
+    position: absolute;
+    overflow: visible !important;
+}
+
+.menu span {
+    display: block;
+    position: absolute;
+}
+
+.menu .category:hover .options, .menu .category *:hover .options {
+    display: flex;
+}
+
+.options {
+    /*display: none;*/
+    background: #202225;
+    /*padding: 5px;*/
+    min-width: 15em;
+    flex-direction: column;
+    border-radius: 6px;
+    border: 1px solid #66727f;
+    z-index: 140 !important;
+}
+.option {
+    padding: 0 5px;
+    width: 100%;
+}
+.option:hover {
+    background: #66727f;
+}
+
+/** {*/
+    /*background: cornflowerblue !important;*/
+/*}*/
