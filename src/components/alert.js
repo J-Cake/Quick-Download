@@ -21,7 +21,7 @@ export default class Alert extends React.Component {
 								</div>
 							</header>
 							<br />
-							{this.props.body}
+							{this.props.children || this.props.body}
 						</div>
 					</div>
 				</div>

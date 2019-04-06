@@ -13,7 +13,11 @@ export default class Download {
         this.last_print = 0;
         this.parts = [];
         this.parts_done = 0;
-        this.progress = 0;
+        this.progress = [];
+    }
+
+    static getFileName(name, saveLocation, url) {
+        return path.join(saveLocation, name + Download.get_extension(url));
     }
 
     /**
@@ -34,6 +38,7 @@ export default class Download {
      * @param onError - function - a callback function in case an error occurs
      * @returns {Promise<Download>}
      */
+
     async init(url, name, save_location, parts, onUpdate, custom_headers, proxyOptions, onError) {
         this.save_location = save_location;
         this.proxyOptions = proxyOptions || false;
@@ -96,7 +101,7 @@ export default class Download {
             this.protocol = https;
             this.port = "443";
         }
-        return this;
+        return this.final_file;
     }
 
     static get_lib(url, proxyOptions) {
@@ -274,31 +279,41 @@ export default class Download {
     }
 
     async madeProgress(amount, done) {
-        this.progress += amount;
+        this.progress.push(amount);
 
-        // console.log(this.progress, this.total_length, this.parts);
-        //console.log((this.progress / this.total_length) * 100);
         const now = Date.now();
         const time = new Date(now - this.startTime);
         if (now % 100 === 0 || done) {
             this.onUpdate({
-                percentage: (this.progress / this.total_length) * 100,
+                percentage: (this.progress.reverse()[0] / this.total_length) * 100,
                 average_percentage: this.average_percentage,
                 size: this.total_length,
                 chunks_done: this.parts_done,
                 total_chunks: this.num_of_parts_to_create,
                 done: done || false,
                 path: this.final_file,
+                eta: this.ETA,
                 elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
             });
         }
     }
 
+    get ETA() {
+    //     const reversed = this.progress.reverse();
+    //
+    //     const speed = (reversed.shift() - reversed.shift()) / ((Date.now() - this.startTime) / 1e3); // bytes ber second
+    //
+    //     console.log(this.progress[this.progress.length - 1] - this.progress[this.progress.length - 2]);
+    //
+    //     return Date.now() / 1e3 + this.total_length / speed;
+        return 0;
+    };
+
     async forceUpdate(done) {
         const now = Date.now();
         const time = new Date(now - this.startTime);
         this.onUpdate({
-            percentage: (this.progress / this.total_length) * 100,
+            percentage: (this.progress.reverse()[0] / this.total_length) * 100,
             average_percentage: this.average_percentage,
             size: this.total_length,
             chunks_done: this.parts_done,
@@ -445,7 +460,6 @@ class Part {
                         this.file.writeSync(res);
                         void this.parent.madeProgress(res.length);
                         this.current_byte += res.length;
-                        console.log("data");
                         this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
                         this.parent.average_in(this.percent_done, this);
                     });

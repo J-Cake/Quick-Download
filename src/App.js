@@ -5,15 +5,12 @@ import './css/box.css';
 import './css/settings.css';
 import './css/pastDownloads.css';
 import './css/standard_prompt.css';
-// import * as Mousetrap from "Mousetrap";
-
 import Tool from './components/tool';
 import DownloadComp from './components/downloadComp';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils'
-
-const ReactDOM = require("react-dom");
+// import * as Mousetrap from "Mousetrap";
 
 const path = window.require('path');
 const os = window.require('os');
@@ -27,23 +24,23 @@ const {ipcRenderer} = window.require('electron');
 let platform = remote.require('os').platform();
 
 if (platform !== "win32" && platform !== "darwin")
-    platform = "other";
+	platform = "other";
 
 
 ipcRenderer.on('menu-about', function (event) {
-    window.App.about();
+	window.App.about();
 });
 ipcRenderer.on('menu-settings', function (event) {
-    window.App.showSettings();
+	window.App.showSettings();
 });
 ipcRenderer.on('menu-new_download', function (event) {
-    window.App.show();
+	window.App.show();
 });
 ipcRenderer.on('menu-close', function (event) {
-    window.App.close();
+	window.App.close();
 });
 ipcRenderer.on('menu-contact', function (event) {
-    window.App.contact();
+	window.App.contact();
 });
 
 
@@ -54,7 +51,8 @@ class App extends Component {
 		document.title = "Quick Downloader";
 
 		this.state = {
-			downloads: [],
+			activeDownloads: [],
+			inactiveDownloads: [],
 			promptShowing: false,
 			downloadName: "",
 			downloadURL: "",
@@ -96,25 +94,37 @@ class App extends Component {
 
 	async beginDownload() {
 		if (this.state.downloadURL) {
-			await this.setState({
-				downloads: [<DownloadComp onComplete={() => this.next()}
-										  alert={box => this.alert(box)} id={this.state.downloads.length + 1}
-										  remove={() => this.setState({
-											  download: [
-												  this.state.downloads.splice(this.state.downloads.indexOf(this), 1)
-											  ]
-										  })}
-										  updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-										  key={Date.now()} url={this.state.downloadURL}
-										  customHeaders={this.state.customHeaders}
-										  name={this.state.downloadName}
-										  ref={ref => this.shouldStart(ref)}
-				/>, ...this.state.downloads]
-			});
+			const that = this; // lol I know
 
-			// if (this.state.downloads.filter(i => i.status === 0).length === 1) {
-			// 	this.next();
-			// }
+			const download = <DownloadComp onComplete={() => this.next()}
+										   onStatusChange={function (status) {
+											   if (status !== 2 && status !== 3) {
+												   console.log('unaffected');
+											   } else {
+												   console.log(this);
+
+												   that.setState(prev => ({
+													   inactiveDownloads: [...(prev.inactiveDownloads || []), download]
+												   }));
+											   }
+										   }}
+										   alert={box => this.alert(box)}
+										   id={this.state.activeDownloads.length + 1}
+										   remove={() => this.setState({
+											   download: [
+												   this.state.activeDownloads.splice(this.state.activeDownloads.indexOf(this), 1)
+											   ]
+										   })}
+										   updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
+										   key={Date.now()} url={this.state.downloadURL}
+										   customHeaders={this.state.customHeaders}
+										   name={this.state.downloadName}
+										   ref={ref => this.shouldStart(ref)}
+			/>;
+
+			await this.setState(prev => ({
+				activeDownloads: [...prev.activeDownloads, download]
+			}));
 
 			this.closePrompt();
 
@@ -134,7 +144,7 @@ class App extends Component {
 	next() {
 		console.log('starting next');
 
-		const downloads = this.state.downloads;
+		const downloads = this.state.activeDownloads;
 		while (downloads.length > 0) {
 			if (downloads[0].status === 3) {
 				downloads[0].startDownload();
@@ -168,7 +178,7 @@ class App extends Component {
 	}
 
 	updateTaskBarValue(index, progress) {
-		if (index === this.state.downloads.length) {
+		if (index === this.state.activeDownloads.length) {
 
 			console.log(progress);
 
@@ -184,12 +194,12 @@ class App extends Component {
 
 	getDownloadNames() {
 		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name || "").toLowerCase().indexOf((this.state.downloadName).toLowerCase()) >= 0).map(i => i.name);
+		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name || "").toLowerCase().indexOf((this.state.downloadName || "").toLowerCase()) >= 0).map(i => i.name);
 	}
 
 	getDownloadUrls() {
 		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.url || "").toLowerCase().indexOf((this.state.downloadURL).toLowerCase()) >= 0).map(i => i.url);
+		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.url || "").toLowerCase().indexOf((this.state.downloadURL || "").toLowerCase()) >= 0).map(i => i.url);
 	}
 
 	componentDidMount() {
@@ -424,8 +434,13 @@ class App extends Component {
 							: null}
 					</header>
 
-					<div className="downloads">
-						{this.state.downloads}
+					<div className={"download-wrapper"}>
+						<div className="downloads active">
+							{this.state.activeDownloads}
+						</div>
+						<div className={"downloads inactive"}>
+							{this.state.inactiveDownloads}
+						</div>
 					</div>
 					{/* ------------------------------------------------------------------------------------------------New Download Prompt------------------------------------------------------------------------------------------------ */}
 					{this.state.promptShowing ?
@@ -763,7 +778,8 @@ class App extends Component {
 										</div>
 									</header>
 									{
-										JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div key={a} className={"past-download"}>
+										JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div
+											key={a} className={"past-download"}>
 											<div className={"download-details"}>
 												<div className={"download-name"}>{i.name}:</div>
 												<div className={"download-url"}>{i.url}</div>
@@ -795,19 +811,19 @@ class App extends Component {
 }
 
 class Checkbox extends React.Component {
-    state = {
-        checked: this.props.checked
-    };
+	state = {
+		checked: this.props.checked
+	};
 
-    render() {
-        return (
-            <div className={"checkbox"}
-                 onClick={() => (void this.setState(prev => ({checked: !prev.checked}))) || this.props.onChange(!this.state.checked)}>
-                <span className={"label"}>{this.props.text}</span>
-                <span className={"indicator" + (this.state.checked ? " checked" : "")}/>
-            </div>
-        );
-    }
+	render() {
+		return (
+			<div className={"checkbox"}
+				 onClick={() => (void this.setState(prev => ({checked: !prev.checked}))) || this.props.onChange(!this.state.checked)}>
+				<span className={"label"}>{this.props.text}</span>
+				<span className={"indicator" + (this.state.checked ? " checked" : "")}/>
+			</div>
+		);
+	}
 }
 
 export default App;

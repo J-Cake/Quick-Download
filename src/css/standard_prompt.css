@@ -157,3 +157,13 @@ input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
     display: none !important;
 }
+
+.input_standard:focus, button:focus, textarea:focus, .inline_input:focus, .input_standard:focus  {
+    background: #334c79 !important;
+    outline: none;
+}
+
+*::selection {
+    background: #3c434b;
+    color: #b4c9e0;
+}

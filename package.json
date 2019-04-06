@@ -7,7 +7,7 @@
 		"bad-words": "^3.0.1",
 		"electron": "latest",
 		"mousetrap": "^1.6.3",
-		"pac-resolver": "^3.0.0",
+		"pac-resolver": "git+https://git@github.com/J-Cake/Node-PAC",
 		"react": "^16.7.0",
 		"react-dom": "^16.7.0",
 		"react-scripts": "^2.1.8"
@@ -17,7 +17,7 @@
 		"build": "node pre-build.js && react-scripts build && node post-build.js",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
-		"electron": "electron ./main.js",
+		"electron": "electron .",
 		"pack-osx": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=darwin --arch=x64 --overwrite --icon=./build/favicon.ico",
 		"pack-win": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=win32 --arch=x64 --overwrite --icon=./build/favicon.ico",
 		"run-build": "electron ./build"
