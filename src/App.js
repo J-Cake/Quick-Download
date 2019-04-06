@@ -119,7 +119,7 @@ class App extends Component {
 			this.closePrompt();
 
 			if (!this.state.stopSave)
-				App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName);
+				App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName,this.state.customHeaders);
 
 			this.setState({stopSave: true});
 		} else {
@@ -160,9 +160,9 @@ class App extends Component {
 		}
 	}
 
-	static addToDownloadHistory(url, name) {
+    static addToDownloadHistory(url, name, headers) {
 		const _downloadHistory = JSON.parse(window.localStorage.downloadHistory);
-		_downloadHistory.unshift({url, name});
+        _downloadHistory.unshift({url, name, headers});
 
 		window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
 	}
@@ -183,13 +183,23 @@ class App extends Component {
 	}
 
 	getDownloadNames() {
-		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name || "").toLowerCase().indexOf((this.state.downloadName).toLowerCase()) >= 0).map(i => i.name);
+        return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion).map(i => i.name || "");
+    }
+
+    getDownloadHeaders() {
+        return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion).map(i => i.headers || "");
 	}
 
 	getDownloadUrls() {
-		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.url || "").toLowerCase().indexOf((this.state.downloadURL).toLowerCase()) >= 0).map(i => i.url);
+        return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion).map(i => i.url || "");
+    }
+
+    filterSuggestion(i) {
+        return (function () {
+            return (i.name || "").toLowerCase().indexOf((this.state.downloadName || "").toLowerCase()) >= 0
+                && (i.url || "").toLowerCase().indexOf((this.state.downloadURL || "").toLowerCase()) >= 0
+                && (i.headers || "").toLowerCase().indexOf((this.state.customHeaders || "").toLowerCase()) >= 0
+        }).bind(this)
 	}
 
 	componentDidMount() {
@@ -235,11 +245,13 @@ class App extends Component {
 
 	acceptSuggestion(number) {
 		const names = this.getDownloadNames(),
-			urls = this.getDownloadUrls();
+            urls = this.getDownloadUrls(),
+            headers = this.getDownloadHeaders();
 
 		this.setState({
 			downloadURL: urls[number],
-			downloadName: names[number]
+			downloadName: names[number],
+			customHeaders: headers[number]
 		});
 
 		this.setState({
@@ -276,11 +288,11 @@ class App extends Component {
 		this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={
 			<ul>
 				<li><a target={"_blank"}
-					   onClick={() => _electron.shell.openExternal("https://joshbrown.info/#contact")}>Joshua
+					   onClick={() =>  _electron.ipcRenderer.send('openURL',"https://joshbrown.info/#contact")}>Joshua
 					Brown</a>
 				</li>
 				<li><a target={"_blank"}
-					   onClick={() => _electron.shell.openExternal("https://www.jacob-schneider.ga/contact.html")}>Jacob
+					   onClick={() =>  _electron.ipcRenderer.send('openURL',"https://www.jacob-schneider.ga/contact.html")}>Jacob
 					Schneider</a>
 				</li>
 				<br/>
@@ -394,11 +406,11 @@ class App extends Component {
 										<div className={"option"} onClick={() => this.about()}>About</div>
 										<div className={"option"}>Docs</div>
 										<div className={"option"}
-											 onClick={() => _electron.shell.openExternal('https://github.com/jbis9051/quick_download/blob/master/LICENSE')}>Licensing
+											 onClick={() =>  _electron.ipcRenderer.send('openURL','https://github.com/jbis9051/quick_download/blob/master/LICENSE')}>Licensing
 											Information
 										</div>
 										<div className={"option"}
-											 onClick={() => _electron.shell.openExternal('https://github.com/jbis9051/quick_download/issues/new')}>Report
+											 onClick={() =>  _electron.ipcRenderer.send('openURL','https://github.com/jbis9051/quick_download/issues/new')}>Report
 											a bug
 										</div>
 										<div className={"option"}
@@ -406,11 +418,11 @@ class App extends Component {
 																			  header={"Contact us"}
 																			  body={<ul>
 																				  <li><a
-																					  onClick={() => _electron.shell.openExternal("https://joshbrown.info/#contact")}>Joshua
+																					  onClick={() =>  _electron.ipcRenderer.send('openURL',"https://joshbrown.info/#contact")}>Joshua
 																					  Brown</a>
 																				  </li>
 																				  <li><a
-																					  onClick={() => _electron.shell.openExternal("https://www.jacob-schneider.ga/contact.html")}>Jacob
+																					  onClick={() =>  _electron.ipcRenderer.send('openURL',"https://www.jacob-schneider.ga/contact.html")}>Jacob
 																					  Schneider</a>
 																				  </li>
 																				  <br/>
@@ -458,8 +470,7 @@ class App extends Component {
 											   placeholder={"Download Name"}/>
 										<div className={"suggestions"}>
 											{this.getDownloadNames().map((i, a) => <div key={a}
-																						className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
-												onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
+																						onClick={() => this.acceptSuggestion(a)} className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span>{i}</span><br/></div>)}
 										</div>
 									</div>
 
@@ -515,6 +526,12 @@ class App extends Component {
 												  id={"dl-headers"}
 												  placeholder={'{"Cookie","token=quickdownloader"}'}
 										/>
+                                        <div className={"suggestions"}>
+                                            {this.getDownloadHeaders().map((i, a) => <div key={a}
+                                                                                          onClick={() => this.acceptSuggestion(a)}
+                                                                                          className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}>
+                                                <span>{i}</span><br/></div>)}
+                                        </div>
 									</div>
 
 									<div className={"right-align"}>

@@ -244,6 +244,11 @@ ipcMain.on('pickDir', e => {
 		e.returnValue = e.returnValue[0];
 	}
 });
+
+ipcMain.on('openURL', (e,url) => {
+	require('electron').shell.openExternal(url);
+});
+
 ipcMain.on('confirmClear', e => {
 	dialog.showMessageBox({
 			type: 'info',
