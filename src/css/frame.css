@@ -284,16 +284,17 @@ hr {
     margin-top: 0;
     top: 0;
     padding-top: 0;
+
+    z-index: 140 !important;
 }
 
 .menu, .menu * {
-    line-height: 26px;
     font-size: 10pt;
     overflow: visible !important;
 }
 
 .menu * {
-    position: absolute;
+    position: relative;
     overflow: visible !important;
 }
 
@@ -302,28 +303,45 @@ hr {
     position: absolute;
 }
 
-.menu .category:hover .options, .menu .category *:hover .options {
+.category-name {
+    line-height: 20px;
+    padding: 0 5px;
+    width: auto;
+}
+
+.category-name:hover {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #334c79;
+}
+
+.category-name:hover .options {
     display: flex;
 }
 
+/*.menu .category:hover .options, .menu .category *:hover .options {*/
+/*    display: flex;*/
+/*}*/
+
 .options {
-    /*display: none;*/
-    background: #202225;
+    display: none;
+    margin-left: 0;
+    padding: 7px 0;
+    background: #181b1e;
     /*padding: 5px;*/
     min-width: 15em;
     flex-direction: column;
-    border-radius: 6px;
     border: 1px solid #66727f;
-    z-index: 140 !important;
+    border-radius: 0 7px 7px 7px;
+    /*box-shadow: 0 0 1px 0 #181b1e;*/
+    overflow: hidden;
+    width: 100%;
 }
 .option {
-    padding: 0 5px;
-    width: 100%;
+    /*padding: 0 5px;*/
+    /*width: 100%;*/
 }
 .option:hover {
     background: #66727f;
 }
-
-/** {*/
-    /*background: cornflowerblue !important;*/
-/*}*/

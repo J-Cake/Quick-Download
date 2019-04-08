@@ -97,7 +97,7 @@
     user-select: text;
     /*position: absolute;*/
     cursor: pointer;
-    font-family: monospace;
+    font-family: "Cutive Mono", monospace;
     background: #3e444b;
     box-sizing: border-box;
 }
@@ -147,7 +147,7 @@
     box-sizing: border-box;
 }
 .standard_code {
-    font-family: monospace;
+    font-family: "Cutive Mono", monospace;
     resize: none;
     overflow: hidden;
     min-height: 10px;

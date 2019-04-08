@@ -45,12 +45,12 @@ ipcRenderer.on('menu-contact', function (event) {
 
 
 class App extends Component {
-
 	constructor(...args) {
 		super(...args);
 		document.title = "Quick Downloader";
 
 		this.state = {
+			downloadNums: 0,
 			activeDownloads: [],
 			inactiveDownloads: [],
 			promptShowing: false,
@@ -96,41 +96,54 @@ class App extends Component {
 		if (this.state.downloadURL) {
 			const that = this; // lol I know
 
-			const download = <DownloadComp onComplete={() => this.next()}
-										   onStatusChange={function (status) {
-											   if (status !== 2 && status !== 3) {
-												   console.log('unaffected');
-											   } else {
-												   console.log(this);
+			const onStatusChange = async function (status) {
+				if (status !== 2 && status !== 3) {
+					console.log('unaffected');
+				} else {
+					console.log(this);
 
-												   that.setState(prev => ({
-													   inactiveDownloads: [...(prev.inactiveDownloads || []), download]
-												   }));
-											   }
-										   }}
+					that.setState(prev => ({
+						inactiveDownloads: [...(prev.inactiveDownloads || []), download]
+					}));
+					this.props.remove.bind(this)();
+
+					this.setState({
+						array: 1
+					});
+
+					console.log(that.state.activeDownloads, that.state.inactiveDownloads);
+				}
+			};
+
+			const remove = function () {
+				function getIndex(array) {
+					return array.findIndex(i => i.key === download.key);
+				}
+
+				const arr = !this.array ? that.state.activeDownloads : that.state.inactiveDownloads;
+				const index = getIndex(arr);
+
+				arr.splice(index, 1);
+
+				that.forceUpdate();
+			};
+
+			const download = <DownloadComp onComplete={() => this.next()}
+										   onStatusChange={onStatusChange}
 										   alert={box => this.alert(box)}
 										   id={this.state.activeDownloads.length + 1}
-										   remove={() => this.setState({
-											   download: [
-												   this.state.activeDownloads.splice(this.state.activeDownloads.indexOf(this), 1)
-											   ]
-										   })}
+										   remove={remove}
 										   updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-										   key={Date.now()} url={this.state.downloadURL}
+										   key={`download${this.state.downloadNums}`} url={this.state.downloadURL}
 										   customHeaders={this.state.customHeaders}
 										   name={this.state.downloadName}
-										   ref={ref => this.shouldStart(ref)}
-			/>;
+										   ref={ref => this.shouldStart(ref)}/>;
 
 			await this.setState(prev => ({
-				activeDownloads: [...prev.activeDownloads, download]
+				activeDownloads: [...prev.activeDownloads, download],
+				downloadNums: prev.downloadNums + 1
 			}));
-
 			this.closePrompt();
-
-			if (!this.state.stopSave)
-				App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName);
-
 			this.setState({stopSave: true});
 		} else {
 			this.setState({requiredField: true});
@@ -170,9 +183,10 @@ class App extends Component {
 		}
 	}
 
-	static addToDownloadHistory(url, name) {
+	static addToDownloadHistory(url, name, headers) {
+		debugger;
 		const _downloadHistory = JSON.parse(window.localStorage.downloadHistory);
-		_downloadHistory.unshift({url, name});
+		_downloadHistory.unshift({url, name, headers});
 
 		window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
 	}
@@ -193,13 +207,21 @@ class App extends Component {
 	}
 
 	getDownloadNames() {
-		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.name || "").toLowerCase().indexOf((this.state.downloadName || "").toLowerCase()) >= 0).map(i => i.name);
+		return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion.bind(this)).map(i => i.name || "");
+	}
+
+	getDownloadHeaders() {
+		return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion.bind(this)).map(i => i.headers || "");
 	}
 
 	getDownloadUrls() {
-		window.localStorage.downloadHistory = window.localStorage.downloadHistory || JSON.stringify([]);
-		return JSON.parse(window.localStorage.downloadHistory).filter(i => (i.url || "").toLowerCase().indexOf((this.state.downloadURL || "").toLowerCase()) >= 0).map(i => i.url);
+		return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion.bind(this)).map(i => i.url || "");
+	}
+
+	filterSuggestion(i) {
+		return (i.name || "").toLowerCase().indexOf((this.state.downloadName || "").toLowerCase()) >= 0
+			&& (i.url || "").toLowerCase().indexOf((this.state.downloadURL || "").toLowerCase()) >= 0
+			&& (i.headers || "").toLowerCase().indexOf((this.state.customHeaders || "").toLowerCase()) >= 0
 	}
 
 	componentDidMount() {
@@ -211,12 +233,13 @@ class App extends Component {
 		try {
 			Mousetrap.bind('mod+n', () => this.showPrompt());
 			Mousetrap.bind('esc', () => {
+				// this.forceUpdate();
 				this.closePrompt();
 				this.setState({
 					settingsVisible: false,
 					pastDownloadsVisible: false,
 					boxes: []
-				})
+				});
 			});
 			Mousetrap.bind('mod+j', () => this.pastDownloads());
 			Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
@@ -245,11 +268,13 @@ class App extends Component {
 
 	acceptSuggestion(number) {
 		const names = this.getDownloadNames(),
-			urls = this.getDownloadUrls();
+			urls = this.getDownloadUrls(),
+			headers = this.getDownloadHeaders();
 
 		this.setState({
 			downloadURL: urls[number],
-			downloadName: names[number]
+			downloadName: names[number],
+			customHeaders: headers[number]
 		});
 
 		this.setState({
@@ -286,11 +311,11 @@ class App extends Component {
 		this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={
 			<ul>
 				<li><a target={"_blank"}
-					   onClick={() => _electron.shell.openExternal("https://joshbrown.info/#contact")}>Joshua
+					   onClick={() => _electron.ipcRenderer.send('openURL', "https://joshbrown.info/#contact")}>Joshua
 					Brown</a>
 				</li>
 				<li><a target={"_blank"}
-					   onClick={() => _electron.shell.openExternal("https://www.jacob-schneider.ga/contact.html")}>Jacob
+					   onClick={() => _electron.ipcRenderer.send('openURL', "https://www.jacob-schneider.ga/contact.html")}>Jacob
 					Schneider</a>
 				</li>
 				<br/>
@@ -404,11 +429,11 @@ class App extends Component {
 										<div className={"option"} onClick={() => this.about()}>About</div>
 										<div className={"option"}>Docs</div>
 										<div className={"option"}
-											 onClick={() => _electron.shell.openExternal('https://github.com/jbis9051/quick_download/blob/master/LICENSE')}>Licensing
+											 onClick={() => _electron.ipcRenderer.send('openURL', 'https://github.com/jbis9051/quick_download/blob/master/LICENSE')}>Licensing
 											Information
 										</div>
 										<div className={"option"}
-											 onClick={() => _electron.shell.openExternal('https://github.com/jbis9051/quick_download/issues/new')}>Report
+											 onClick={() => _electron.ipcRenderer.send('openURL', 'https://github.com/jbis9051/quick_download/issues/new')}>Report
 											a bug
 										</div>
 										<div className={"option"}
@@ -416,11 +441,11 @@ class App extends Component {
 																			  header={"Contact us"}
 																			  body={<ul>
 																				  <li><a
-																					  onClick={() => _electron.shell.openExternal("https://joshbrown.info/#contact")}>Joshua
+																					  onClick={() => _electron.ipcRenderer.send('openURL', "https://joshbrown.info/#contact")}>Joshua
 																					  Brown</a>
 																				  </li>
 																				  <li><a
-																					  onClick={() => _electron.shell.openExternal("https://www.jacob-schneider.ga/contact.html")}>Jacob
+																					  onClick={() => _electron.ipcRenderer.send('openURL', "https://www.jacob-schneider.ga/contact.html")}>Jacob
 																					  Schneider</a>
 																				  </li>
 																				  <br/>
@@ -434,8 +459,8 @@ class App extends Component {
 							: null}
 					</header>
 
-					<div className={"download-wrapper"}>
-						<div className="downloads active">
+					<div className="downloads-wrapper">
+						<div className={"downloads active"}>
 							{this.state.activeDownloads}
 						</div>
 						<div className={"downloads inactive"}>
@@ -473,8 +498,9 @@ class App extends Component {
 											   placeholder={"Download Name"}/>
 										<div className={"suggestions"}>
 											{this.getDownloadNames().map((i, a) => <div key={a}
-																						className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}><span
-												onClick={() => this.acceptSuggestion(a)}>{i}</span><br/></div>)}
+																						onClick={() => this.acceptSuggestion(a)}
+																						className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}>
+												<span>{i}</span><br/></div>)}
 										</div>
 									</div>
 
@@ -530,6 +556,12 @@ class App extends Component {
 												  id={"dl-headers"}
 												  placeholder={'{"Cookie","token=quickdownloader"}'}
 										/>
+										<div className={"suggestions"}>
+											{this.getDownloadHeaders().map((i, a) => <div key={a}
+																						  onClick={() => this.acceptSuggestion(a)}
+																						  className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}>
+												<span>{i}</span><br/></div>)}
+										</div>
 									</div>
 
 									<div className={"right-align"}>

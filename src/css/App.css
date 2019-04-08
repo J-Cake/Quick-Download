@@ -95,7 +95,7 @@ button:not(.tool) {
     background: slategrey;
 }
 
-.download-wrapper {
+.downloads-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
     height: 100%;
@@ -115,7 +115,7 @@ button:not(.tool) {
 
 .download {
     padding: 10px;
-    box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);
+    /*box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);*/
     border-radius: 10px;
     background: rgba(36, 40, 44, 0.9);
     font-weight: 300 !important;
@@ -377,4 +377,9 @@ input, textarea {
 textarea {
     height: auto !important;
     min-height: 2rem !important;
+}
+
+.monospace {
+    font-family: "Cutive Mono", monospace;
+    font-size: 1.1em;
 }

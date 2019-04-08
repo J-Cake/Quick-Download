@@ -5,9 +5,6 @@ import Download from '../download';
 
 import Alert from './alert';
 
-// import * as path from "path";
-// import * as fs from 'fs';
-
 const fs = window.require('fs');
 const path = window.require('path');
 
@@ -18,9 +15,9 @@ export default class DownloadComp extends React.Component {
 	constructor() {
 		super(...arguments);
 		this.state = {
+			array: 0, // keeps track of the array (activeDownloads, inactiveDownloads) the object is stored in
 			url: arguments[0].url,
 			customHeaders: arguments[0].customHeaders,
-			remove: arguments[0].remove,
 			size: 0,
 			progress: 0,
 			eta: 0,
@@ -96,10 +93,11 @@ export default class DownloadComp extends React.Component {
 				this.setState(prev => ({
 					size: info.size,
 					progress: info.percentage,
+					speed: info.speed,
 					friendlySize: DownloadComp.calculateSize(info.size),
 					total_chunks: info.total_chunks,
 					chunks_done: info.chunks_done,
-					status: info.done ? 2 : 0,
+					status: info.done ? 2 : info.error ? 1 : 0,
 					path: info.path,
 					eta: info.eta,
 					elapsedTime: info.elapsedTime,
@@ -139,7 +137,8 @@ export default class DownloadComp extends React.Component {
 
 		if (fs.existsSync(fullFile)) {
 			let _ref;
-			this.props.alert(<Alert ref={ref => _ref = ref} key={new Date().getTime().toLocaleString()} header={"File already exists"}>
+			this.props.alert(<Alert noClose={true} ref={ref => _ref = ref} key={new Date().getTime().toLocaleString()}
+									header={"File already exists"}>
 				<div>
 					The file "{fullFile.split('/').pop()}" already exists. You can replace it or keep it or rename the
 					download.
@@ -178,6 +177,7 @@ export default class DownloadComp extends React.Component {
 
 						<button onClick={() => {
 							_ref.setState({showing: false});
+							this.props.remove.bind(this)();
 						}}>Cancel
 						</button>
 					</div>
@@ -221,24 +221,31 @@ export default class DownloadComp extends React.Component {
 									status: 1,
 								});
 							}} icon={"fas fa-times"}/> : <Tool className="download-trash-btn" onClick={() => {
-								this.state.remove();
+								this.props.remove.bind(this)();
 							}} icon={"fas fa-trash"}/>
 						}
 					</div>
 				</div>
 				{this.state.details ?
 					<div className="download-details">
-						<span className="download-detail"><b>Elapsed Time: </b>{this.state.elapsedTime}</span>
-						<span className="download-detail"><b>Final File Destination: </b>{this.state.path}</span>
-						<span className="download-detail"><b>Source: </b>{this.state.url}</span>
-						<span className="download-detail"><b>Error: </b>{this.state.error}</span>
-						<span
-							className="download-detail"><b>Size: </b>{this.state.friendlySize} ({this.state.size} bytes)</span>
-						<span
-							className="download-detail"><b>Estimated Time of completion: </b>{new Date(this.state.eta).toLocaleTimeString()}</span>
-						<span
-							className="download-detail"><b>Parts downloaded: </b>{this.state.chunks_done} of {this.state.total_chunks}</span>
-						<span className="download-detail"><b>Progress: </b>{this.state.progress}%</span>
+						<span className="download-detail"><b>Elapsed Time: </b>
+							{this.state.elapsedTime}</span>
+						<span className={"download-detail"}><b>Speed: </b>
+							<span className={"monospace"}>{DownloadComp.calculateSize(this.state.speed)}/s {this.state.speed} B/s</span></span>
+						<span className="download-detail"><b>Final File Destination: </b>
+							{this.state.path}</span>
+						<span className="download-detail"><b>Source: </b>
+							{this.state.url}</span>
+						<span className="download-detail"><b>Error: </b>
+							{this.state.error}</span>
+						<span className="download-detail"><b>Size: </b>
+							{this.state.friendlySize} ({this.state.size} bytes)</span>
+						<span className="download-detail"><b>Estimated Time of completion: </b>
+							<span className={"monospace"}> {new Date(this.state.eta).toLocaleString()} </span></span>
+						<span className="download-detail"><b>Parts downloaded: </b>
+							{this.state.chunks_done} of {this.state.total_chunks}</span>
+						<span className="download-detail"><b>Progress: </b>
+							<span className={"monospace"}> {this.state.progress}%</span></span>
 					</div>
 					: undefined
 				}
