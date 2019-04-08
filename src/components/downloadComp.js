@@ -35,7 +35,8 @@ export default class DownloadComp extends React.Component {
 		};
 		this.past_percent = 0;
 
-		this.startDownload();
+		// return this.startDownload;
+		// this.props = {...this.props, startDownload: this.startDownload};
 	}
 
 	static calculateSize(bytes) {
@@ -90,7 +91,7 @@ export default class DownloadComp extends React.Component {
 				};
 			}
 			await this.download.init(this.state.url, this.state.fileName, window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'), Number(window.localStorage.partsToCreate), async info => {
-				this.setState(prev => ({
+				await this.setState(prev => ({
 					size: info.size,
 					progress: info.percentage,
 					speed: info.speed,
@@ -104,6 +105,10 @@ export default class DownloadComp extends React.Component {
 					error: info.error || "None",
 					prevStatus: prev.status
 				}));
+
+				if (info.done) {
+					this.onComplete.bind(this)();
+				}
 
 				if (this.state.prevStatus !== this.state.status)
 					this.props.onStatusChange.bind(this)(this.state.status);

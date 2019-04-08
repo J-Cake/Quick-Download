@@ -95,11 +95,66 @@ button:not(.tool) {
     background: slategrey;
 }
 
-.downloads-wrapper {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+.downloads-wrapper.tab-container {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.downloads-wrapper.tab-container .tabs {
+    width: 300px;
+    /*border: 1px solid #b4c9e0;*/
+    border-bottom: 1px solid #24282c;
+    /*z-index: 150;*/
+    color: #b4c9e0;
+    box-shadow: 0 0 1px 0 #24282c;
+    position: relative;
+    /*top: 1px;*/
+    display: flex;
+    justify-content: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    overflow: hidden;
+    background: #24282c;
+
+}
+
+.downloads-wrapper.tab-container .tabs .tab {
+    width: 100%;
+    transition: 0.125s;
+    cursor: pointer;
+    padding: 5px;
+    text-align: center;
+}
+
+.downloads-wrapper.tab-container .tabs .tab#active {
+    background: #4f5660;
+}
+
+.downloads-wrapper.tab-container .tabs .tab#active:hover {
+    background: #3c434b;
+}
+
+.downloads-wrapper.tab-container .tabs .tab:hover {
+    width: 100%;
+    background: #24282c;
+}
+
+.downloads-wrapper.download-container {
+    display: block;
+    /*grid-template-columns: 1fr 1fr;*/
+    margin-top: -1px;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-top-right-radius: 15px;
+    z-index: 140;
+    width: 100%;
     height: 100%;
+    padding: 15px;
+    color: #b4c9e0;
+    background: #24282c;
+    /*border: 1px solid #b4c9e0;*/
     grid-row: 2;
+    box-sizing: border-box !important;
 }
 
 .downloads.active {

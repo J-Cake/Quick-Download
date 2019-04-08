@@ -62,6 +62,7 @@ class App extends Component {
 			latestDownloadProgress: 0,
 			pastDownloadsVisible: false,
 			customHeaders: "",
+			showActive: true
 		};
 
 		App.loadSettings();
@@ -143,6 +144,11 @@ class App extends Component {
 				activeDownloads: [...prev.activeDownloads, download],
 				downloadNums: prev.downloadNums + 1
 			}));
+
+			if (this.state.activeDownloads.length === 1) {
+				this.next();
+			}
+
 			this.closePrompt();
 			this.setState({stopSave: true});
 		} else {
@@ -155,16 +161,7 @@ class App extends Component {
 	}
 
 	next() {
-		console.log('starting next');
-
-		const downloads = this.state.activeDownloads;
-		while (downloads.length > 0) {
-			if (downloads[0].status === 3) {
-				downloads[0].startDownload();
-				downloads.pop();
-				break;
-			}
-		}
+		console.log(this.state.activeDownloads.map(i => i));
 	}
 
 	changeSelection(dir) {
@@ -249,6 +246,12 @@ class App extends Component {
 			Mousetrap.bind('enter', () => {
 				if (this.state.promptShowing) this.acceptSuggestion(this.state.currentSelection)
 			});
+
+			Mousetrap.bind("ctrl+tab", () => {
+				this.setState(prev => ({
+					showActive: !prev.showActive
+				}))
+			})
 		} catch (e) {
 			this.alert(<Alert key={new Date().toLocaleString()} header={"An error has occurred"}
 							  body={"A dependency has failed to load, keyboard shortcuts will be disabled. Otherwise, everything else should work."}/>)
@@ -459,14 +462,20 @@ class App extends Component {
 							: null}
 					</header>
 
-					<div className="downloads-wrapper">
-						<div className={"downloads active"}>
-							{this.state.activeDownloads}
+					<div className={"downloads-wrapper tab-container"}>
+						<div className={"tabs"}>
+							<span onClick={() => this.setState({showActive: true})} className={"tab"}
+								  id={this.state.showActive ? "active" : ""}>Ongoing</span>
+							<span onClick={() => this.setState({showActive: false})} className={"tab"}
+								  id={!this.state.showActive ? "active" : ""}>Finished</span>
 						</div>
-						<div className={"downloads inactive"}>
-							{this.state.inactiveDownloads}
+
+						<div className={"downloads-wrapper download-container"}>
+							{this.state.showActive ? (this.state.activeDownloads.length > 0 ? this.state.activeDownloads : "Press the + button to start a download") :
+								(this.state.inactiveDownloads.length > 0 ? this.state.inactiveDownloads : "Wait until a download completes to see it here")}
 						</div>
 					</div>
+
 					{/* ------------------------------------------------------------------------------------------------New Download Prompt------------------------------------------------------------------------------------------------ */}
 					{this.state.promptShowing ?
 						<div className={"prompt_wrapper"}>

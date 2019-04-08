@@ -2,18 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6b1070b4-1012-4141-a7fa-303330165efc" name="Default Changelist" comment="Merge remote-tracking branch 'origin/master'&#10;&#10;# Conflicts:&#10;#&#9;package-lock.json&#10;#&#9;src/App.js">
-      <change afterPath="$PROJECT_DIR$/public/cutive.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/alert.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/alert.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/downloadComp.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/downloadComp.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/css/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/css/App.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/css/frame.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/css/frame.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/css/standard_prompt.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/css/standard_prompt.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/download.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/download.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/node_modules/" />
     <ignored path="$PROJECT_DIR$/public/node_modules/" />
@@ -34,11 +26,11 @@
           <splitter split-orientation="horizontal" split-proportion="0.484375">
             <split-first>
               <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-                <file pinned="false" current-in-tab="false">
+                <file pinned="false" current-in-tab="true">
                   <entry file="file://$PROJECT_DIR$/src/css/App.css">
                     <provider selected="true" editor-type-id="text-editor">
-                      <state relative-caret-position="801">
-                        <caret line="383" column="20" selection-start-line="383" selection-start-column="20" selection-end-line="383" selection-end-column="20" />
+                      <state relative-caret-position="257">
+                        <caret line="108" column="33" selection-start-line="108" selection-start-column="33" selection-end-line="108" selection-end-column="33" />
                       </state>
                     </provider>
                   </entry>
@@ -46,8 +38,8 @@
                 <file pinned="false" current-in-tab="false">
                   <entry file="file://$PROJECT_DIR$/src/download.js">
                     <provider selected="true" editor-type-id="text-editor">
-                      <state relative-caret-position="327">
-                        <caret line="457" column="49" lean-forward="true" selection-start-line="457" selection-start-column="49" selection-end-line="457" selection-end-column="49" />
+                      <state relative-caret-position="399">
+                        <caret line="461" column="72" selection-start-line="461" selection-start-column="72" selection-end-line="461" selection-end-column="72" />
                         <folding>
                           <element signature="e#0#31#0" expanded="true" />
                         </folding>
@@ -55,10 +47,10 @@
                     </provider>
                   </entry>
                 </file>
-                <file pinned="false" current-in-tab="true">
+                <file pinned="false" current-in-tab="false">
                   <entry file="file://$PROJECT_DIR$/src/css/frame.css">
                     <provider selected="true" editor-type-id="text-editor">
-                      <state relative-caret-position="595">
+                      <state relative-caret-position="6012">
                         <caret line="334" column="25" selection-start-line="334" selection-start-column="25" selection-end-line="334" selection-end-column="25" />
                       </state>
                     </provider>
@@ -67,8 +59,8 @@
                 <file pinned="false" current-in-tab="false">
                   <entry file="file://$PROJECT_DIR$/src/css/standard_prompt.css">
                     <provider selected="true" editor-type-id="text-editor">
-                      <state relative-caret-position="-431">
-                        <caret line="99" column="41" lean-forward="true" selection-start-line="99" selection-start-column="41" selection-end-line="99" selection-end-column="41" />
+                      <state relative-caret-position="1782">
+                        <caret line="99" column="41" selection-start-line="99" selection-start-column="41" selection-end-line="99" selection-end-column="41" />
                       </state>
                     </provider>
                   </entry>
@@ -77,11 +69,11 @@
             </split-first>
             <split-second>
               <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-                <file pinned="false" current-in-tab="true">
+                <file pinned="false" current-in-tab="false">
                   <entry file="file://$PROJECT_DIR$/src/components/windowframe.js">
                     <provider selected="true" editor-type-id="text-editor">
-                      <state relative-caret-position="612">
-                        <caret line="103" column="68" lean-forward="true" selection-start-line="103" selection-start-column="68" selection-end-line="103" selection-end-column="68" />
+                      <state relative-caret-position="1800">
+                        <caret line="103" column="68" selection-start-line="103" selection-start-column="68" selection-end-line="103" selection-end-column="68" />
                         <folding>
                           <element signature="e#0#26#0" expanded="true" />
                         </folding>
@@ -89,11 +81,11 @@
                     </provider>
                   </entry>
                 </file>
-                <file pinned="false" current-in-tab="false">
+                <file pinned="false" current-in-tab="true">
                   <entry file="file://$PROJECT_DIR$/src/components/downloadComp.js">
                     <provider selected="true" editor-type-id="text-editor">
-                      <state relative-caret-position="345">
-                        <caret line="128" column="24" selection-start-line="128" selection-start-column="24" selection-end-line="128" selection-end-column="24" />
+                      <state relative-caret-position="203">
+                        <caret line="165" column="33" selection-start-line="165" selection-start-column="33" selection-end-line="165" selection-end-column="33" />
                         <folding>
                           <element signature="e#0#26#0" expanded="true" />
                         </folding>
@@ -104,7 +96,7 @@
                 <file pinned="false" current-in-tab="false">
                   <entry file="file://$PROJECT_DIR$/src/components/alert.js">
                     <provider selected="true" editor-type-id="text-editor">
-                      <state relative-caret-position="288">
+                      <state relative-caret-position="270">
                         <caret line="16" column="52" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="52" />
                         <folding>
                           <element signature="e#0#26#0" expanded="true" />
@@ -134,8 +126,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/App.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="128" column="14" lean-forward="true" selection-start-line="128" selection-start-column="14" selection-end-line="128" selection-end-column="14" />
+            <state relative-caret-position="180">
+              <caret line="462" column="29" selection-start-line="462" selection-start-column="29" selection-end-line="462" selection-end-column="29" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -192,6 +184,7 @@
       <find>console.log</find>
       <find>esc</find>
       <find>debugger</find>
+      <find>this.props.</find>
     </findStrings>
     <replaceStrings>
       <replace>this.state.activeDownloads</replace>
@@ -205,6 +198,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/App.js" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -226,12 +222,12 @@
         <option value="$PROJECT_DIR$/public/cutive.css" />
         <option value="$PROJECT_DIR$/public/index.html" />
         <option value="$PROJECT_DIR$/src/css/standard_prompt.css" />
-        <option value="$PROJECT_DIR$/src/css/App.css" />
         <option value="$PROJECT_DIR$/src/components/alert.js" />
-        <option value="$PROJECT_DIR$/src/components/downloadComp.js" />
-        <option value="$PROJECT_DIR$/src/App.js" />
         <option value="$PROJECT_DIR$/src/download.js" />
         <option value="$PROJECT_DIR$/src/css/frame.css" />
+        <option value="$PROJECT_DIR$/src/components/downloadComp.js" />
+        <option value="$PROJECT_DIR$/src/css/App.css" />
+        <option value="$PROJECT_DIR$/src/App.js" />
       </list>
     </option>
   </component>
@@ -377,7 +373,8 @@
       <workItem from="1554459822514" duration="14871000" />
       <workItem from="1554520662893" duration="335000" />
       <workItem from="1554521505130" duration="16054000" />
-      <workItem from="1554604346057" duration="27711000" />
+      <workItem from="1554604346057" duration="30519000" />
+      <workItem from="1554761091320" duration="2628000" />
     </task>
     <task id="LOCAL-00001" summary="STABLE WORKING release.">
       <created>1553432431211</created>
@@ -397,10 +394,11 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="92934000" />
+    <option name="totallyTimeSpent" value="98370000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17114271" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -419,10 +417,10 @@
       <window_info anchor="bottom" x="-1920" y="-645" width="1920" height="1017" id="Terminal" maximized="true" order="10" sideWeight="0.49921012" type="WINDOWED" weight="0.5371655" />
       <window_info anchor="bottom" id="TypeScript" order="11" />
       <window_info anchor="bottom" id="Statistic" order="12" weight="0.32903865" />
-      <window_info anchor="right" x="0" y="0" width="430" height="880" id="Documentation" side_tool="true" weight="0.32960597" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" x="0" y="0" width="430" height="880" id="Documentation" order="3" side_tool="true" weight="0.32960597" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -555,20 +553,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="25" selection-start-line="25" selection-end-line="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/css/standard_prompt.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-431">
-          <caret line="99" column="41" lean-forward="true" selection-start-line="99" selection-start-column="41" selection-end-line="99" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/cutive.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
@@ -583,16 +567,40 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/css/App.css">
+    <entry file="file://$PROJECT_DIR$/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="801">
-          <caret line="383" column="20" selection-start-line="383" selection-start-column="20" selection-end-line="383" selection-end-column="20" />
+        <state relative-caret-position="450">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/css/frame.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6012">
+          <caret line="334" column="25" selection-start-line="334" selection-start-column="25" selection-end-line="334" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/css/standard_prompt.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1782">
+          <caret line="99" column="41" selection-start-line="99" selection-start-column="41" selection-end-line="99" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/windowframe.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1800">
+          <caret line="103" column="68" selection-start-line="103" selection-start-column="68" selection-end-line="103" selection-end-column="68" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/components/alert.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
+        <state relative-caret-position="270">
           <caret line="16" column="52" selection-start-line="16" selection-start-column="45" selection-end-line="16" selection-end-column="52" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
@@ -607,47 +615,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/downloadComp.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="128" column="24" selection-start-line="128" selection-start-column="24" selection-end-line="128" selection-end-column="24" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/windowframe.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="103" column="68" lean-forward="true" selection-start-line="103" selection-start-column="68" selection-end-line="103" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/download.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="327">
-          <caret line="457" column="49" lean-forward="true" selection-start-line="457" selection-start-column="49" selection-end-line="457" selection-end-column="49" />
+        <state relative-caret-position="399">
+          <caret line="461" column="72" selection-start-line="461" selection-start-column="72" selection-end-line="461" selection-end-column="72" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/css/frame.css">
+    <entry file="file://$PROJECT_DIR$/src/css/App.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="334" column="25" selection-start-line="334" selection-start-column="25" selection-end-line="334" selection-end-column="25" />
+        <state relative-caret-position="257">
+          <caret line="108" column="33" selection-start-line="108" selection-start-column="33" selection-end-line="108" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/downloadComp.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="165" column="33" selection-start-line="165" selection-start-column="33" selection-end-line="165" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/App.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="128" column="14" lean-forward="true" selection-start-line="128" selection-start-column="14" selection-end-line="128" selection-end-column="14" />
+        <state relative-caret-position="180">
+          <caret line="462" column="29" selection-start-line="462" selection-start-column="29" selection-end-line="462" selection-end-column="29" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
