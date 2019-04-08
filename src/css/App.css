@@ -114,8 +114,7 @@ button:not(.tool) {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     overflow: hidden;
-    background: #24282c;
-
+    background: #4f5660;
 }
 
 .downloads-wrapper.tab-container .tabs .tab {
@@ -127,7 +126,7 @@ button:not(.tool) {
 }
 
 .downloads-wrapper.tab-container .tabs .tab#active {
-    background: #4f5660;
+    background: #24282c;
 }
 
 .downloads-wrapper.tab-container .tabs .tab#active:hover {
