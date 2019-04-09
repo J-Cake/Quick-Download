@@ -1,16 +1,25 @@
+* {
+    box-sizing: border-box !important;
+}
+
 body {
     font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     background: #3e444b;
     overflow: hidden;
     user-select: none;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#root, .wrapper {
+    height: 100% !important;
 }
 
 header {
     display: flex;
-    /*  background: #24282c; */
     background: #202225;
     padding: 7px;
-   /*  box-shadow: 0 0 5px 0 #181b1e; */
     grid-row: 1;
 }
 
@@ -24,20 +33,25 @@ a {
     color: #eee;
     text-decoration: none;
 }
+
 a:hover {
     text-decoration: underline;
 }
+
 .App {
-    max-height: 100vh;
-    overflow: hidden;
-    display: grid;
-    grid-template-rows: auto 1fr;
+    /*max-height: 100% !important;*/
+    height: calc(100% - 1em - 20px);
+    /*bottom: 0 !important;*/
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .downloads {
     display: block;
     position: relative;
-    max-height: calc(100vh - 85px) !important;
+    /*max-height: calc(100vh - 85px) !important;*/
     overflow: auto;
 
     height: 100%;
@@ -71,7 +85,7 @@ button:not(.tool) {
 }
 
 .tool:hover, button:hover {
-    background: rgba(102, 112, 123, 0.55);
+    background: rgba(102, 112, 123, 0.55) !important;
     color: white;
 }
 
@@ -97,7 +111,11 @@ button:not(.tool) {
 
 .downloads-wrapper.tab-container {
     padding: 10px;
+    justify-self: flex-end;
+    overflow: auto;
     box-sizing: border-box;
+    position: relative;
+    height: calc(100% - 1em - 17px);
 }
 
 .downloads-wrapper.tab-container .tabs {
@@ -147,24 +165,22 @@ button:not(.tool) {
     border-top-right-radius: 15px;
     z-index: 140;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 1em - 17px);
     padding: 15px;
     color: #b4c9e0;
     background: #24282c;
-    /*border: 1px solid #b4c9e0;*/
     grid-row: 2;
     box-sizing: border-box !important;
+
+    overflow: auto;
 }
 
-.downloads.active {
-    grid-column: 1;
-
-    border-right: 2px solid #202225;
+.downloads {
+    display: none;
 }
-.downloads.inactive {
-    grid-column: 2;
 
-    border-left: 2px solid #202225;
+.downloads#active {
+    display: block;
 }
 
 .download {
@@ -175,7 +191,7 @@ button:not(.tool) {
     font-weight: 300 !important;
     position: relative;
     transition: 0.45s ease;
-    margin: 10px;
+    /*margin: 10px;*/
 }
 
 b {
@@ -216,6 +232,7 @@ b {
     color: #aaa;
     word-wrap: break-word;
 }
+
 .download.failed .download-detail {
     color: #202225 !important;
 }
@@ -436,4 +453,14 @@ textarea {
 .monospace {
     font-family: "Cutive Mono", monospace;
     font-size: 1.1em;
+}
+.flex {
+    display: flex;
+}
+
+.flex * {
+    margin-block-end: 0;
+    margin-block-start: 0;
+    min-width: 75px;
+    line-height: 1em;
 }

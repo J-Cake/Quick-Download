@@ -35,8 +35,7 @@ export default class DownloadComp extends React.Component {
 		};
 		this.past_percent = 0;
 
-		// return this.startDownload;
-		// this.props = {...this.props, startDownload: this.startDownload};
+		this.startDownload();
 	}
 
 	static calculateSize(bytes) {
@@ -209,7 +208,10 @@ export default class DownloadComp extends React.Component {
 			<div
 				className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : (this.state.status === 3 ? " pending" : ""))}>
 				<div className="header">
-					<h2>{this.state.fileName}</h2>
+					<div className={"flex"}>
+						<h3>{Math.floor(this.state.progress)}%</h3>
+						<h2>{this.state.fileName}</h2>
+					</div>
 					<div className="tools">
 						{this.state.status === 2 ?
 							<Tool className="open-in-folder" onClick={() => this.open()}
@@ -225,6 +227,7 @@ export default class DownloadComp extends React.Component {
 								this.setState({
 									status: 1,
 								});
+								await this.props.onStatusChange.bind(this)(this.state.status);
 							}} icon={"fas fa-times"}/> : <Tool className="download-trash-btn" onClick={() => {
 								this.props.remove.bind(this)();
 							}} icon={"fas fa-trash"}/>
@@ -236,7 +239,8 @@ export default class DownloadComp extends React.Component {
 						<span className="download-detail"><b>Elapsed Time: </b>
 							{this.state.elapsedTime}</span>
 						<span className={"download-detail"}><b>Speed: </b>
-							<span className={"monospace"}>{DownloadComp.calculateSize(this.state.speed)}/s {this.state.speed} B/s</span></span>
+							<span
+								className={"monospace"}>{DownloadComp.calculateSize(this.state.speed)}/s {this.state.speed} B/s</span></span>
 						<span className="download-detail"><b>Final File Destination: </b>
 							{this.state.path}</span>
 						<span className="download-detail"><b>Source: </b>

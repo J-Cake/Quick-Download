@@ -8,11 +8,6 @@ export default class Progress extends React.Component {
 				<div className="progress-bar-wrapper">
 					<Filler progress={this.props.value}/>
 				</div>
-				<div className={"progress-visual"}>
-					<span>
-						{Math.floor(Number(this.props.value)) + "%"}
-					</span>
-				</div>
 			</div>
 		);
 	}

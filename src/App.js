@@ -21,6 +21,8 @@ const _electron = window.require('electron');
 const remote = _electron.remote;
 const {ipcRenderer} = window.require('electron');
 
+const currentWindow = remote.getCurrentWindow();
+
 let platform = remote.require('os').platform();
 
 if (platform !== "win32" && platform !== "darwin")
@@ -161,7 +163,7 @@ class App extends Component {
 	}
 
 	next() {
-		console.log(this.state.activeDownloads.map(i => i));
+		console.log(this.activeDownloads);
 	}
 
 	changeSelection(dir) {
@@ -239,7 +241,7 @@ class App extends Component {
 				});
 			});
 			Mousetrap.bind('mod+j', () => this.pastDownloads());
-			Mousetrap.bind('f11', () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()));
+			Mousetrap.bind('f11', () => currentWindow.setFullScreen(!currentWindow.isFullScreen()));
 
 			Mousetrap.bind('up', () => this.changeSelection(-1) || false);
 			Mousetrap.bind('down', () => this.changeSelection(1) || false);
@@ -471,8 +473,12 @@ class App extends Component {
 						</div>
 
 						<div className={"downloads-wrapper download-container"}>
-							{this.state.showActive ? (this.state.activeDownloads.length > 0 ? this.state.activeDownloads : "Press the + button to start a download") :
-								(this.state.inactiveDownloads.length > 0 ? this.state.inactiveDownloads : "Wait until a download completes to see it here")}
+							<div className={"downloads active"} id={this.state.showActive ? "active" : ""}>
+								{this.state.activeDownloads.length > 0 ? this.state.activeDownloads : "Press the + button to start a download"}
+							</div>
+							<div className={"downloads inactive"} id={!this.state.showActive ? "active" : ""}>
+								{this.state.inactiveDownloads.length > 0 ? this.state.inactiveDownloads : "Wait until a download completes to see it here"}
+							</div>
 						</div>
 					</div>
 
