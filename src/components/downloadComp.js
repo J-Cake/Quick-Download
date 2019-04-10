@@ -205,8 +205,7 @@ export default class DownloadComp extends React.Component {
 
 	render() {
 		return (
-			<div
-				className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : (this.state.status === 3 ? " pending" : ""))}>
+			<div className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : (this.state.status === 3 ? " pending" : ""))}>
 				<div className="header">
 					<div className={"flex"}>
 						<h3>{Math.floor(this.state.progress)}%</h3>

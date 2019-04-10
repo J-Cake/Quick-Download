@@ -50,7 +50,7 @@ class App extends Component {
 	constructor(...args) {
 		super(...args);
 		document.title = "Quick Downloader";
-
+		this.me = React.createRef();
 		this.state = {
 			downloadNums: 0,
 			activeDownloads: [],
@@ -140,8 +140,8 @@ class App extends Component {
 										   key={`download${this.state.downloadNums}`} url={this.state.downloadURL}
 										   customHeaders={this.state.customHeaders}
 										   name={this.state.downloadName}
-										   ref={ref => this.shouldStart(ref)}/>;
-
+										   ref = {this.me}
+										   />;
 			await this.setState(prev => ({
 				activeDownloads: [...prev.activeDownloads, download],
 				downloadNums: prev.downloadNums + 1
@@ -158,12 +158,10 @@ class App extends Component {
 		}
 	}
 
-	shouldStart(ref) {
-
-	}
 
 	next() {
-		console.log(this.activeDownloads);
+		debugger;
+		console.log(this.state.activeDownloads);
 	}
 
 	changeSelection(dir) {
@@ -359,8 +357,7 @@ class App extends Component {
 
 	render() {
 		return (
-			<div className="wrapper">
-
+			<div {`data-${window.localStorage.getItem("theme")}`} className="wrapper">
 				<WindowFrame/>
 
 				<div className="App">
