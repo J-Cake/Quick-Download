@@ -35,7 +35,7 @@ export default class DownloadComp extends React.Component {
 		};
 		this.past_percent = 0;
 
-		this.startDownload();
+		// this.startDownload();
 	}
 
 	static calculateSize(bytes) {
@@ -79,7 +79,6 @@ export default class DownloadComp extends React.Component {
 			proxyOptions = false;
 			this.download = new Download();
 			if (window.localStorage.proxySettings === "auth") {
-				// debugger;
 				proxyOptions = {
 					hostname: window.localStorage.proxyHost,
 					port: window.localStorage.proxyPort,
@@ -106,7 +105,7 @@ export default class DownloadComp extends React.Component {
 				}));
 
 				if (info.done) {
-					this.onComplete.bind(this)();
+					this.props.onComplete.bind(this)();
 				}
 
 				if (this.state.prevStatus !== this.state.status)

@@ -89,22 +89,41 @@ export default class WindowFrame extends React.Component {
 							<span>Quick Downloader</span>
 						</div>
 
-						{this.state.showMenu ? <nav className="menu">
-							<div className={"category"}><div className="category-name">File</div><div className={"options"}>
-								<div className={"option"}>Hello World</div>
-							</div></div>
-						</nav> : null}
+						{this.state.showMenu || !(window.localStorage.autoHideMenuBar === "true") ?
+							<nav className="menu">
+								<div className={"category"}>
+									<div className="category-name">File</div>
+									<div className={"options"}>
+										<div className={"option"} onClick={() => this.props.newDownload()}><label>New Download</label><span
+											className={"accelerator"}>CTRL+N</span></div>
+									</div>
+								</div>
+								<div className={"category"}>
+									<div className={"category-name"}>View</div>
+									<div className={"options"}>
+										<div className={"option"}>
+											<div className="category">
+												<div className={"category-name"}>Theme</div>
+												<div className={"options"}>
+													<div className={"option"}>Light</div>
+													<div className={"option"}>Dark</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</nav> : null}
 
 						<div className={`window-controls ${platform}`}>
 							<div className={`button min-btn ${platform}`}>
 								<span>{platform === "win32" ? "" : ""} </span>
 							</div>
 							<div className={`button max-btn ${platform}`}
-							     style={{display: !this.state.restore ? "inherit" : "none"}}>
+								 style={{display: !this.state.restore ? "inherit" : "none"}}>
 								<span>{platform === "win32" ? "" : ""}</span>
 							</div>
 							<div className={`button restore-btn ${platform}`}
-							     style={{display: this.state.restore ? "inherit" : "none"}}>
+								 style={{display: this.state.restore ? "inherit" : "none"}}>
 								<span>{platform === "win32" ? "" : ""}</span>
 							</div>
 							<div className={`button close-btn ${platform}`}>
