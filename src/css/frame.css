@@ -6,6 +6,10 @@
     font-family: "Segoe UI Light", "Helvetica Neue", sans-serif;
 }
 
+.titlebar.win32 {
+    padding-top: 4px;
+}
+
 .window-controls.win32 {
     display: grid;
     grid-template-columns: repeat(3, 46px);
@@ -199,9 +203,9 @@
     color: #b4c9e0;
     position: relative;
 
-    margin-top: 10px;
+    top: 4px !important;
 
-    font-size: 11pt;
+    font-size: 12pt;
     height: 55px;
     vertical-align: text-top;
     z-index: 100;
@@ -241,7 +245,7 @@
 }
 
 .submenu {
-    background: rgba(36, 40, 44, 0.9);
+    background: #24282c;
     color: #eee;
 
     overflow: visible;
@@ -252,7 +256,7 @@
     padding: 0 10px;
 }
 .submenu:hover > .menuTitle {
-    background: rgba(49,76,110,0.65);
+    background: #334c79;
     color: #eeeeee;
 }
 
@@ -290,12 +294,14 @@ hr {
 
 .menu, .menu * {
     font-size: 10pt;
-    overflow: visible !important;
+    -webkit-app-region: no-drag;
+    overflow: visible;
+    box-sizing: border-box;
 }
 
 .menu * {
     position: relative;
-    overflow: visible !important;
+    /*overflow: visible !important;*/
 }
 
 .menu span {
@@ -303,10 +309,20 @@ hr {
     position: absolute;
 }
 
+.category {
+    width: auto !important;
+    position: relative;
+    min-width: 200px;
+    /*width: 0;*/
+
+    /*overflow: visible;*/
+    /*background: #24282c;*/
+}
+
 .category-name {
     line-height: 20px;
     padding: 0 5px;
-    width: auto;
+    display: inline;
 }
 
 .category-name:hover {
@@ -316,32 +332,44 @@ hr {
     background: #334c79;
 }
 
+.category-name:hover + .options, .options:hover, .category:hover .options {
+    display: flex;
+}
+
 .category-name:hover .options {
     display: flex;
 }
 
-/*.menu .category:hover .options, .menu .category *:hover .options {*/
-/*    display: flex;*/
-/*}*/
-
 .options {
+    flex-grow: 1;
     display: none;
     margin-left: 0;
     padding: 7px 0;
-    background: #181b1e;
-    /*padding: 5px;*/
-    min-width: 15em;
     flex-direction: column;
     border: 1px solid #66727f;
     border-radius: 0 7px 7px 7px;
-    /*box-shadow: 0 0 1px 0 #181b1e;*/
-    overflow: hidden;
-    width: 100%;
+    background: #24282c;
 }
+
 .option {
-    /*padding: 0 5px;*/
-    /*width: 100%;*/
+    display: grid;
+    grid-template-columns: auto auto;
 }
+.option label {
+    grid-row: 1;
+    display: block;
+}
+.option .accelerator {
+    grid-column: 2;
+    margin-top: 5px;
+
+    display: block;
+    text-align: right;
+
+    line-height: 10pt;
+    font-variant: small-caps;
+}
+
 .option:hover {
     background: #66727f;
 }

@@ -9,8 +9,7 @@ import Tool from './components/tool';
 import DownloadComp from './components/downloadComp';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
-import {$} from './components/utils'
-// import * as Mousetrap from "Mousetrap";
+import {$} from './components/utils';
 
 const path = window.require('path');
 const os = window.require('os');
@@ -50,7 +49,9 @@ class App extends Component {
 	constructor(...args) {
 		super(...args);
 		document.title = "Quick Downloader";
+
 		this.me = React.createRef();
+
 		this.state = {
 			downloadNums: 0,
 			activeDownloads: [],
@@ -78,6 +79,7 @@ class App extends Component {
 		window.localStorage.partsToCreate = Number(window.localStorage.getItem("partsToCreate")) || 10;
 		window.localStorage.preferredUnit = window.localStorage.getItem("preferredUnit") || "bin";
 		window.localStorage.allowNotifications = window.localStorage.getItem("allowNotifications") || "true";
+		window.localStorage.autoHideMenuBar = window.localStorage.getItem("autoHideMenuBar") || "false";
 	}
 
 	alert(box) {
@@ -100,21 +102,16 @@ class App extends Component {
 			const that = this; // lol I know
 
 			const onStatusChange = async function (status) {
-				if (status !== 2 && status !== 3) {
-					console.log('unaffected');
-				} else {
+				if (status === 2 || status === 3) {
 					console.log(this);
 
 					that.setState(prev => ({
 						inactiveDownloads: [...(prev.inactiveDownloads || []), download]
 					}));
 					this.props.remove.bind(this)();
-
 					this.setState({
 						array: 1
 					});
-
-					console.log(that.state.activeDownloads, that.state.inactiveDownloads);
 				}
 			};
 
@@ -126,42 +123,46 @@ class App extends Component {
 				const arr = !this.array ? that.state.activeDownloads : that.state.inactiveDownloads;
 				const index = getIndex(arr);
 
+				console.log(arr.length);
 				arr.splice(index, 1);
+				console.log(arr.length);
 
 				that.forceUpdate();
 			};
 
-			const download = <DownloadComp onComplete={() => this.next()}
-										   onStatusChange={onStatusChange}
-										   alert={box => this.alert(box)}
-										   id={this.state.activeDownloads.length + 1}
-										   remove={remove}
-										   updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-										   key={`download${this.state.downloadNums}`} url={this.state.downloadURL}
-										   customHeaders={this.state.customHeaders}
-										   name={this.state.downloadName}
-										   ref = {this.me}
-										   />;
+			const download = <DownloadComp
+				onComplete={() => this.next()}
+				onStatusChange={onStatusChange}
+				alert={box => this.alert(box)}
+				id={this.state.activeDownloads.length + 1}
+				remove={remove}
+				updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
+				key={`download${this.state.downloadNums}`} url={this.state.downloadURL}
+				ref={this.me}
+				customHeaders={this.state.customHeaders}
+				name={this.state.downloadName}/>;
+
 			await this.setState(prev => ({
 				activeDownloads: [...prev.activeDownloads, download],
 				downloadNums: prev.downloadNums + 1
 			}));
 
-			if (this.state.activeDownloads.length === 1) {
-				this.next();
-			}
-
 			this.closePrompt();
 			this.setState({stopSave: true});
+
+			if (this.state.activeDownloads.length === 1)
+				this.next();
+
+			console.log(this.state.activeDownloads);
+
 		} else {
 			this.setState({requiredField: true});
 		}
 	}
 
-
 	next() {
-		debugger;
-		console.log(this.state.activeDownloads);
+		if (this.state.activeDownloads[0])
+			this.state.activeDownloads[0].ref.current.startDownload();
 	}
 
 	changeSelection(dir) {
@@ -357,8 +358,9 @@ class App extends Component {
 
 	render() {
 		return (
-			<div {`data-${window.localStorage.getItem("theme")}`} className="wrapper">
-				<WindowFrame/>
+			<div className="wrapper">
+
+				<WindowFrame newDownload={() => this.showPrompt()}/>
 
 				<div className="App">
 					<header>
@@ -653,6 +655,12 @@ class App extends Component {
 											   onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value))) || this.forceUpdate()}
 										/>
 										{/* //TODO: Add reference to docs explaining how to find the optimum part number */}
+
+										{platform === "win32" ? <div><br/><Checkbox
+											checked={window.localStorage.getItem('autoHideMenuBar') === true}
+											text={`Auto-hide the menu bar (reveal by pressing Alt`}
+											onChange={value => void window.localStorage.setItem('autoHideMenuBar', value) || this.forceUpdate()}/>
+										</div> : null}
 
 										<br/>
 										<br/>

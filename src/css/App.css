@@ -187,7 +187,7 @@ button:not(.tool) {
     font-weight: 300 !important;
     position: relative;
     transition: 0.45s ease;
-    /*margin: 10px;*/
+    margin: 5px 0;
 }
 
 b {

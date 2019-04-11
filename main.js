@@ -69,36 +69,20 @@ function createMenu() {
 					/* TODO */
 				}
 			},
-			{
-				type: 'separator',
-			},
+			{type: 'separator'},
 			{
 				label: 'Preferences...',
 				click() {
 					mainWindow.webContents.send("menu-settings");
 				}
 			},
-			{
-				role: 'services',
-			},
-			{
-				type: 'separator',
-			},
-			{
-				role: 'services',
-			},
-			{
-				role: 'hide',
-			},
-			{
-				role: 'hideothers',
-			},
-			{
-				type: 'separator',
-			},
-			{
-				role: 'Quit'
-			}
+			{role: 'services'},
+			{type: 'separator'},
+			{role: 'services'},
+			{role: 'hide'},
+			{role: 'hideothers'},
+			{type: 'separator'},
+			{role: 'Quit'}
 		]
 	},
 		{
