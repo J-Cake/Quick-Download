@@ -13,7 +13,11 @@ a:hover {
 }
 
 
-
+.nav_bar_container {
+    width: 100%;
+    height: 30px;
+    background: #202225;
+}
 .nav_bar_wrapper {
     display: flex;
     flex-direction: row;
@@ -27,7 +31,7 @@ a:hover {
     height: 30px;
     z-index: 99;
     position: absolute;
-    top: 0px;
+    top: 30px;
 }
 .nav_bar_wrapper div {
     color: inherit;

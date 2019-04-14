@@ -39,7 +39,7 @@
     font-size: 12px;
     overflow-x: hidden;
     height: 30px;
-    -webkit-app-region: drag;
+    -webkit-app-region:drag;
     background: #202225;
 }
 .window-title span {
