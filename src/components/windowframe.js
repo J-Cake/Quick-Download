@@ -1,7 +1,10 @@
 import React from 'react';
 import '../css/frame.css';
+import '../css/nav_bar.css';
+
 
 import {$} from './utils';
+import Tool from "./tool";
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
@@ -82,38 +85,41 @@ export default class WindowFrame extends React.Component {
 	render() {
 		if (!_window.frame) {
 			return (
-				<header style={{display: _window.isFullScreen() ? "none" : "block"}} className={`titlebar ${platform}`}>
-					<div className={`drag-region ${platform}`}>
-						<div className={`window-title ${platform}`}>
-							<img src={"./favicon.ico"} className={`icon ${platform}`} alt={"Quick Downloader"}/>
+				<header style={{display: _window.isFullScreen() ? "none" : "block"}} className={`titlebar`}>
+					<div className={`drag-region`}>
+						<div className={`window-title`}>
+							<img src={"./favicon.ico"} className={`icon`} alt={"Quick Downloader"}/>
 							<span>Quick Downloader</span>
 						</div>
 
-						{this.state.showMenu || !(window.localStorage.autoHideMenuBar === "true") ?
-							<nav className="menu">
-								<div className={"category"}>
-									<div className="category-name">File</div>
-									<div className={"options"}>
-										<div className={"option"} onClick={() => this.props.newDownload()}><label>New Download</label><span
-											className={"accelerator"}>CTRL+N</span></div>
+						{platform === "win32" ?
+							<div className="nav_bar_wrapper">
+								<div className="nav_item">File
+									<div className="nav_dropdown">
+										<div>New Download</div>
 									</div>
 								</div>
-								<div className={"category"}>
-									<div className={"category-name"}>View</div>
-									<div className={"options"}>
-										<div className={"option"}>
-											<div className="category">
-												<div className={"category-name"}>Theme</div>
-												<div className={"options"}>
-													<div className={"option"}>Light</div>
-													<div className={"option"}>Dark</div>
-												</div>
+								<div className="nav_item">View
+									<div className="nav_dropdown">
+										<div>Theme
+											<div className="nav_dropdown">
+												<div>Light</div>
+												<div>Dark</div>
 											</div>
 										</div>
 									</div>
 								</div>
-							</nav> : null}
-
+								<div className="nav_item">Help
+									<div className="nav_dropdown">
+										<div>Contact Developers</div>
+										<div>Learn More</div>
+										<div>Contribute</div>
+										<div>About</div>
+										<div>Docs</div>
+									</div>
+								</div>
+							</div>
+							 : null}
 						<div className={`window-controls ${platform}`}>
 							<div className={`button min-btn ${platform}`}>
 								<span>{platform === "win32" ? "" : ""} </span>
