@@ -18,7 +18,12 @@ export default class Download {
 	}
 
 	static getFileName(name, saveLocation, url) {
-		return path.join(saveLocation, name + Download.get_extension(url));
+	  // Apply download extension if name doesn't have one:
+	  if (name.split('.').length > 1) {
+	    return path.join(saveLocation, name);
+	  } else {
+	  	return path.join(saveLocation, name + Download.get_extension(url));
+	  }
 	}
 
 	/**
@@ -44,8 +49,7 @@ export default class Download {
 		this.save_location = save_location;
 		this.proxyOptions = proxyOptions || false;
 		this.custom_headers = custom_headers || {};
-		this.extension = Download.get_extension(url);
-		this.final_file = path.join(save_location, name + this.extension);
+		this.final_file = Download.getFileName(name, save_location, url);
 		this.onUpdate = onUpdate;
 		this.url = url;
 		this.full_fail = false;
@@ -390,7 +394,7 @@ export default class Download {
 	}
 
 	async beginDownload() {
-		// console.log("Beginning download sequence...");
+	// console.log("Beginning download sequence...");
 		try {
 			if (this.bytes_request_supported) {
 				// console.log("Creating parts...");
