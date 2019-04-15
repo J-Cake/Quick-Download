@@ -7,6 +7,7 @@ import './css/pastDownloads.css';
 import './css/standard_prompt.css';
 import Tool from './components/tool';
 import DownloadComp from './components/downloadComp';
+import DownloadCompDisplay from './components/downloadCompDisplay';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils';
@@ -14,7 +15,13 @@ import {$} from './components/utils';
 const path = window.require('path');
 const os = window.require('os');
 
-const Mousetrap = window.require('mousetrap');
+// let window.Mousetrap = require('./mousetrap');
+//
+// try {
+// 	window.Mousetrap = window.require('mousetrap');
+// } catch (e) {
+// 	window.Mousetrap = window.require('window.Mousetrap');
+// }
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
@@ -103,8 +110,6 @@ class App extends Component {
 
 			const onStatusChange = async function (status) {
 				if (status === 2 || status === 3) {
-					console.log(this);
-
 					that.setState(prev => ({
 						inactiveDownloads: [...(prev.inactiveDownloads || []), download]
 					}));
@@ -115,27 +120,27 @@ class App extends Component {
 				}
 			};
 
-			const remove = function () {
+			const removeFromActive = function () {
 				function getIndex(array) {
 					return array.findIndex(i => i.key === download.key);
 				}
 
-				const arr = !this.array ? that.state.activeDownloads : that.state.inactiveDownloads;
-				const index = getIndex(arr);
-
-				console.log(arr.length);
-				arr.splice(index, 1);
-				console.log(arr.length);
+				const index = getIndex(that.state.activeDownloads);
+				that.state.activeDownloads.splice(index, 1);
 
 				that.forceUpdate();
+
+				that.next(this);
+
+				return this;
 			};
 
 			const download = <DownloadComp
-				onComplete={() => this.next()}
+				onComplete={function () {removeFromActive()}}
 				onStatusChange={onStatusChange}
 				alert={box => this.alert(box)}
 				id={this.state.activeDownloads.length + 1}
-				remove={remove}
+				remove={removeFromActive}
 				updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
 				key={`download${this.state.downloadNums}`} url={this.state.downloadURL}
 				ref={this.me}
@@ -151,18 +156,32 @@ class App extends Component {
 			this.setState({stopSave: true});
 
 			if (this.state.activeDownloads.length === 1)
-				this.next();
-
-			console.log(this.state.activeDownloads);
+				this.state.activeDownloads[0].ref.current.startDownload();
 
 		} else {
 			this.setState({requiredField: true});
 		}
 	}
 
-	next() {
-		if (this.state.activeDownloads[0])
+	async next(prev) {
+		if (this.state.activeDownloads[0]) {
 			this.state.activeDownloads[0].ref.current.startDownload();
+		}
+
+		const error = () => this.alert(<Alert header={"An error has occurred"} body={"An unknown error has occurred. We know nothing more than you do. Sorry."}/>)
+
+		try {
+			if (prev)
+				await this.setState(_prev => void console.log(_prev) || ({
+					inactiveDownloads: [..._prev.inactiveDownloads, <DownloadCompDisplay key={`downloadDisplay${this.state.downloadNums}`} contents={prev.state}/>]
+				})).catch(e => {
+					error();
+				});
+			else
+				error();
+		} catch (e) {
+			error();
+		}
 	}
 
 	changeSelection(dir) {
@@ -229,8 +248,8 @@ class App extends Component {
 			window.localStorage.downloadHistory = JSON.stringify([]);
 
 		try {
-			Mousetrap.bind('mod+n', () => this.showPrompt());
-			Mousetrap.bind('esc', () => {
+			window.Mousetrap.bind('mod+n', () => this.showPrompt());
+			window.Mousetrap.bind('esc', () => {
 				// this.forceUpdate();
 				this.closePrompt();
 				this.setState({
@@ -239,16 +258,16 @@ class App extends Component {
 					boxes: []
 				});
 			});
-			Mousetrap.bind('mod+j', () => this.pastDownloads());
-			Mousetrap.bind('f11', () => currentWindow.setFullScreen(!currentWindow.isFullScreen()));
+			window.Mousetrap.bind('mod+j', () => this.pastDownloads());
+			window.Mousetrap.bind('f11', () => currentWindow.setFullScreen(!currentWindow.isFullScreen()));
 
-			Mousetrap.bind('up', () => this.changeSelection(-1) || false);
-			Mousetrap.bind('down', () => this.changeSelection(1) || false);
-			Mousetrap.bind('enter', () => {
+			window.Mousetrap.bind('up', () => this.changeSelection(-1) || false);
+			window.Mousetrap.bind('down', () => this.changeSelection(1) || false);
+			window.Mousetrap.bind('enter', () => {
 				if (this.state.promptShowing) this.acceptSuggestion(this.state.currentSelection)
 			});
 
-			Mousetrap.bind("ctrl+tab", () => {
+			window.Mousetrap.bind("ctrl+tab", () => {
 				this.setState(prev => ({
 					showActive: !prev.showActive
 				}))
@@ -473,10 +492,10 @@ class App extends Component {
 
 						<div className={"downloads-wrapper download-container"}>
 							<div className={"downloads active"} id={this.state.showActive ? "active" : ""}>
-								{this.state.activeDownloads.length > 0 ? this.state.activeDownloads : "Press the + button to start a download"}
+								{this.state.activeDownloads.length > 0 ? this.state.activeDownloads : <div className="placeholder">Click the + button or press {platform === "darwin" ? "CMD" : "CTRL"}+N to start a download</div>}
 							</div>
 							<div className={"downloads inactive"} id={!this.state.showActive ? "active" : ""}>
-								{this.state.inactiveDownloads.length > 0 ? this.state.inactiveDownloads : "Wait until a download completes to see it here"}
+								{this.state.inactiveDownloads.length > 0 ? this.state.inactiveDownloads : <div className="placeholder">Wait until a download completes to see it here</div>}
 							</div>
 						</div>
 					</div>

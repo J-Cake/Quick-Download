@@ -7,8 +7,6 @@ const _electron = window.require('electron');
 const remote = _electron.remote;
 const _window = remote.getCurrentWindow();
 
-const Mousetrap = window.require('mousetrap');
-
 window.localStorage.hasRelaunched = window.localStorage.hasRelaunched || "false";
 window.localStorage.withFrame = window.localStorage.withFrame || 'true';
 
@@ -47,7 +45,7 @@ export default class WindowFrame extends React.Component {
 	}
 
 	componentDidMount() {
-		Mousetrap.bind('alt', () => this.setState(prev => ({showMenu: !prev.showMenu})));
+		window.Mousetrap.bind('alt', () => this.setState(prev => ({showMenu: !prev.showMenu})));
 
 		if ($(".titlebar")) {
 			$(".min-btn").on("click", e => {

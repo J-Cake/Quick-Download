@@ -119,7 +119,7 @@ button:not(.tool) {
 }
 
 .downloads-wrapper.tab-container .tabs {
-    width: 300px;
+    width: 100%;
     /*border: 1px solid #b4c9e0;*/
     border-bottom: 1px solid #24282c;
     /*z-index: 150;*/
@@ -162,7 +162,7 @@ button:not(.tool) {
     margin-top: -1px;
     border-bottom-left-radius: 15px;
     border-bottom-right-radius: 15px;
-    border-top-right-radius: 15px;
+    /*border-top-right-radius: 15px;*/
     z-index: 140;
     width: 100%;
     height: calc(100% - 1em - 17px);
@@ -173,6 +173,15 @@ button:not(.tool) {
     box-sizing: border-box !important;
 
     overflow: auto;
+}
+
+.downloads-wrapper.download-container .placeholder {
+    font-size: 2rem;
+
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .downloads {

@@ -220,7 +220,7 @@ export default class DownloadComp extends React.Component {
 								  icon={"fas fa-redo-alt"}/> : null}
 						<Tool className="show-download-details" onClick={() => this.toggleDetails()}
 							  icon={!this.state.details ? "fas fa-chevron-left" : "fas fa-chevron-down"}/>
-						{this.state.status === 0 ?
+						{this.state.status === 0 || this.state.status === 3 ?
 							<Tool className="download-cancel-btn" onClick={async () => {
 								await this.download.cancel();
 								this.setState({
