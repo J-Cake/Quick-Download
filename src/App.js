@@ -5,6 +5,8 @@ import './css/box.css';
 import './css/settings.css';
 import './css/pastDownloads.css';
 import './css/standard_prompt.css';
+
+
 import Tool from './components/tool';
 import DownloadComp from './components/downloadComp';
 import DownloadCompDisplay from './components/downloadCompDisplay';
@@ -378,116 +380,26 @@ class App extends Component {
 	render() {
 		return (
 			<div className="wrapper">
-
-				<WindowFrame newDownload={() => this.showPrompt()}/>
-
+				<WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showPrompt()}/>
+				<div className={"menu_buttons"}>
+					<Tool className="icon_button" shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
+					<Tool className="icon_button"
+						  shortcut="*"
+						  onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
+						  icon={"fas fa-cog"}/>
+					<Tool
+						className="icon_button"
+						onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
+						icon={"fas fa-clock"}/>
+				</div>
 				<div className="App">
-					<header>
-						<Tool shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
-						<Tool shortcut="*"
-							  onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
-							  icon={"fas fa-cog"}/>
-						<Tool
-							onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
-							icon={"fas fa-clock"}/>
-						{void (() => true)() ? (platform !== "darwin" ?
-							<div className={"menu"}>
-								<div className={"submenu"}>
-									<label className={"menuTitle"}>File</label>
-									<div className={"options"}>
-										<div onClick={e => this.showPrompt()} className={"option"}>
-											New Download
-											<div className={"accelerator"}>
-												{platform === "darwin" ? "Cmd+N" : "Ctrl+N"}
-											</div>
-										</div>
-										<div className={"option"} onClick={() => this.pastDownloads()}>
-											Show Past Downloads
-											<div className={"accelerator"}>
-												{platform === "darwin" ? "Cmd+J" : "Ctrl+J"}
-											</div>
-										</div>
-										<hr/>
-										<div onClick={() => App.confirmExit()} className={"option"}>
-											Exit
-											<div className={"accelerator"}>
-												{platform === "darwin" ? "Cmd+W" : "Ctrl+W"}
-											</div>
-										</div>
-										<div
-											onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
-											className={"option"}>
-											Open Settings
-										</div>
-									</div>
-								</div>
-								<div className={"submenu"}>
-									<label className={"menuTitle"}>View</label>
-									<div className={"options"}>
-										<div className={"option"}>
-											<div className={"submenu"}>
-												<label className={"menuTitle"}>Theme</label>
-												<div className={"options"}>
-													<div className={"option"}>
-														Dark
-													</div>
-													<div className={"option"}>
-														Light
-													</div>
-												</div>
-											</div>
-										</div>
-										<div className={"option"}
-											 onClick={() => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen())}>
-											Full Screen
-											<div className={"accelerator"}>
-												F11
-											</div>
-										</div>
-									</div>
-								</div>
-								<div className={"submenu"}>
-									<label className={"menuTitle"}>Help</label>
-									<div className={"options"}>
-										<div className={"option"} onClick={() => this.about()}>About</div>
-										<div className={"option"}>Docs</div>
-										<div className={"option"}
-											 onClick={() => _electron.ipcRenderer.send('openURL', 'https://github.com/jbis9051/quick_download/blob/master/LICENSE')}>Licensing
-											Information
-										</div>
-										<div className={"option"}
-											 onClick={() => _electron.ipcRenderer.send('openURL', 'https://github.com/jbis9051/quick_download/issues/new')}>Report
-											a bug
-										</div>
-										<div className={"option"}
-											 onClick={() => this.alert(<Alert key={new Date().toLocaleString()}
-																			  header={"Contact us"}
-																			  body={<ul>
-																				  <li><a
-																					  onClick={() => _electron.ipcRenderer.send('openURL', "https://joshbrown.info/#contact")}>Joshua
-																					  Brown</a>
-																				  </li>
-																				  <li><a
-																					  onClick={() => _electron.ipcRenderer.send('openURL', "https://www.jacob-schneider.ga/contact.html")}>Jacob
-																					  Schneider</a>
-																				  </li>
-																				  <br/>
-																				  <b>Please submit issues to Github.</b>
-																			  </ul>}/>)}>Contact
-											Developers
-										</div>
-									</div>
-								</div>
-							</div> : null)
-							: null}
-					</header>
 
 					<div className={"downloads-wrapper tab-container"}>
 						<div className={"tabs"}>
 							<span onClick={() => this.setState({showActive: true})} className={"tab"}
-								  id={this.state.showActive ? "active" : ""}>Ongoing</span>
+								  id={this.state.showActive ? "active" : ""}>Queue</span>
 							<span onClick={() => this.setState({showActive: false})} className={"tab"}
-								  id={!this.state.showActive ? "active" : ""}>Finished</span>
+								  id={!this.state.showActive ? "active" : ""}>Complete</span>
 						</div>
 
 						<div className={"downloads-wrapper download-container"}>

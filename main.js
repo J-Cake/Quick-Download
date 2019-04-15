@@ -25,7 +25,6 @@ async function createWindow() {
 	mainWindow.loadFile(path.join(__dirname, mainFile));
 
 	mainWindow.frame = withFrame;
-
 	mainWindow.setTitle("Quick Downloader");
 	if (!disableFramePermanently) {
 		ipcMain.on('withFrame', e => {
@@ -52,6 +51,7 @@ app.setAppUserModelId(process.execPath);
 app.on('ready', createWindow);
 
 function createMenu() {
+	mainWindow.toggleDevTools();
 	let template = [{
 		label: 'Quick Downloader',
 		submenu: [{

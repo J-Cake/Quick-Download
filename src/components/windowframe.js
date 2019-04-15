@@ -1,7 +1,10 @@
 import React from 'react';
 import '../css/frame.css';
+import '../css/nav_bar.css';
 
-import {$} from './utils';
+
+import { $ } from './utils';
+import Tool from "./tool";
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
@@ -37,15 +40,14 @@ if (platform !== "win32" && platform !== "darwin") {
 export default class WindowFrame extends React.Component {
 	constructor(...args) {
 		super(...args);
-
 		this.state = {
 			restore: false,
-			showMenu: false
+			showMenu: false,
 		}
 	}
 
 	componentDidMount() {
-		window.Mousetrap.bind('alt', () => this.setState(prev => ({showMenu: !prev.showMenu})));
+		Mousetrap.bind('alt', () => this.setState(prev => ({ showMenu: !prev.showMenu })));
 
 		if ($(".titlebar")) {
 			$(".min-btn").on("click", e => {
@@ -74,68 +76,89 @@ export default class WindowFrame extends React.Component {
 	}
 
 	updateButtons() {
-		this.setState({restore: _window.isMaximized()});
+		this.setState({ restore: _window.isMaximized() });
 	}
 
 	render() {
 		if (!_window.frame) {
-			return (
-				<header style={{display: _window.isFullScreen() ? "none" : "block"}} className={`titlebar ${platform}`}>
-					<div className={`drag-region ${platform}`}>
-						<div className={`window-title ${platform}`}>
-							<img src={"./favicon.ico"} className={`icon ${platform}`} alt={"Quick Downloader"}/>
-							<span>Quick Downloader</span>
-						</div>
+			return ( <
+				header style = { { display: _window.isFullScreen() ? "none" : "block" } } className = { `titlebar` } >
+				<
+				div className = { `drag-region` } >
+				<
+				div className = { `window-title` } >
+				<
+				img src = { "./favicon.ico" } className = { `icon` } alt = { "Quick Downloader" }
+				/> <
+				span > Quick Downloader < /span> <
+				/div>
 
-						{this.state.showMenu || !(window.localStorage.autoHideMenuBar === "true") ?
-							<nav className="menu">
-								<div className={"category"}>
-									<div className="category-name">File</div>
-									<div className={"options"}>
-										<div className={"option"} onClick={() => this.props.newDownload()}><label>New Download</label><span
-											className={"accelerator"}>CTRL+N</span></div>
-									</div>
-								</div>
-								<div className={"category"}>
-									<div className={"category-name"}>View</div>
-									<div className={"options"}>
-										<div className={"option"}>
-											<div className="category">
-												<div className={"category-name"}>Theme</div>
-												<div className={"options"}>
-													<div className={"option"}>Light</div>
-													<div className={"option"}>Dark</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</nav> : null}
-
-						<div className={`window-controls ${platform}`}>
-							<div className={`button min-btn ${platform}`}>
-								<span>{platform === "win32" ? "" : ""} </span>
-							</div>
-							<div className={`button max-btn ${platform}`}
-								 style={{display: !this.state.restore ? "inherit" : "none"}}>
-								<span>{platform === "win32" ? "" : ""}</span>
-							</div>
-							<div className={`button restore-btn ${platform}`}
-								 style={{display: this.state.restore ? "inherit" : "none"}}>
-								<span>{platform === "win32" ? "" : ""}</span>
-							</div>
-							<div className={`button close-btn ${platform}`}>
-								<span>{platform === "win32" ? "" : ""}</span>
-							</div>
-						</div>
-					</div>
-				</header>
+				{
+					platform === "win32" ?
+						<
+						div className = { "nav_bar_container" } >
+						<
+						div className = "nav_bar_wrapper" >
+						<
+						div className = "nav_item" > File <
+						div className = "nav_dropdown" >
+						<
+						div onClick = { e => this.props.download() } > New Download < /div> <
+						/div> <
+						/div> <
+						div className = "nav_item" > View <
+						div className = "nav_dropdown" >
+						<
+						div > Theme <
+						div className = "nav_dropdown" >
+						<
+						div > Light < /div> <
+						div > Dark < /div> <
+						/div> <
+						/div> <
+						/div> <
+						/div> <
+						div className = "nav_item" > Help <
+						div className = "nav_dropdown" >
+						<
+						div onClick = { e => this.props.contact() } > Contact Developers < /div> <
+						div onClick = { e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download") } > Learn More < /div> <
+						div onClick = { e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download") } > Contribute < /div> <
+						div onClick = { e => this.props.about() } > About < /div> <
+						div onClick = { e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download") } > Docs < /div> <
+						/div> <
+						/div> <
+						/div> <
+						/div> :
+						null
+				} <
+				div className = { `window-controls ${platform}` } >
+				<
+				div className = { `button min-btn ${platform}` } >
+				<
+				span > { platform === "win32" ? "" : "" } < /span> <
+				/div> <
+				div className = { `button max-btn ${platform}` } style = { { display: !this.state.restore ? "inherit" : "none" } } >
+				<
+				span > { platform === "win32" ? "" : "" } < /span> <
+				/div> <
+				div className = { `button restore-btn ${platform}` } style = { { display: this.state.restore ? "inherit" : "none" } } >
+				<
+				span > { platform === "win32" ? "" : "" } < /span> <
+				/div> <
+				div className = { `button close-btn ${platform}` } >
+				<
+				span > { platform === "win32" ? "" : "" } < /span> <
+				/div> <
+				/div> <
+				/div> <
+				/header>
 			);
 		} else {
-			return (
-				<div>
-					No Header
-				</div>
+			return ( <
+				div >
+				No Header <
+				/div>
 			)
 		}
 	}

@@ -1,31 +1,14 @@
-.titlebar.win32 .drag-region.win32 {
-    color: #FFF;
-    /*display: block;*/
-    height: auto;
-    -webkit-app-region: drag;
-    font-family: "Segoe UI Light", "Helvetica Neue", sans-serif;
-}
 
-.titlebar.win32 {
-    padding-top: 4px;
-}
-
-.window-controls.win32 {
-    display: grid;
-    grid-template-columns: repeat(3, 46px);
+.window-controls {
     position: absolute;
     top: 0;
     right: 0;
     height: 32px;
-    font-family: "Segoe MDL2 Assets";
     font-size: 10px;
     /*grid-column: 3;*/
     justify-self: flex-end;
 }
-.window-controls.win32 * {
-    font-family: "Segoe MDL2 Assets";
-}
-.window-controls.win32 .button.win32 {
+.window-controls .button {
     grid-row: 1 / span 1;
     display: flex;
     justify-content: center;
@@ -33,81 +16,47 @@
     width: 100%;
     height: 100%;
 }
-.window-controls.win32 .min-btn.win32 {
-    grid-column: 1;
-}
-.window-controls.win32 .max-btn.win32, .window-controls.win32 .restore-btn.win32 {
-    grid-column: 2;
-}
-.window-controls.win32 .close-btn.win32 {
-    grid-column: 3;
-}
 
-.window-controls.win32 {
+.window-controls {
     -webkit-app-region: no-drag;
 }
-.window-controls.win32 .button.win32 {
+.window-controls .button {
     user-select: none;
     cursor: default;
     opacity: 0.8;
 }
-.window-controls.win32 .button.win32:hover {
+.window-controls .button:hover {
     background: rgba(255,255,255,0.2);
     opacity: 1;
 }
-.window-controls.win32 .close-btn.win32:hover {
-    background: #E81123;
-}
-.window-controls.win32 .restore-btn.win32 {
+
+.window-controls .restore-btn {
     display: none;
 }
 
-.titlebar.win32 .drag-region.win32 {
-    display: flex;
-    width: 100vw;
-    overflow-y: visible;
-}
-.window-title.win32 {
-    grid-column: 1;
-    display: flex;
-    align-items: center;
+.window-title {
     font-family: "Segoe UI", sans-serif;
     font-size: 12px;
-    margin-left: 8px;
     overflow-x: hidden;
-    height: 26px;
+    height: 30px;
+    -webkit-app-region:drag;
+    background: #202225;
 }
-.window-title.win32 span {
+.window-title span {
     overflow-x: hidden;
     text-overflow: ellipsis;
-    word-break: unset;
-    word-wrap: unset;
     line-height: 1.5;
-    margin-left: 16px;
+    text-align: center;
 }
 
-.icon.win32 {
-    height: 20px;
-    position: absolute;
-    margin-left: -8px;
+.icon {
+    height: 14px;
+    position: relative;
+    margin-right: 2px;
+    top: -5%;
 }
 
-.titlebar.darwin, .drag-region.darwin {
-    height: 20px;
-    width: 100vw;
-    padding: 2px 0 0 0;
-}
-.drag-region.darwin {
-    display: flex;
-    flex-direction: row-reverse;
-}
-
-.drag-region.darwin {
-    -webkit-app-region: drag;
-    width: 100%;
-}
-
-.drag-region.darwin .window-controls.darwin {
+.drag-region .window-controls {
     width: 200px;
 
     display: flex;
@@ -115,7 +64,7 @@
     padding-left: -1px;
     padding-top: 3px;
 }
-.window-controls .button.darwin {
+.window-controls .button {
     width: 13px;
     height: 13px;
     overflow: hidden;
@@ -129,66 +78,20 @@
     font-family: FontAwesome;
 }
 
-.button.darwin * {
+.button * {
     font-family: FontAwesome;
 }
 
-.window-controls.darwin .button.darwin.close-btn {
-    background: #ff6159;
-    border: 1px solid #d2393c;
-    color: #ff6159;
-    order: 1;
-
-    padding-left: 1.5px;
-}
-
-.window-controls.darwin .button.darwin.min-btn {
-    background: #ffbd4c;
-    border: 1px solid #e09e3e;
-    color: #ffbd4c;
-    order: 2;
-    padding-left: 1.5px;
-}
-
-.window-controls.darwin .button.darwin.max-btn, .window-controls.darwin .button.darwin.restore-btn {
-    background: #00ca56;
-    border: 1px solid #14ae46;
-    color: #00ca56;
-    order: 3;
-
-    transform: rotate(-45deg);
-    letter-spacing: 2px;
-    padding-top: 0.2px;
-}
-
-.window-controls.darwin .button.darwin.close-btn:hover {
-    color: #6c2827;
-}
-
-.window-controls.darwin .button.darwin.min-btn:hover {
-    color: #6e5020;
-}
-
-.window-controls.darwin .button.darwin.max-btn:hover, .window-controls.darwin .button.darwin.restore-btn:hover {
-    color: #005725;
-}
-
-.window-title.darwin {
+.window-title {
     width: 100%;
     text-align: center;
     color: #b4c9e0;
     font-family: "Avenir", "Helvetica Neue", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.window-title.darwin * {
-    font-family: "Avenir", "Helvetica Neue", sans-serif;
-    margin-top: 2px;
-    font-size: 10pt;
-}
-
-.window-title.darwin img {
-    display: none;
-}
 
 .menu .option:hover {
     background: rgba(49, 76, 110, 0.65);
@@ -228,36 +131,8 @@
     border-top-right-radius: 7px;
 }
 
-.option > .accelerator {
-    float: right;
-    color: #66727f;
-}
 .option {
     padding: 5px 10px;
-}
-
-.menu > .submenu {
-    background: inherit;
-}
-
-.menu > .submenu, .menu {
-    height: calc(11pt + 6px);
-}
-
-.submenu {
-    background: #24282c;
-    color: #eee;
-
-    overflow: visible;
-}
-.submenu > .menuTitle {
-    display: block;
-    width: auto;
-    padding: 0 10px;
-}
-.submenu:hover > .menuTitle {
-    background: #334c79;
-    color: #eeeeee;
 }
 
 .menu .submenu:hover > .options {
@@ -275,7 +150,7 @@ hr {
     border: 1px solid #4f5660;
 }
 
-.window-controls.darwin  {
+.window-controls  {
     display: none !important;
 }
 
@@ -309,29 +184,6 @@ hr {
     position: absolute;
 }
 
-.category {
-    width: auto !important;
-    position: relative;
-    min-width: 200px;
-    /*width: 0;*/
-
-    /*overflow: visible;*/
-    /*background: #24282c;*/
-}
-
-.category-name {
-    line-height: 20px;
-    padding: 0 5px;
-    display: inline;
-}
-
-.category-name:hover {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background: #334c79;
-}
-
 .category-name:hover + .options, .options:hover, .category:hover .options {
     display: flex;
 }
@@ -358,16 +210,6 @@ hr {
 .option label {
     grid-row: 1;
     display: block;
-}
-.option .accelerator {
-    grid-column: 2;
-    margin-top: 5px;
-
-    display: block;
-    text-align: right;
-
-    line-height: 10pt;
-    font-variant: small-caps;
 }
 
 .option:hover {
