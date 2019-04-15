@@ -142,15 +142,6 @@ a:hover {
     box-sizing: border-box;
 }
 
-.downloads-wrapper.download-container .placeholder {
-    font-size: 2rem;
-
-    position: absolute;
-    top: 35%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
 .downloads {
     display: none;
 }
