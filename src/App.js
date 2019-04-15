@@ -361,7 +361,7 @@ class App extends Component {
 	render() {
 		return (
 			<div className="wrapper">
-				<WindowFrame newDownload={() => this.showPrompt()}/>
+				<WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showPrompt()}/>
 				<div className={"menu_buttons"}>
 					<Tool className="icon_button" shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
 					<Tool className="icon_button"

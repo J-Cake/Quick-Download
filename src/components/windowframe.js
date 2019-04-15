@@ -42,10 +42,9 @@ if (platform !== "win32" && platform !== "darwin") {
 export default class WindowFrame extends React.Component {
     constructor(...args) {
         super(...args);
-
         this.state = {
             restore: false,
-            showMenu: false
+            showMenu: false,
         }
     }
 
@@ -97,7 +96,7 @@ export default class WindowFrame extends React.Component {
                                 <div className="nav_bar_wrapper">
                                     <div className="nav_item">File
                                         <div className="nav_dropdown">
-                                            <div>New Download</div>
+                                            <div onClick={e => this.props.download()}>New Download</div>
                                         </div>
                                     </div>
                                     <div className="nav_item">View
@@ -112,11 +111,11 @@ export default class WindowFrame extends React.Component {
                                     </div>
                                     <div className="nav_item">Help
                                         <div className="nav_dropdown">
-                                            <div>Contact Developers</div>
-                                            <div>Learn More</div>
-                                            <div>Contribute</div>
-                                            <div>About</div>
-                                            <div>Docs</div>
+                                            <div onClick={e => this.props.contact()}>Contact Developers</div>
+                                            <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Learn More</div>
+                                            <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Contribute</div>
+                                            <div onClick={e => this.props.about()}>About</div>
+                                            <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Docs</div>
                                         </div>
                                     </div>
                                 </div>
