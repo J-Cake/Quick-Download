@@ -1,16 +1,12 @@
+html,body,#root {
+    height: 100vh;
+}
+
 body {
     font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     background: #3e444b;
-    overflow: hidden;
     user-select: none;
     color: #b4c9e0;
-}
-
-#root {
-    height: 100vh;
-}
-.wrapper {
-  height: 100%;
 }
 
 textarea {
@@ -27,12 +23,22 @@ a:hover {
 }
 
 .App {
-    box-sizing: border-box;
+    background: #24282c;
+    overflow: hidden;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
 }
-
+.wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.download-tabs-content {
+    overflow: auto;
+    /* height: 100%; */
+    flex: 1;
+}
 .menu_buttons {
     background: #202225;
 }
@@ -44,10 +50,10 @@ a:hover {
 
 .downloads {
     display: block;
-    position: relative;
     overflow: auto;
-
+    padding: 10px;
     height: 100%;
+    margin-bottom: 200vh;
 }
 
 .tool, button {
@@ -93,12 +99,12 @@ a:hover {
     background: slategrey;
 }
 
-.downloads-wrapper.tab-container {
+.download-tab {
     height: 100%;
     width: 100%;
 }
 
-.downloads-wrapper.tab-container .tabs {
+.download-tabs {
     width: 100%;
     /* border: 1px solid #b4c9e0; */
     border-bottom: 1px solid #24282c;
@@ -113,11 +119,10 @@ a:hover {
     /* border-top-left-radius: 10px; */
     /* border-top-right-radius: 10px; */
     /* border-top-right-radius: 10px; */
-    overflow: hidden;
     background: #4f5660;
 }
 
-.downloads-wrapper.tab-container .tabs .tab {
+.download-tabs .tab {
     width: 100%;
     transition: 0.125s;
     cursor: pointer;
@@ -125,21 +130,14 @@ a:hover {
     text-align: center;
 }
 
-.downloads-wrapper.tab-container .tabs .tab#active {
+.download-tabs .tab#active {
     background: #24282c;
 }
 
 
-.downloads-wrapper.tab-container .tabs .tab:hover {
+.download-tabs .tab:hover {
     width: 100%;
     background: #3c434b;
-}
-
-.downloads-wrapper.download-container {
-    background: #24282c;
-    height: 100%;
-    padding: 10px;
-    box-sizing: border-box;
 }
 
 .downloads {
@@ -159,6 +157,7 @@ a:hover {
     position: relative;
     transition: 0.45s ease;
     margin: 5px 0;
+    overflow: auto;
 }
 
 b {
@@ -273,7 +272,6 @@ b {
     position: relative;
     display: block;
     height: 100%;
-    overflow: hidden;
 }
 
 .progress-bar-wrapper.failed .progress-bar-inner {
@@ -363,7 +361,7 @@ input, textarea {
     position: relative;
     top: 100%;
     bottom: 5px;
-    overflow: hidden;
+
 }
 
 .suggestion {

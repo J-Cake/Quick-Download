@@ -109,6 +109,8 @@ export default class DownloadComp extends React.Component {
 				}
 
 				if (this.state.prevStatus !== this.state.status)
+					console.log("prev:" + this.state.prevStatus);
+				    console.log("new:" + this.state.status);
 					this.props.onStatusChange.bind(this)(this.state.status);
 
 			}, JSON.parse(this.state.customHeaders || '{}'), proxyOptions, error => {
