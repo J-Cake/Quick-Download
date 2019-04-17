@@ -1,3 +1,6 @@
+# This is an old broken version of the project.
+# This is no longer used.
+
 import time
 import shutil
 import os
