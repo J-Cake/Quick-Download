@@ -151,28 +151,28 @@ export default class Download {
 
 	static byte_request_supported(url, customHeaders, proxyOptions) {
 		return new Promise((resolve, reject) => {
-			// const q = url_lib.parse(url);
-			// const request = Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
-			// 	method: 'GET',
-			// 	headers: {
-			// 		'Range': 'bytes=0-1',
-			// 		...customHeaders
-			// 	},
-			// 	path: q.path,
-			// 	host: q.hostname,
-			// 	port: (q.protocol === "http:") ? 80 : 443,
-			// 	url: url,
-			// }, proxyOptions), res => {
-			// 	resolve(res.statusCode === 206);
-			// 	res.on("data", () => {
-			// 		resolve(res.statusCode === 206);
-			// 		res.destroy();
-			// 	});
-			// });
-			// request.on('error', (e) => {
-			// 	reject(e);
-			// });
-			// request.end();
+			const q = url_lib.parse(url);
+			const request = Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
+				method: 'GET',
+				headers: {
+					'Range': 'bytes=0-1',
+					...customHeaders
+				},
+				path: q.path,
+				host: q.hostname,
+				port: (q.protocol === "http:") ? 80 : 443,
+				url: url,
+			}, proxyOptions), res => {
+				resolve(res.statusCode === 206);
+				res.on("data", () => {
+					resolve(res.statusCode === 206);
+					res.destroy();
+				});
+			});
+			request.on('error', (e) => {
+				reject(e);
+			});
+			request.end();
 			resolve(true);
 		});
 	}
