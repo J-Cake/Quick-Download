@@ -250,7 +250,7 @@ export default class DownloadComp extends React.Component {
 						<span className="download-detail"><b>Size: </b>
 							{this.state.friendlySize} ({this.state.size} bytes)</span>
 						<span className="download-detail"><b>Estimated Time of completion: </b>
-							<span className={"monospace"}> {new Date(this.state.eta).toLocaleString()} </span></span>
+							<span className={"monospace"}> {this.state.eta} </span></span>
 						<span className="download-detail"><b>Parts downloaded: </b>
 							{this.state.chunks_done} of {this.state.total_chunks}</span>
 						<span className="download-detail"><b>Progress: </b>

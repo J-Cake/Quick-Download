@@ -304,10 +304,9 @@ export default class Download {
 	}
 
 	get ETA() {
-		const elapsedTime = (Date.now() - this.startTime) / 1e3;
-		const speed = this.progress / elapsedTime;
-		const remainingTime = this.total_length / speed;
-
+		const elapsedTime = (Date.now() - this.startTime);
+		const speed = (this.progress) / elapsedTime;
+		const remainingTime = (this.total_length / speed) - elapsedTime;
 		this.stats.push({
 			time: elapsedTime,
 			progress: this.progress
@@ -318,7 +317,7 @@ export default class Download {
 		// console.log(Math.floor(speed) + 'B/s'); // that looks correct, even the output is on point
 		// console.log(Math.floor(remainingTime) + 's remaining'); // this isn't
 
-		return remainingTime;
+		return new Date(Date.now() + remainingTime).toString();
 	};
 
 	async forceUpdate(done) {
