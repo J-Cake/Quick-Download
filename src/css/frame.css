@@ -34,23 +34,22 @@
     display: none;
 }
 
-header.titlebar .drag-region .window-title {
+.window-title {
     font-family: "Segoe UI", sans-serif;
     font-size: 12px;
     overflow-x: hidden;
     height: 30px;
-    width: auto;
     -webkit-app-region:drag;
     background: #202225;
 }
 
-header.titlebar .drag-region.win32 .window-title {
+.drag-region.win32 .window-title {
     font-size: 10.5pt;
 }
-header.titlebar .drag-region.win32 .window-title .icon {
+.drag-region.win32 .window-title .icon {
     height: 20px;
 }
-header.titlebar .drag-region.win32 .window-controls .button span {
+drag-region.win32 .window-controls .button span {
     font-family: "Segoe MDL2 Assets";
     font-size: 10px;
     color: #fff;
@@ -89,6 +88,8 @@ header.titlebar .drag-region.win32 .window-controls .button span {
 }
 
 .drag-region .window-controls {
+    width: 200px;
+
     display: flex;
 
     padding-left: -1px;
@@ -114,13 +115,17 @@ header.titlebar .drag-region.win32 .window-controls .button span {
 
 .window-title {
     width: 100%;
-    text-align: left;
+    text-align: center;
     color: #b4c9e0;
     font-family: "Avenir", "Helvetica Neue", sans-serif;
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+.drag-region.win32 .window-title {
     justify-content: flex-start;
     padding-left: 3px;
+    text-align: left;
 }
 
 

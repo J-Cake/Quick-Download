@@ -121,8 +121,7 @@ export default class DownloadComp extends React.Component {
 			this.setState({
 				status: 3
 			});
-
-			this.download.beginDownload().then(() => {
+			 this.download.beginDownload().then(() => {
 				if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
 					new Notification('DownloadComp Complete', {
 						body: `Download of ${this.state.fileName} has been completed`,
