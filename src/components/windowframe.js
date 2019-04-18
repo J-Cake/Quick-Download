@@ -2,7 +2,6 @@ import React from 'react';
 import '../css/frame.css';
 import '../css/nav_bar.css';
 
-
 import {$} from './utils';
 
 const _electron = window.require('electron');
@@ -95,8 +94,8 @@ export default class WindowFrame extends React.Component {
                                 <div className="nav_bar_wrapper">
                                     <div className="nav_item">File
                                         <div className="nav_dropdown">
-											<div onClick={e => this.props.download()}>New Download<span
-												className={"nav_accelerator"}>{(platform === "darwin" ? "CMD" : "CTRL") + "+N"}</span>
+											<div onClick={e => this.props.download()}>New Download
+                                                {/*<span className={"nav_accelerator"}>{(platform === "darwin" ? "CMD" : "CTRL") + "+N"}</span>*/}
 											</div>
                                         </div>
                                     </div>
@@ -128,18 +127,18 @@ export default class WindowFrame extends React.Component {
                             : null}
                         <div className={`window-controls ${platform}`}>
                             <div className={`button min-btn ${platform}`}>
-                                <span>{platform === "win32" ? "" : ""} </span>
+                                <span></span>
                             </div>
                             <div className={`button max-btn ${platform}`}
                                  style={{display: !this.state.restore ? "inherit" : "none"}}>
-                                <span>{platform === "win32" ? "" : ""}</span>
+                                <span></span>
                             </div>
                             <div className={`button restore-btn ${platform}`}
                                  style={{display: this.state.restore ? "inherit" : "none"}}>
-                                <span>{platform === "win32" ? "" : ""}</span>
+                                <span></span>
                             </div>
                             <div className={`button close-btn ${platform}`}>
-                                <span>{platform === "win32" ? "" : ""}</span>
+                                <span></span>
                             </div>
                         </div>
                     </div>

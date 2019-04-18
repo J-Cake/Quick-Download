@@ -1,11 +1,11 @@
 
 .window-controls {
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     height: 32px;
     font-size: 10px;
-    /*grid-column: 3;*/
+    -webkit-app-region: no-drag;
     justify-self: flex-end;
 }
 .window-controls .button {
@@ -17,9 +17,6 @@
     height: 100%;
 }
 
-.window-controls {
-    -webkit-app-region: no-drag;
-}
 .window-controls .button {
     user-select: none;
     cursor: default;
@@ -49,7 +46,7 @@
 .drag-region.win32 .window-title .icon {
     height: 20px;
 }
-drag-region.win32 .window-controls .button span {
+.drag-region.win32 .window-controls .button span {
     font-family: "Segoe MDL2 Assets";
     font-size: 10px;
     color: #fff;
@@ -97,6 +94,11 @@ drag-region.win32 .window-controls .button span {
     padding-left: -1px;
     padding-top: 3px;
 }
+
+.drag-region .window-controls.win32 {
+    width: auto;
+}
+
 .window-controls .button {
     width: 13px;
     height: 13px;
