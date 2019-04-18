@@ -40,14 +40,14 @@ For example, if your are attempting to download a 1000Mb (1Gb) file and your dow
 
 We conducted thorough<sup\*</sup> testing and here are some of the results we have gotten<sup\*2</sup>:
 
-*Test 1*
+**Test 1**
 
 File Size: ~1.5GB
 
 Standard Download (Safari): ~ 13 Hours (Estimated)
 Quick Downloader: 10 min
 
-*Test 2*
+**Test 2**
 
 File Size: ~7.67GB
 
@@ -55,8 +55,8 @@ Standard Download (Chrome): ~ 12 Hours (Estimated)
 Quick Downloader: 4 Hours
 
 
-<sup*</sup> Our definition of thorough is very loose... 
-<sup*2</sup>We make no guarantees that the above data is 100% accurate and that you will get the same results.
+<sup\*</sup> Our definition of thorough is very loose... 
+<sup\*2</sup>We make no guarantees that the above data is 100% accurate and that you will get the same results.
 
 ## TODO
 
