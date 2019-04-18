@@ -38,7 +38,7 @@ For example, if your are attempting to download a 1000Mb (1Gb) file and your dow
 
 ## Proven Results
 
-We conducted thorough<sup>\*</sup> testing and here are some of the results we have gotten<sup>\*2</sup>:
+We conducted thorough<sup>\*</sup> testing and here are some of the results we have gotten<sup>\*\*</sup>:
 
 **Test 1**
 
@@ -57,7 +57,7 @@ Quick Downloader: 4 Hours
 
 <sup>\*</sup> Our definition of thorough is very loose... 
 
-<sup>\*2</sup>We make no guarantees that the above data is 100% accurate and that you will get the same results.
+<sup>\*\*</sup>We make no guarantees that the above data is 100% accurate and that you will get the same results.
 
 ## TODO
 
