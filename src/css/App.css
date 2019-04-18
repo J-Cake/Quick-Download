@@ -9,6 +9,13 @@ body {
     color: #b4c9e0;
 }
 
+#root {
+    height: 100vh;
+}
+.wrapper {
+  height: 100%;
+}
+
 textarea {
     resize: none;
 }
@@ -60,8 +67,6 @@ a:hover {
     padding: 10px;
     max-height: 100%;
     margin-bottom: 200vh;
-    height: 100%;
-    box-sizing: border-box;
 }
 
 .tool {
@@ -111,12 +116,12 @@ a:hover {
     background: slategrey;
 }
 
-.download-tab {
-    height: 100%;
+.downloads-wrapper.tab-container {
+    max-height: 100%;
     width: 100%;
 }
 
-.download-tabs {
+.download-tabs, .tabs {
     width: 100%;
     /* border: 1px solid #b4c9e0; */
     border-bottom: 1px solid #24282c;
@@ -134,7 +139,7 @@ a:hover {
     background: #4f5660;
 }
 
-.download-tabs .tab {
+.downloads-wrapper.tab-container .tab {
     width: 100%;
     transition: 0.125s;
     cursor: pointer;
@@ -142,12 +147,12 @@ a:hover {
     text-align: center;
 }
 
-.download-tabs .tab#active {
+.downloads-wrapper.tab-container .tab#active {
     background: #24282c;
 }
 
 
-.download-tabs .tab:hover {
+.downloads-wrapper.tab-container  .tab:hover {
     width: 100%;
     background: #3c434b;
 }
