@@ -60,12 +60,14 @@ export default class WindowFrame extends React.Component {
                 else
                     _window.setFullScreen(true)
             });
+            /*
             $(".restore-btn").on("click", e => {
                 if (platform !== "darwin")
                     _window.restore();
                 else
                     _window.setFullScreen(false)
             });
+            */
             $(".close-btn").on("click", e => {
                 _window.close();
             });
@@ -134,12 +136,8 @@ export default class WindowFrame extends React.Component {
                                  style={{display: !this.state.restore ? "inherit" : "none"}}>
                                 <span>{platform === "win32" ? "" : ""}</span>
                             </div>
-                            <div className={`button restore-btn ${platform}`}
-                                 style={{display: this.state.restore ? "inherit" : "none"}}>
-                                <span>{platform === "win32" ? "" : ""}</span>
-                            </div>
                             <div className={`button close-btn ${platform}`}>
-                                <span>{platform === "win32" ? "" : ""}</span>
+                                <span>{platform === "win32" ? "�" : ""}</span>
                             </div>
                         </div>
                     </div>
