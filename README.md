@@ -40,6 +40,8 @@ For example, if your are attempting to download a 1000Mb (1Gb) file and your dow
 
 We conducted thorough<sup>\*</sup> testing and here are some of the results we have gotten<sup>\*\*</sup>:
 
+----
+
 **Test 1**
 
 File Size: ~1.5GB
@@ -54,6 +56,7 @@ File Size: ~7.67GB
 Standard Download (Chrome): ~ 12 Hours (Estimated)
 Quick Downloader: 4 Hours
 
+----
 
 <sup>\*</sup> Our definition of thorough is very loose... 
 
