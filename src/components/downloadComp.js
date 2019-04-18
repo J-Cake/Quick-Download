@@ -158,7 +158,7 @@ export default class DownloadComp extends React.Component {
 					<br/>
 
 					<div className={"right"}>
-						<button onClick={async () => {
+						<button className="ui-button" onClick={async () => {
 							while (fs.existsSync(Download.getFileName(this.state.fileName, window.localStorage.saveLocation, this.state.url)))
 								await this.setState(prev => ({fileName: prev.fileName + " 2"}));
 
@@ -167,20 +167,20 @@ export default class DownloadComp extends React.Component {
 						}}>Rename
 						</button>
 
-						<button onClick={async () => {
+						<button className="ui-button" onClick={async () => {
 							fs.unlinkSync(fullFile);
 							_ref.setState({showing: false});
 							await start();
 						}}>Overwrite
 						</button>
 
-						<button onClick={async () => {
+						<button className="ui-button" onClick={async () => {
 							_ref.setState({showing: false});
 							await start()
 						}}>Keep
 						</button>
 
-						<button onClick={() => {
+						<button className="ui-button" onClick={() => {
 							_ref.setState({showing: false});
 							this.props.remove.bind(this)();
 						}}>Cancel

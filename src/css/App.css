@@ -7,6 +7,14 @@ body {
     background: #3e444b;
     user-select: none;
     color: #b4c9e0;
+    overflow: hidden; /* seems necessary. renders tiny scroll room otherwise */
+}
+
+#root {
+    height: 100vh;
+}
+.wrapper {
+  height: 100%;
 }
 
 textarea {
@@ -16,6 +24,11 @@ textarea {
 a {
     color: #eee;
     text-decoration: none;
+}
+
+.ui-button {
+    width: auto;
+    min-width: 100px;
 }
 
 a:hover {
@@ -41,6 +54,7 @@ a:hover {
 }
 .menu_buttons {
     background: #202225;
+    padding: 0 0 7px 7px;
 }
 
 .icon_button {
@@ -52,8 +66,13 @@ a:hover {
     display: block;
     overflow: auto;
     padding: 10px;
-    height: 100%;
-    box-sizing: border-box;
+    max-height: 100%;
+    margin-bottom: 200vh;
+}
+
+.tool {
+    width: 35px;
+    min-width: auto;
 }
 
 .tool, button {
@@ -62,8 +81,7 @@ a:hover {
     border-radius: 9px;
     border: 0;
     margin: 3px;
-    min-width: 35px;
-    min-height: 35px;
+    height: 35px;
     background: transparent;
     cursor: pointer;
 
@@ -99,12 +117,12 @@ a:hover {
     background: slategrey;
 }
 
-.download-tab {
-    height: 100%;
+.downloads-wrapper.tab-container {
+    max-height: 100%;
     width: 100%;
 }
 
-.download-tabs {
+.download-tabs, .tabs {
     width: 100%;
     /* border: 1px solid #b4c9e0; */
     border-bottom: 1px solid #24282c;
@@ -122,7 +140,7 @@ a:hover {
     background: #4f5660;
 }
 
-.download-tabs .tab {
+.downloads-wrapper.tab-container .tab {
     width: 100%;
     transition: 0.125s;
     cursor: pointer;
@@ -130,14 +148,30 @@ a:hover {
     text-align: center;
 }
 
-.download-tabs .tab#active {
+.downloads-wrapper.tab-container .tab#active {
     background: #24282c;
 }
 
 
-.download-tabs .tab:hover {
+.downloads-wrapper.tab-container  .tab:hover {
     width: 100%;
     background: #3c434b;
+}
+
+.downloads-wrapper.download-container {
+    background: #24282c;
+    max-height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.downloads-wrapper.download-container .placeholder {
+    font-size: 2rem;
+
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .downloads {
@@ -270,6 +304,7 @@ b {
 
 .progress-bar-wrapper {
     border-radius: 15px;
+    overflow: hidden;
     border: none;
     background: #b4c9e0;
     /*box-shadow: 1px 0 3px 0 #8d9daf;*/
@@ -426,7 +461,7 @@ textarea {
 }
 
 .right {
-    display: flex;
+    display: flex !important;
 }
 
 .flex {

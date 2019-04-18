@@ -40,7 +40,8 @@
 			const root = document.querySelector("#root");
 			const platform = require('os').platform();
 			if (root.innerHTML === "") {
-				root.innerHTML = `<div id="render-error">
+				root.innerHTML = `
+                <div id="render-error">
                     <h1>A React Render error has occurred.</h1>
                     <button id="reload-indicator">Press ${platform === "darwin" ? "CMD" : "CTRL"}+R or click here to reload</button>
                 </div>`;
