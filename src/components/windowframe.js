@@ -55,19 +55,11 @@ export default class WindowFrame extends React.Component {
                 _window.minimize();
             });
             $(".max-btn").on("click", e => {
-                if (platform !== "darwin")
                     _window.maximize();
-                else
-                    _window.setFullScreen(true)
             });
-            /*
             $(".restore-btn").on("click", e => {
-                if (platform !== "darwin")
                     _window.restore();
-                else
-                    _window.setFullScreen(false)
             });
-            */
             $(".close-btn").on("click", e => {
                 _window.close();
             });
@@ -129,15 +121,19 @@ export default class WindowFrame extends React.Component {
                             </div>
                             : null}
                         <div className={`window-controls ${platform}`}>
-                            <div className={`button min-btn ${platform}`}>
-                                <span>{platform === "win32" ? "" : ""} </span>
+                            <div className={`button min-btn`}>
+                                <span>{platform === "win32" ? "" : ""} </span>
                             </div>
-                            <div className={`button max-btn ${platform}`}
+                            <div className={`button max-btn`}
                                  style={{display: !this.state.restore ? "inherit" : "none"}}>
-                                <span>{platform === "win32" ? "" : ""}</span>
+                                <span>{platform === "win32" ? "" : ""}</span>
                             </div>
-                            <div className={`button close-btn ${platform}`}>
-                                <span>{platform === "win32" ? "�" : ""}</span>
+                            <div className={`button restore-btn`}
+                                 style={{display: !this.state.restore ? "none" : "inherit" }}>
+                                <span>{platform === "win32" ? "" : ""}</span>
+                            </div>
+                            <div className={`button close-btn`}>
+                                <span>{platform === "win32" ? "" : ""}</span>
                             </div>
                         </div>
                     </div>
