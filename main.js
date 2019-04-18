@@ -51,7 +51,7 @@ app.setAppUserModelId(process.execPath);
 app.on('ready', createWindow);
 
 function createMenu() {
-	mainWindow.toggleDevTools();
+	 mainWindow.toggleDevTools();
 	let template = [{
 		label: 'Quick Downloader',
 		submenu: [{

@@ -15,7 +15,6 @@ export default class DownloadComp extends React.Component {
 	constructor() {
 		super(...arguments);
 		this.state = {
-			array: 0, // keeps track of the array (activeDownloads, inactiveDownloads) the object is stored in
 			url: arguments[0].url,
 			customHeaders: arguments[0].customHeaders,
 			size: 0,
@@ -74,6 +73,9 @@ export default class DownloadComp extends React.Component {
 	}
 
 	async startDownload() {
+
+		this.setState({status: 4});
+
 		const start = async () => {
 			let proxyOptions;
 			proxyOptions = false;
@@ -92,8 +94,8 @@ export default class DownloadComp extends React.Component {
 				await this.setState(prev => ({
 					size: info.size,
 					progress: info.percentage,
+					completedBytes: info.completedBytes,
 					speed: info.speed,
-					friendlySize: DownloadComp.calculateSize(info.size),
 					total_chunks: info.total_chunks,
 					chunks_done: info.chunks_done,
 					status: info.done ? 2 : info.error ? 1 : 0,
@@ -109,19 +111,17 @@ export default class DownloadComp extends React.Component {
 				}
 
 				if (this.state.prevStatus !== this.state.status)
-					console.log("prev:" + this.state.prevStatus);
-				    console.log("new:" + this.state.status);
 					this.props.onStatusChange.bind(this)(this.state.status);
 
 			}, JSON.parse(this.state.customHeaders || '{}'), proxyOptions, error => {
 				this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>)
+				this.props.onComplete.bind(this);
 			});
 
 			this.setState({
 				status: 3
 			});
-
-			this.download.beginDownload().then(() => {
+			 this.download.beginDownload().then(() => {
 				if (this.state.status === 2 && window.localStorage.getItem('allowNotifications') === "true") {
 					new Notification('DownloadComp Complete', {
 						body: `Download of ${this.state.fileName} has been completed`,
@@ -131,10 +131,10 @@ export default class DownloadComp extends React.Component {
 
 				this.props.updateTaskBarProgress(this.state.id, this.state.progress || 0);
 			}).catch(e => {
-				console.error(e);
 				this.setState({
 					status: 1
 				});
+				this.props.onComplete.bind(this);
 			});
 		};
 
@@ -206,10 +206,10 @@ export default class DownloadComp extends React.Component {
 
 	render() {
 		return (
-			<div className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : (this.state.status === 3 ? " pending" : ""))}>
+			<div className={"download" + (this.state.status === 1 ? " failed" : this.state.status === 2 ? " done" : (this.state.status === 3 ? " pending" : (this.state.status === 4 ? " awaiting" : "")))}>
 				<div className="header">
 					<div className={"flex"}>
-						<h3>{Math.floor(this.state.progress)}%</h3>
+						<span className={"progress"}>{Math.floor(this.state.progress)}%</span>
 						<h2>{this.state.fileName}</h2>
 					</div>
 					<div className="tools">
@@ -248,13 +248,13 @@ export default class DownloadComp extends React.Component {
 						<span className="download-detail"><b>Error: </b>
 							{this.state.error}</span>
 						<span className="download-detail"><b>Size: </b>
-							{this.state.friendlySize} ({this.state.size} bytes)</span>
+							{DownloadComp.calculateSize(this.state.size)} ({this.state.size} bytes)</span>
 						<span className="download-detail"><b>Estimated Time of completion: </b>
 							<span className={"monospace"}> {this.state.eta} </span></span>
 						<span className="download-detail"><b>Parts downloaded: </b>
 							{this.state.chunks_done} of {this.state.total_chunks}</span>
 						<span className="download-detail"><b>Progress: </b>
-							<span className={"monospace"}> {this.state.progress}%</span></span>
+							<span className={"monospace"}> ({DownloadComp.calculateSize(this.state.completedBytes)} / {DownloadComp.calculateSize(this.state.size)}) {this.state.progress}%</span></span>
 					</div>
 					: undefined
 				}

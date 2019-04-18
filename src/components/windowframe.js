@@ -4,7 +4,6 @@ import '../css/nav_bar.css';
 
 
 import {$} from './utils';
-import Tool from "./tool";
 
 const _electron = window.require('electron');
 const remote = _electron.remote;
@@ -85,7 +84,7 @@ export default class WindowFrame extends React.Component {
         if (!_window.frame) {
             return (
                 <header style={{display: _window.isFullScreen() ? "none" : "block"}} className={`titlebar`}>
-                    <div className={`drag-region`}>
+					<div className={`drag-region ${platform}`}>
                         <div className={`window-title`}>
                             <img src={"./favicon.ico"} className={`icon`} alt={"Quick Downloader"}/>
                             <span>Quick Downloader</span>
@@ -96,17 +95,23 @@ export default class WindowFrame extends React.Component {
                                 <div className="nav_bar_wrapper">
                                     <div className="nav_item">File
                                         <div className="nav_dropdown">
-                                            <div onClick={e => this.props.download()}>New Download</div>
+											<div onClick={e => this.props.download()}>New Download<span
+												className={"nav_accelerator"}>{(platform === "darwin" ? "CMD" : "CTRL") + "+N"}</span>
+											</div>
                                         </div>
                                     </div>
                                     <div className="nav_item">View
                                         <div className="nav_dropdown">
-                                            <div>Theme
+											<div>Theme <i className={"more fas fa-chevron-right"}/>
                                                 <div className="nav_dropdown">
                                                     <div>Light</div>
                                                     <div>Dark</div>
                                                 </div>
                                             </div>
+											{/*<div onClick={remote.getCurrentWindow().toggleDevTools()}>Toggle Developer*/}
+											{/*	Tools<span*/}
+											{/*		className={"nav_accelerator"}>{(platform === "darwin" ? "CMD" : "CTRL") + "+Shift+I"}</span>*/}
+											{/*</div>*/}
                                         </div>
                                     </div>
                                     <div className="nav_item">Help

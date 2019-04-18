@@ -9,6 +9,8 @@ import './css/standard_prompt.css';
 
 import Tool from './components/tool';
 import DownloadComp from './components/downloadComp';
+import DownloadDisplayComp from './components/downloadCompDisplay';
+import Checkbox from './components/checkbox';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils';
@@ -47,7 +49,7 @@ ipcRenderer.on('menu-contact', function (event) {
 });
 
 
-class App extends Component {
+export default class App extends Component {
     constructor(...args) {
         super(...args);
         document.title = "Quick Downloader";
@@ -105,16 +107,8 @@ class App extends Component {
 
             const onStatusChange = async function (status) {
                 if (status === 2 || status === 3) {
-                    console.log(this.state.inactiveDownloads || "fuck");
-                    if(this.state.inactiveDownloads === undefined || this.state.inactiveDownloads.indexOf(download) === -1){
-                        that.setState(prev => ({
-                            inactiveDownloads: [...(prev.inactiveDownloads || []), download]
-                        }));
-                    }
-                    this.props.remove.bind(this)();
-                    this.setState({
-                        array: 1
-                    });
+					that.forceUpdate();
+					// this.props.remove.bind(this)();
                 }
             };
 
@@ -123,70 +117,94 @@ class App extends Component {
                     return array.findIndex(i => i.key === download.key);
                 }
 
-                const arr = !this.array ? that.state.activeDownloads : that.state.inactiveDownloads;
-                const index = getIndex(arr);
+				const index = getIndex(that.state.activeDownloads);
 
-                console.log(arr.length);
-                arr.splice(index, 1);
-                console.log(arr.length);
+				that.state.activeDownloads.splice(index, 1);
+
+				console.log(that.state.activeDownloads.slice(index, 1));
 
                 that.forceUpdate();
             };
 
+			const url = this.state.downloadURL,
+				name = this.state.downloadName,
+				headers = this.state.customHeaders;
+
             const download = <DownloadComp
-                onComplete={() => this.next()}
+				url={url}
+				name={name}
+				customHeaders={headers}
+
+				onComplete={function(err) {
+					if (!err)
+						this.props.remove.bind(this)();
+					that.next(this)
+				}}
                 onStatusChange={onStatusChange}
                 alert={box => this.alert(box)}
                 id={this.state.activeDownloads.length + 1}
                 remove={remove}
                 updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-                key={`download${this.state.downloadNums}`} url={this.state.downloadURL}
-                ref={this.me}
-                customHeaders={this.state.customHeaders}
-                name={this.state.downloadName}/>;
+				key={`download${this.state.downloadNums}`}
+				ref={this.me}/>;
 
             await this.setState(prev => ({
                 activeDownloads: [...prev.activeDownloads, download],
                 downloadNums: prev.downloadNums + 1
             }));
 
+			await App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
             this.closePrompt();
-            this.setState({stopSave: true});
 
-            if (this.state.activeDownloads.length === 1)
+			console.log("Refs", this.state.activeDownloads.map(i => i.ref.current));
+
+			if (this.state.activeDownloads.length === 1) {
+				// this.state.activeDownloads[0].ref.current.startDownload();
                 this.next();
-
-            console.log(this.state.activeDownloads);
+			}
 
         } else {
             this.setState({requiredField: true});
         }
     }
 
-    next() {
+	next(download) {
+		if (download) {
+			console.log("Refs", download.startDownload);
+			this.setState(prev => ({
+				inactiveDownloads: [...(prev.inactiveDownloads || []),
+					<DownloadDisplayComp key={`downloadDisplay${this.state.downloadNums}`}
+										 contents={{...download.state}}/>]
+			}));
+		}
         if (this.state.activeDownloads[0])
             this.state.activeDownloads[0].ref.current.startDownload();
     }
 
     changeSelection(dir) {
         if (this.state.focused) {
-            console.log(dir);
             if (this.state.focused.classList.contains('dl-name'))
                 this.setState(prev => {
-                    const maxSelection = this.getDownloadNames().length;
+					const maxSelection = App.getDownloadNames().filter(i => !!i).length;
+					return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
+				});
+			else if (this.state.focused.classList.contains('dl-url'))
+				this.setState(prev => {
+					const maxSelection = App.getDownloadUrls().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
-            else if (window.activeElement.classList.contains('dl-url'))
+			else if (this.state.focused.classList.contains('dl-headers'))
                 this.setState(prev => {
-                    const maxSelection = this.getDownloadUrls().length;
+					const maxSelection = App.getDownloadHeaders().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
+
+			console.log(this.state.currentSelection);
         }
     }
 
-    static addToDownloadHistory(url, name, headers) {
-        debugger;
-        const _downloadHistory = JSON.parse(window.localStorage.downloadHistory);
+	static async addToDownloadHistory(url, name, headers) {
+		const _downloadHistory = JSON.parse(window.localStorage.downloadHistory || "[]");
         _downloadHistory.unshift({url, name, headers});
 
         window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
@@ -207,16 +225,21 @@ class App extends Component {
         }
     }
 
-    getDownloadNames() {
-        return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion.bind(this)).map(i => i.name || "");
+	static getDownloads() {
+		const downloads = JSON.parse(window.localStorage.downloadHistory || "[]");
+		return downloads.map((i, a) => downloads.slice(0, a).findIndex(j => j.url === downloads[a].url && j.name === downloads[a].name && j.headers === downloads[a].headers) === -1 ? downloads[a] : null);
+	}
+
+	static getDownloadNames() {
+		return App.getDownloads().map(i => i ? i.name || "" : i);
     }
 
-    getDownloadHeaders() {
-        return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion.bind(this)).map(i => i.headers || "");
+	static getDownloadUrls() {
+		return App.getDownloads().map(i => i ? i.url || "" : i);
     }
 
-    getDownloadUrls() {
-        return JSON.parse(window.localStorage.downloadHistory || JSON.stringify([])).filter(this.filterSuggestion.bind(this)).map(i => i.url || "");
+	static getDownloadHeaders() {
+		return App.getDownloads().map(i => i ? i.headers || "" : i);
     }
 
     filterSuggestion(i) {
@@ -274,9 +297,9 @@ class App extends Component {
     }
 
     acceptSuggestion(number) {
-        const names = this.getDownloadNames(),
-            urls = this.getDownloadUrls(),
-            headers = this.getDownloadHeaders();
+		const names = App.getDownloadNames(),
+			urls = App.getDownloadUrls(),
+			headers = App.getDownloadHeaders();
 
         this.setState({
             downloadURL: urls[number],
@@ -409,7 +432,7 @@ class App extends Component {
                                         <input autoFocus={true}
                                                onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
-                                               value={this.state.downloadName}
+											   value={this.state.downloadName || ""}
                                                onChange={e => void ((() => {
                                                    if (this.state.stopSave)
                                                        this.setState({
@@ -420,10 +443,10 @@ class App extends Component {
                                                id={"dl-name"}
                                                placeholder={"Download Name"}/>
                                         <div className={"suggestions"}>
-                                            {this.getDownloadNames().map((i, a) => <div key={a}
+											{App.getDownloadNames().map((i, a, x) => i ? <div key={a}
                                                                                         onClick={() => this.acceptSuggestion(a)}
-                                                                                        className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}>
-                                                <span>{i}</span><br/></div>)}
+																						   className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+												<span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
 
@@ -431,21 +454,21 @@ class App extends Component {
                                         <label htmlFor={"dl-url"}>The location of the file to download</label>
                                         <input onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
-                                               value={this.state.downloadURL}
+											   value={this.state.downloadURL || ""}
                                                onChange={e => void ((() => {
                                                    if (this.state.stopSave)
                                                        this.setState({
                                                            stopSave: false
                                                        });
                                                })()) || this.setState({downloadURL: e.target.value})}
-                                               className={"input_standard mousetrap url"}
+											   className={"input_standard dl-url mousetrap url"}
                                                id={"dl-url"}
                                                placeholder={"Download URL"}/>
                                         <div className={"suggestions"}>
-                                            {this.getDownloadUrls().map((i, a) => <div key={a}
+											{App.getDownloadUrls().map((i, a, x) => i ? <div key={a}
                                                                                        onClick={() => this.acceptSuggestion(a)}
-                                                                                       className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}>
-                                                <span>{i}</span><br/></div>)}
+																						  className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+												<span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
                                     <div className={"formItem"}>
@@ -454,16 +477,7 @@ class App extends Component {
                                                   onBlur={() => this.setState({focused: null})}
                                                   value={this.state.customHeaders}
                                                   onChange={e => void ((() => {
-                                                      /*
-                                                      const element = ReactDOM.findDOMNode(this);
-                                                     this.setState({
-                                                         height: "5px",
-                                                     });
-                                                      console.log(element.scrollHeight);
-                                                      this.setState({
-                                                          height: (element.scrollHeight)+"px",
-                                                      });
-                                                       */
+
                                                       if (this.state.stopSave)
                                                           this.setState({
                                                               stopSave: false
@@ -471,19 +485,15 @@ class App extends Component {
                                                   })()) || this.setState({customHeaders: e.target.value})
                                                   }
 
-                                            /*
-                                            style={{
-                                                height: this.state.height || "auto"
-                                            }}*/
-                                                  className={"input_standard standard_code mousetrap url"}
+												  className={"input_standard dl-headers standard_code mousetrap url"}
                                                   id={"dl-headers"}
                                                   placeholder={'{"Cookie","token=quickdownloader"}'}
                                         />
                                         <div className={"suggestions"}>
-                                            {this.getDownloadHeaders().map((i, a) => <div key={a}
+											{App.getDownloadHeaders().map((i, a, x) => i ? <div key={a}
                                                                                           onClick={() => this.acceptSuggestion(a)}
-                                                                                          className={"suggestion" + (this.state.currentSelection === a ? " focused" : "")}>
-                                                <span>{i}</span><br/></div>)}
+																							 className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+												<span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
 
@@ -565,11 +575,11 @@ class App extends Component {
                                         />
                                         {/* //TODO: Add reference to docs explaining how to find the optimum part number */}
 
-                                        {platform === "win32" ? <div><br/><Checkbox
-                                            checked={window.localStorage.getItem('autoHideMenuBar') === true}
-                                            text={`Auto-hide the menu bar (reveal by pressing Alt`}
-                                            onChange={value => void window.localStorage.setItem('autoHideMenuBar', value) || this.forceUpdate()}/>
-                                        </div> : null}
+										{/*{platform === "win32" ? <div><br/><Checkbox*/}
+										{/*	checked={window.localStorage.getItem('autoHideMenuBar') === true}*/}
+										{/*	text={`Auto-hide the menu bar (reveal by pressing Alt`}*/}
+										{/*	onChange={value => void window.localStorage.setItem('autoHideMenuBar', value) || this.forceUpdate()}/>*/}
+										{/*</div> : null}*/}
 
                                         <br/>
                                         <br/>
@@ -732,10 +742,14 @@ class App extends Component {
                                 <div className={"prompt_content_wrapper"}>
                                     <header className={"prompt_header"}>
                                         <h1>History</h1>
+
+										<div className={"right"}>
+											<Tool icon={"fas fa-times-circle"}
+												  onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()} />
                                         <div className={"prompt_close_button"}>
                                             <Tool icon={"fas fa-times"}
                                                   onClick={e => this.setState({pastDownloadsVisible: false})}/>
-
+											</div>
                                         </div>
                                     </header>
                                     {
@@ -770,21 +784,3 @@ class App extends Component {
         );
     }
 }
-
-class Checkbox extends React.Component {
-    state = {
-        checked: this.props.checked
-    };
-
-    render() {
-        return (
-            <div className={"checkbox"}
-                 onClick={() => (void this.setState(prev => ({checked: !prev.checked}))) || this.props.onChange(!this.state.checked)}>
-                <span className={"label"}>{this.props.text}</span>
-                <span className={"indicator" + (this.state.checked ? " checked" : "")}/>
-            </div>
-        );
-    }
-}
-
-export default App;

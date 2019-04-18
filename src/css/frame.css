@@ -42,6 +42,19 @@
     -webkit-app-region:drag;
     background: #202225;
 }
+
+.drag-region.win32 .window-title {
+    font-size: 10.5pt;
+}
+.drag-region.win32 .window-title .icon {
+    height: 20px;
+}
+drag-region.win32 .window-controls .button span {
+    font-family: "Segoe MDL2 Assets";
+    font-size: 10px;
+    color: #fff;
+}
+
 .window-title span {
     overflow-x: hidden;
     text-overflow: ellipsis;
@@ -56,7 +69,28 @@
     top: -5%;
 }
 
-.drag-region .window-controls {
+.window-controls div.button { /* for specifity */
+    width: 48px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+    border-radius: 0;
+    margin: 0;
+    background: transparent;
+}
+
+.window-controls div.button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.window-controls div.button.close-btn:hover {
+    background: #E81123;
+}
+
+.window-controls {
+    display: none;
+}
+.drag-region.win32  .window-controls {
     width: 200px;
 
     display: flex;
@@ -90,6 +124,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.drag-region.win32 .window-title {
+    justify-content: flex-start;
+    padding-left: 3px;
+    text-align: left;
 }
 
 
@@ -148,10 +187,6 @@
 
 hr {
     border: 1px solid #4f5660;
-}
-
-.window-controls  {
-    display: none !important;
 }
 
 .menu {

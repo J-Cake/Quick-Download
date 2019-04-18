@@ -2,6 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
+
+    <style>
+        #render-error {
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            color: #b4c9e0;
+            transform: translate(-50%, -50%);
+        }
+        #reload-indicator {
+            color: #b4c9e0;
+            padding: 5px 10px;
+        }
+        body {
+            background: #24282c;
+        }
+    </style>
+
     <link rel="shortcut icon" href="/favicon.ico"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <meta name="theme-color" content="#202225"/>
@@ -11,6 +30,27 @@
     <link rel="stylesheet" href="./cutive.css">
 
     <title>Quick Downloader</title>
+
+    <script>
+        /*
+		const reload = () => {
+			console.log("Reloading");
+			window.location.reload();
+		};
+		setTimeout(function () {
+			const root = document.querySelector("#root");
+			const platform = require('os').platform();
+			if (root.innerHTML === "") {
+				root.innerHTML = `<div id="render-error">
+                    <h1>A React Render error has occurred.</h1>
+                    <button id="reload-indicator">Press ${platform === "darwin" ? "CMD" : "CTRL"}+R or click here to reload</button>
+                </div>`;
+
+				document.querySelector("#reload-indicator").addEventListener("click", () => reload());
+			}
+		}, 2000);
+         */
+    </script>
 
 </head>
 <body>

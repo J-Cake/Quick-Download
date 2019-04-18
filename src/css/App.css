@@ -62,8 +62,8 @@ a:hover {
     border-radius: 9px;
     border: 0;
     margin: 3px;
-    width: 35px;
-    height: 35px;
+    min-width: 35px;
+    min-height: 35px;
     background: transparent;
     cursor: pointer;
 
@@ -176,6 +176,10 @@ b {
 
 .download.pending {
     background: #72257c;
+}
+
+.download.awaiting {
+    background: #ff7238;
 }
 
 .download.failed {
@@ -359,6 +363,7 @@ input, textarea {
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     position: relative;
+    overflow: hidden;
     top: 100%;
     bottom: 5px;
 
@@ -420,13 +425,17 @@ textarea {
     font-size: 1.1em;
 }
 
+.right {
+    display: flex;
+}
+
 .flex {
     display: flex;
 }
 
-.flex * {
-    margin-block-end: 0;
-    margin-block-start: 0;
-    min-width: 75px;
-    line-height: 1em;
+.flex .progress {
+    margin: 0 5px;
+    line-height: 2em;
+    text-align: center;
+    min-width: 5em;
 }

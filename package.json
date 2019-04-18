@@ -22,9 +22,6 @@
 		"pack-win": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=win32 --arch=x64 --overwrite --icon=./build/favicon.ico",
 		"run-build": "electron ./build"
 	},
-	"eslintConfig": {
-		"extends": "react-app"
-	},
 	"browserslist": [
 		">0.2%",
 		"not dead",
@@ -34,7 +31,8 @@
 	"description": "We Download Things Quickly!",
 	"main": "./main.js",
 	"devDependencies": {
-		"electron-packager": "latest"
+		"electron-packager": "latest",
+		"electron": "latest"
 	},
 	"productName": "Quick Downloader",
 	"repository": {
@@ -59,6 +57,14 @@
 		],
 		"directories": {
 			"buildResources": "assets"
+		}
+	},
+	"eslintConfig": {
+		"extends": "react-app",
+		"env": {
+			"es6": true,
+			"browser": true,
+			"node": true
 		}
 	}
 }
