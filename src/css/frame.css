@@ -37,10 +37,10 @@
 .window-title {
     font-family: "Segoe UI", sans-serif;
     font-size: 12px;
-    overflow-x: hidden;
     height: 30px;
     -webkit-app-region:drag;
     background: #202225;
+    box-sizing: border-box;
 }
 
 .drag-region.win32 .window-title {
@@ -49,7 +49,7 @@
 .drag-region.win32 .window-title .icon {
     height: 20px;
 }
-drag-region.win32 .window-controls .button span {
+.drag-region.win32 .window-controls .button span {
     font-family: "Segoe MDL2 Assets";
     font-size: 10px;
     color: #fff;
@@ -90,8 +90,7 @@ drag-region.win32 .window-controls .button span {
     display: none;
 }
 .drag-region.win32  .window-controls {
-    width: 200px;
-
+    box-sizing: border-box;
     display: flex;
 
     padding-left: -1px;
