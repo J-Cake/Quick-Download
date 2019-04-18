@@ -1,1 +1,4 @@
 theme: jekyll-theme-cayman
+title: Quick Download
+description: We download things quickly!
+show_downloads: true
