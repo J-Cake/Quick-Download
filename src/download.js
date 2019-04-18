@@ -133,6 +133,7 @@ export default class Download {
 	static async get_length(url, customHeaders, proxyOptions) {
 		return await new Promise(resolve => {
 			const q = url_lib.parse(url);
+			// console.log(JSON.stringify(q));
 			Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
 				method: 'HEAD',
 				path: q.path,
@@ -288,10 +289,8 @@ export default class Download {
 
 		const now = Date.now();
 		const time = new Date(now - this.startTime);
-
 		this.onUpdate({
 			percentage: ((this.progress / this.total_length) * 100) || 0,
-			completedBytes: this.progress,
 			speed: this.speed,
 			average_percentage: this.average_percentage,
 			size: this.total_length,

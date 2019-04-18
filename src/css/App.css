@@ -1,4 +1,4 @@
-html, body, #root {
+html,body,#root {
     height: 100vh;
 }
 
@@ -7,13 +7,6 @@ body {
     background: #3e444b;
     user-select: none;
     color: #b4c9e0;
-}
-
-#root {
-    height: 100vh;
-}
-.wrapper {
-  height: 100%;
 }
 
 textarea {
@@ -67,6 +60,8 @@ a:hover {
     padding: 10px;
     max-height: 100%;
     margin-bottom: 200vh;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .tool {
@@ -85,6 +80,7 @@ a:hover {
     cursor: pointer;
 
 }
+
 
 .tool i {
     transition: 100ms ease;
@@ -115,12 +111,12 @@ a:hover {
     background: slategrey;
 }
 
-.downloads-wrapper.tab-container {
-    max-height: 100%;
+.download-tab {
+    height: 100%;
     width: 100%;
 }
 
-.download-tabs, .tabs {
+.download-tabs {
     width: 100%;
     /* border: 1px solid #b4c9e0; */
     border-bottom: 1px solid #24282c;
@@ -138,7 +134,7 @@ a:hover {
     background: #4f5660;
 }
 
-.downloads-wrapper.tab-container .tab {
+.download-tabs .tab {
     width: 100%;
     transition: 0.125s;
     cursor: pointer;
@@ -146,12 +142,12 @@ a:hover {
     text-align: center;
 }
 
-.downloads-wrapper.tab-container .tab#active {
+.download-tabs .tab#active {
     background: #24282c;
 }
 
 
-.downloads-wrapper.tab-container  .tab:hover {
+.download-tabs .tab:hover {
     width: 100%;
     background: #3c434b;
 }
@@ -274,7 +270,6 @@ b {
     top: -15px;
     font-size: 15px;
     text-align: center;
-    overflow: hidden;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -288,7 +283,6 @@ b {
     background: #b4c9e0;
     box-shadow: 0 0 3px 0 #3e444b;
     border-radius: 100px;
-    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
