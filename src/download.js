@@ -49,7 +49,7 @@ export default class Download {
 		this.save_location = save_location;
 		this.proxyOptions = proxyOptions || false;
 		this.custom_headers = custom_headers || {};
-		this.final_file = Download.getFileName(name, save_location, url);
+		this.final_file = Download.getFileName(name, save_location, url).replace(/\\/g, '/');
 		this.onUpdate = onUpdate;
 		this.url = url;
 		this.full_fail = false;
@@ -108,7 +108,7 @@ export default class Download {
 			this.port = "443";
 		}
 
-		this.elapsedTimeUpdater = setInterval(() => this.madeProgress(0, false), 250);
+		this.elapsedTimeUpdater = setInterval(() => this.madeProgress(0, false), 700);
 
 		return this.final_file;
 	}
@@ -133,7 +133,6 @@ export default class Download {
 	static async get_length(url, customHeaders, proxyOptions) {
 		return await new Promise(resolve => {
 			const q = url_lib.parse(url);
-			// console.log(JSON.stringify(q));
 			Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
 				method: 'HEAD',
 				path: q.path,
@@ -151,29 +150,29 @@ export default class Download {
 
 	static byte_request_supported(url, customHeaders, proxyOptions) {
 		return new Promise((resolve, reject) => {
-			// const q = url_lib.parse(url);
-			// const request = Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
-			// 	method: 'GET',
-			// 	headers: {
-			// 		'Range': 'bytes=0-1',
-			// 		...customHeaders
-			// 	},
-			// 	path: q.path,
-			// 	host: q.hostname,
-			// 	port: (q.protocol === "http:") ? 80 : 443,
-			// 	url: url,
-			// }, proxyOptions), res => {
-			// 	resolve(res.statusCode === 206);
-			// 	res.on("data", () => {
-			// 		resolve(res.statusCode === 206);
-			// 		res.destroy();
-			// 	});
-			// });
-			// request.on('error', (e) => {
-			// 	reject(e);
-			// });
-			// request.end();
-			resolve(true);
+			const q = url_lib.parse(url);
+			const request = Download.get_lib(url, proxyOptions).request(Download.proxify_headers({
+				method: 'GET',
+				headers: {
+					'Range': 'bytes=0-1',
+					...customHeaders
+				},
+				path: q.path,
+				host: q.hostname,
+				port: (q.protocol === "http:") ? 80 : 443,
+				url: url,
+			}, proxyOptions), res => {
+				resolve(res.statusCode === 206);
+				res.on("data", () => {
+					resolve(res.statusCode === 206);
+					res.destroy();
+				});
+			});
+			request.on('error', (e) => {
+				reject(e);
+			});
+			request.end();
+			// resolve(true);
 		});
 	}
 
@@ -289,12 +288,14 @@ export default class Download {
 
 		const now = Date.now();
 		const time = new Date(now - this.startTime);
+
 		this.onUpdate({
 			percentage: ((this.progress / this.total_length) * 100) || 0,
+			completedBytes: this.progress,
 			speed: this.speed,
 			average_percentage: this.average_percentage,
 			size: this.total_length,
-			chunks_done: this.parts_done,
+			chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
 			total_chunks: this.num_of_parts_to_create,
 			done: done || false,
 			path: this.final_file,
@@ -305,7 +306,7 @@ export default class Download {
 
 	get ETA() {
 		const elapsedTime = (Date.now() - this.startTime);
-		const speed = (this.progress) / elapsedTime;
+		const speed = this.progress / elapsedTime;
 		const remainingTime = (this.total_length / speed) - elapsedTime;
 		this.stats.push({
 			time: elapsedTime,
@@ -314,10 +315,7 @@ export default class Download {
 
 		this.speed = Math.floor(speed);
 
-		// console.log(Math.floor(speed) + 'B/s'); // that looks correct, even the output is on point
-		// console.log(Math.floor(remainingTime) + 's remaining'); // this isn't
-
-		return new Date(Date.now() + remainingTime).toString();
+		return new Date(Date.now() + remainingTime).toLocaleString();
 	};
 
 	async forceUpdate(done) {
@@ -428,6 +426,7 @@ class Part {
 		this.to_byte = parseInt(to_byte);
 		this.current_byte = parseInt(from_byte);
 		this.stop_byte = parseInt(to_byte);
+		this.done = false;
 		this.file = new TempFile.TmpFile(Date.now() + from_byte);
 		// console.log(this.file.path);
 		this.percent_done = 0;
@@ -466,6 +465,7 @@ class Part {
 					});
 					res.on('end', () => {
 						this.parent.imDone();
+						this.done = true;
 						resolve();
 					});
 				});

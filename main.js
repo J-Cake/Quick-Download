@@ -2,6 +2,10 @@ const os = require('os');
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron');
 let mainWindow;
 
+// app.on('ready', () => {
+// 	BrowserWindow.addDevToolsExtension('C:\\Users\\Jacob Schneider\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\felcaaldnbdncclmgdcncolpebgiejap\\1.2_0');
+// });
+
 const mainFile = require('./index_file.js');
 
 const disableFramePermanently = false;
@@ -10,6 +14,8 @@ let withFrame = false;
 const path = require('path');
 
 async function createWindow() {
+	BrowserWindow.addDevToolsExtension('C:\\Users\\Jacob Schneider\\AppData\\Local\\Google\\Chrome SxS\\User Data\\Default\\Extensions\\fmkadmapgofadopljbjfkapdkoienihi\\3.6.0_0');
+
 	mainWindow = new BrowserWindow({
 		minWidth: 720,
 		minHeight: 360,
@@ -51,7 +57,7 @@ app.setAppUserModelId(process.execPath);
 app.on('ready', createWindow);
 
 function createMenu() {
-	mainWindow.toggleDevTools();
+	// mainWindow.toggleDevTools();
 	let template = [{
 		label: 'Quick Downloader',
 		submenu: [{

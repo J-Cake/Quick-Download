@@ -38,6 +38,9 @@ a:hover {
     text-decoration: none;
 }
 .nav_item, .nav_dropdown {
+    display: flex;
+    flex-direction: row;
+
     height: 30px;
     line-height: 34px;
     font-size: 12px;
@@ -49,14 +52,35 @@ a:hover {
     text-overflow: ellipsis;
 }
 .nav_item {
-    padding: 0 30px 0 10px;
+    padding: 0 10px 0 10px;
+    min-width: 40px;
+    text-align: center;
 }
+
+.nav_item .more {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 .nav_dropdown {
     position: relative;
     width: 100%;
     margin: 0 -10px;
     top: 100%;
 }
+
+.nav_accelerator {
+    color: #66727f;
+    display: inline-block;
+}
+
+.nav_dropdown > div {
+    position: relative;
+    /*display: inline-block;*/
+}
+
 .nav_item[active] {
     color: white;
     background: rgb(79, 86, 96);
@@ -83,10 +107,6 @@ a:hover {
 
 .nav_dropdown .nav_dropdown {
     left: 100%;
-    -webkit-transform: translate(0, -40px);
-    -moz-transform: translate(0, -40px);
-    -ms-transform: translate(0, -40px);
-    -o-transform: translate(0, -40px);
     transform: translate(0, -40px);
     padding: 0;
 }

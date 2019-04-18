@@ -1,4 +1,4 @@
-html,body,#root {
+html, body, #root {
     height: 100vh;
 }
 
@@ -9,6 +9,13 @@ body {
     color: #b4c9e0;
 }
 
+#root {
+    height: 100vh;
+}
+.wrapper {
+  height: 100%;
+}
+
 textarea {
     resize: none;
 }
@@ -16,6 +23,11 @@ textarea {
 a {
     color: #eee;
     text-decoration: none;
+}
+
+button {
+    width: auto;
+    min-width: 100px;
 }
 
 a:hover {
@@ -41,6 +53,7 @@ a:hover {
 }
 .menu_buttons {
     background: #202225;
+    padding: 0 0 7px 7px;
 }
 
 .icon_button {
@@ -52,8 +65,13 @@ a:hover {
     display: block;
     overflow: auto;
     padding: 10px;
-    height: 100%;
+    max-height: 100%;
     margin-bottom: 200vh;
+}
+
+.tool {
+    width: 35px;
+    min-width: auto;
 }
 
 .tool, button {
@@ -62,13 +80,11 @@ a:hover {
     border-radius: 9px;
     border: 0;
     margin: 3px;
-    width: 35px;
     height: 35px;
     background: transparent;
     cursor: pointer;
 
 }
-
 
 .tool i {
     transition: 100ms ease;
@@ -99,12 +115,12 @@ a:hover {
     background: slategrey;
 }
 
-.download-tab {
-    height: 100%;
+.downloads-wrapper.tab-container {
+    max-height: 100%;
     width: 100%;
 }
 
-.download-tabs {
+.download-tabs, .tabs {
     width: 100%;
     /* border: 1px solid #b4c9e0; */
     border-bottom: 1px solid #24282c;
@@ -122,7 +138,7 @@ a:hover {
     background: #4f5660;
 }
 
-.download-tabs .tab {
+.downloads-wrapper.tab-container .tab {
     width: 100%;
     transition: 0.125s;
     cursor: pointer;
@@ -130,14 +146,30 @@ a:hover {
     text-align: center;
 }
 
-.download-tabs .tab#active {
+.downloads-wrapper.tab-container .tab#active {
     background: #24282c;
 }
 
 
-.download-tabs .tab:hover {
+.downloads-wrapper.tab-container  .tab:hover {
     width: 100%;
     background: #3c434b;
+}
+
+.downloads-wrapper.download-container {
+    background: #24282c;
+    max-height: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.downloads-wrapper.download-container .placeholder {
+    font-size: 2rem;
+
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .downloads {
@@ -176,6 +208,10 @@ b {
 
 .download.pending {
     background: #72257c;
+}
+
+.download.awaiting {
+    background: #ff7238;
 }
 
 .download.failed {
@@ -238,6 +274,7 @@ b {
     top: -15px;
     font-size: 15px;
     text-align: center;
+    overflow: hidden;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -251,6 +288,7 @@ b {
     background: #b4c9e0;
     box-shadow: 0 0 3px 0 #3e444b;
     border-radius: 100px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -266,6 +304,7 @@ b {
 
 .progress-bar-wrapper {
     border-radius: 15px;
+    overflow: hidden;
     border: none;
     background: #b4c9e0;
     /*box-shadow: 1px 0 3px 0 #8d9daf;*/
@@ -359,6 +398,7 @@ input, textarea {
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     position: relative;
+    overflow: hidden;
     top: 100%;
     bottom: 5px;
 
@@ -420,13 +460,17 @@ textarea {
     font-size: 1.1em;
 }
 
+.right {
+    display: flex !important;
+}
+
 .flex {
     display: flex;
 }
 
-.flex * {
-    margin-block-end: 0;
-    margin-block-start: 0;
-    min-width: 75px;
-    line-height: 1em;
+.flex .progress {
+    margin: 0 5px;
+    line-height: 2em;
+    text-align: center;
+    min-width: 5em;
 }
