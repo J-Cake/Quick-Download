@@ -34,10 +34,10 @@
 .window-title {
     font-family: "Segoe UI", sans-serif;
     font-size: 12px;
+    overflow-x: hidden;
     height: 30px;
     -webkit-app-region:drag;
     background: #202225;
-    box-sizing: border-box;
 }
 
 .drag-region.win32 .window-title {
@@ -88,6 +88,7 @@
     display: none;
 }
 .drag-region.win32  .window-controls {
+    width: 200px;
 
     display: flex;
 
