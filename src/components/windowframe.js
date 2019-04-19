@@ -95,10 +95,10 @@ export default class WindowFrame extends React.Component {
                                     </div>
                                     <div className="nav_item">View
                                         <div className="nav_dropdown">
-											<div>Theme <i className={"more fas fa-chevron-right"}/>
-                                                <div className="nav_dropdown">
-                                                    <div>Light</div>
-                                                    <div>Dark</div>
+											<div>Theme <i style={{"font-size": "10px"}} className={"more fas fa-chevron-right"}/>
+                                                <div className="nav_dropdown toggle">
+                                                    <div active={window.localStorage.getItem('theme') === 'dark'}>Light</div>
+                                                    <div active={window.localStorage.getItem('theme') === 'dark' ? "active" : ""}>Dark</div>
                                                 </div>
                                             </div>
 											{/*<div onClick={remote.getCurrentWindow().toggleDevTools()}>Toggle Developer*/}

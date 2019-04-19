@@ -73,7 +73,20 @@ a:hover {
     height: auto;
     box-shadow: 0 10px 50px rgba(0, 0, 0, 0.6);
 }
+.nav_dropdown div[disabled]{
 
+}
+.nav_dropdown.toggle div[active]:before {
+    font-family: "Font Awesome 5 Free";
+    content: "\f00c";
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    margin-right: 5px;
+}
 .nav_dropdown div {
     background: #202225;
     text-align: left;

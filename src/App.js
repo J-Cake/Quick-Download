@@ -320,7 +320,7 @@ export default class App extends Component {
     }
 
     showSettings() {
-        this.settingsVisible = !this.settingsVisible;
+        this.setState(prev => ({settingsVisible: !prev.settingsVisible}));
     }
 
     static confirmExit() {
