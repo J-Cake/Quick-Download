@@ -55,7 +55,10 @@ export default class Download {
 		this.full_fail = false;
 		this.speed = 0;
 		this.bytes_request_supported = true;
-		this.error = onError;
+		this.error = (e) => {
+			this.full_fail = true;
+			onError(e);
+		};
 		try {
 			if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)) {
 				this.bytes_request_supported = false;
@@ -282,6 +285,9 @@ export default class Download {
 	}
 
 	async madeProgress(amount, done) {
+		if(this.full_fail){
+			return;
+		}
 		if (done)
 			clearInterval(this.elapsedTimeUpdater);
 

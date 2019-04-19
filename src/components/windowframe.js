@@ -89,8 +89,7 @@ export default class WindowFrame extends React.Component {
                                 <div className="nav_bar_wrapper">
                                     <div className="nav_item">File
                                         <div className="nav_dropdown">
-											<div onClick={e => this.props.download()}>New Download<span
-												className={"nav_accelerator"}>{(platform === "darwin" ? "CMD" : "CTRL") + "+N"}</span>
+											<div onClick={e => this.props.download()}>New Download
 											</div>
                                         </div>
                                     </div>
@@ -115,6 +114,7 @@ export default class WindowFrame extends React.Component {
                                             <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Contribute</div>
                                             <div onClick={e => this.props.about()}>About</div>
                                             <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Docs</div>
+                                            <div onClick={e => _electron.ipcRenderer.send('toggledevtools')}>Toggle Dev Tools</div>
                                         </div>
                                     </div>
                                 </div>

@@ -232,6 +232,9 @@ ipcMain.on('pickDir', e => {
 ipcMain.on('openURL', (e,url) => {
 	require('electron').shell.openExternal(url);
 });
+ipcMain.on('toggledevtools', (e,url) => {
+	 mainWindow.toggleDevTools();
+});
 
 ipcMain.on('confirmClear', e => {
 	dialog.showMessageBox({
