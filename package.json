@@ -7,6 +7,7 @@
 		"bad-words": "^3.0.1",
 		"electron": "latest",
 		"mousetrap": "^1.6.3",
+		"node": "^11.13.0",
 		"pac-resolver": "git+https://git@github.com/J-Cake/Node-PAC",
 		"react": "^16.7.0",
 		"react-dom": "^16.7.0",
@@ -31,8 +32,8 @@
 	"description": "We Download Things Quickly!",
 	"main": "./main.js",
 	"devDependencies": {
-		"electron-packager": "latest",
-		"electron": "latest"
+		"electron": "latest",
+		"electron-packager": "latest"
 	},
 	"productName": "Quick Downloader",
 	"repository": {
