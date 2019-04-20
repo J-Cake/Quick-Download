@@ -49,6 +49,9 @@ export default class Part {
                         this.percent_done = (this.current_byte - this.from_byte) / (this.to_byte - this.from_byte);
                         this.parent.average_in(this.percent_done, this);
                     });
+                    res.on('error', (e) => {
+                       reject(e);
+                    });
                     res.on('end', () => {
                         this.parent.imDone();
                         this.done = true;

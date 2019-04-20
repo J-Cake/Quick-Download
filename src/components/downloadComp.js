@@ -118,12 +118,21 @@ export default class DownloadComp extends React.Component {
                 this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>)
                 this.props.onComplete.bind(this);
             });
+            let json;
+            try {
+                let json = JSON.parse(this.state.customHeaders);
+            } catch (e) {
+                console.error(e);
+                this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"}
+                                        body={"Invalid JSON for Custom Headers. Using default."}/>);
+                json = {};
+            }
             await this.download.init(
                 this.state.url,
                 this.state.fileName,
                 window.localStorage.saveLocation || path.join(os.homedir(), 'Downloads'),
                 Number(window.localStorage.partsToCreate),
-                JSON.parse(this.state.customHeaders || '{}'),
+                json,
                 proxyOptions
             );
             this.setState({

@@ -19,6 +19,8 @@ export default class Download extends events.EventEmitter {
         this.progress = 0;
         this.stats = [];
         this.last_update = 0;
+        this.last_speed_update_time = 0;
+        this.last_speed_progress = 0;
     }
 
     static getFileName(name, saveLocation, url) {
@@ -62,7 +64,7 @@ export default class Download extends events.EventEmitter {
 
     async init(url, name, save_location, parts, custom_headers, proxyOptions) {
         this.save_location = save_location;
-        this.proxyOptions = proxyOptions || false;
+        this.proxyOptions =  (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
         this.custom_headers = custom_headers || {};
         this.final_file = Download.getFileName(name, save_location, url).replace(/\\/g, '/');
         this.url = url;
@@ -278,6 +280,7 @@ export default class Download extends events.EventEmitter {
         if (Date.now() - this.last_update > 800 || done) {
             this.last_update = Date.now();
             this.onUpdate({
+                eta: this.ETA,
                 percentage: ((this.progress / this.total_length) * 100) || 0,
                 speed: this.speed,
                 average_percentage: this.average_percentage,
@@ -286,7 +289,6 @@ export default class Download extends events.EventEmitter {
                 total_chunks: this.num_of_parts_to_create,
                 done: done || false,
                 path: this.final_file,
-                eta: this.ETA,
                 elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
             });
         }
@@ -316,8 +318,8 @@ export default class Download extends events.EventEmitter {
         return new Promise((resolve, reject) => {
             const promises = [];
             for (let i = 0; i < this.parts.length; i++) {
-                promises.push(new Promise(async resolve => {
-                    await this.parts[i].download_bytes();
+                promises.push(new Promise(async (resolve,reject) => {
+                    await this.parts[i].download_bytes().catch(reject);
                     resolve();
                 }));
             }
