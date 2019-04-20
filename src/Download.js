@@ -7,6 +7,7 @@ const events = window.require('events');
 const http = window.require('http');
 const https = window.require('https');
 const fs = window.require('fs');
+const validFilename = window.require('valid-filename');
 
 export default class Download extends events.EventEmitter {
     constructor() {
@@ -23,15 +24,6 @@ export default class Download extends events.EventEmitter {
         this.last_speed_progress = 0;
     }
 
-    static getFileName(name, saveLocation, url) {
-        // Apply download extension if name doesn't have one:
-        if (name.split('.').length > 1) {
-            return path.join(saveLocation, name);
-        } else {
-            return path.join(saveLocation, name + Download.get_extension(url));
-        }
-    }
-
     onUpdate(e) {
         this.emit('update', e);
     }
@@ -40,7 +32,7 @@ export default class Download extends events.EventEmitter {
         this.full_fail = true;
         this.onUpdate({
             status: 1,
-            error: "Byte Requests are not supported.",
+            error: e
         });
         this.emit('error', e);
     }
@@ -63,6 +55,10 @@ export default class Download extends events.EventEmitter {
      */
 
     async init(url, name, save_location, parts, custom_headers, proxyOptions) {
+        if(!validFilename(name)){
+            this.error("Invalid File Name");
+            return this;
+        }
         this.save_location = save_location;
         this.proxyOptions =  (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
         this.custom_headers = custom_headers || {};
@@ -95,6 +91,16 @@ export default class Download extends events.EventEmitter {
 
         return this;
     }
+
+    static getFileName(name, saveLocation, url) {
+        // Apply download extension if name doesn't have one:
+        if (name.split('.').length > 1) {
+            return path.join(saveLocation, name);
+        } else {
+            return path.join(saveLocation, name + Download.get_extension(url));
+        }
+    }
+
 
     static get_lib(url, proxyOptions) {
         proxyOptions = proxyOptions || false;
@@ -295,9 +301,15 @@ export default class Download extends events.EventEmitter {
     }
 
     get ETA() {
-        const elapsedTime = (Date.now() - this.startTime);
-        const speed = this.progress / elapsedTime;
-        const remainingTime = (this.total_length / speed) - elapsedTime;
+        /*  const elapsedTime = (Date.now() - this.startTime);
+          const speed = this.progress / elapsedTime;
+          const remainingTime = (this.total_length / speed) - elapsedTime; */
+        const elapsedTime = (Date.now() - this.last_speed_update_time);
+        const speed = (this.progress - this.last_speed_progress) / elapsedTime;
+        console.log(speed);
+        const remainingTime = ((this.total_length - this.last_speed_progress) / speed) - elapsedTime;
+        this.last_speed_update_time = Date.now();
+        this.last_speed_progress = this.progress;
         this.stats.push({
             time: elapsedTime,
             progress: this.progress

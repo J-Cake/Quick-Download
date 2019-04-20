@@ -120,7 +120,7 @@ export default class DownloadComp extends React.Component {
             });
             let json;
             try {
-                let json = JSON.parse(this.state.customHeaders);
+                let json = JSON.parse(this.state.customHeaders || "{}");
             } catch (e) {
                 console.error(e);
                 this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"}
