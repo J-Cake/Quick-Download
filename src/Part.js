@@ -14,7 +14,6 @@ export default class Part {
         this.stop_byte = parseInt(to_byte);
         this.done = false;
         this.file = new TempFile.TmpFile(Date.now() + from_byte);
-        // console.log(this.file.path);
         this.percent_done = 0;
         this.parent = parent;
         if (url_lib.parse(url).protocol === "http:") {

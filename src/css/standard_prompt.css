@@ -34,11 +34,15 @@
 
 .prompt_content_wrapper {
     height: 100%;
-    overflow: auto;
     margin: 0;
     padding: 25px;
     width: 100%;
     box-sizing: border-box;
+}
+
+.prompt_content {
+    overflow: auto;
+    height: 100%;
 }
 
 .prompt_close_button {
@@ -57,7 +61,7 @@
 .prompt_header * {
     margin: 0;
     position: relative;
-    display: block;
+    /*display: block;*/
 }
 
 .prompt_header {

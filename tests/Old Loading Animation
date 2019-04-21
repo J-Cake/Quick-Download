@@ -1,0 +1,166 @@
+<style>
+        * {
+            --animation-speed: 0.85s;
+        }
+    </style>
+
+    <style>
+        @keyframes a1 {
+            0% {
+                left: 0;
+            }
+            50% {
+                left: 3.75cm;
+            }
+            100% {
+                left: 0;
+            }
+        }
+
+        @keyframes a2 {
+            0% {
+                left: 0;
+            }
+            50% {
+                left: 1.25cm;
+            }
+            100% {
+                left: 0;
+            }
+        }
+
+        @keyframes a3 {
+            0% {
+                right: 0;
+            }
+            50% {
+                right: 1.25cm;
+            }
+            100% {
+                right: 0;
+            }
+        }
+
+        @keyframes a4 {
+            0% {
+                right: 0;
+            }
+            50% {
+                right: 3.75cm;
+            }
+            100% {
+                right: 0;
+            }
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            37.5% {
+                transform: rotate(180deg);
+            }
+            50% {
+                transform: rotate(180deg);
+            }
+            87.5% {
+                transform: rotate(360deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+
+                box-shadow: 0 0 5px 0 #181b1e;
+                padding: 0;
+            }
+            35% {
+
+                box-shadow: 0 0 5px 0 #181b1e;
+                padding: 0;
+            }
+            50% {
+
+                box-shadow: 0 0 10px 0 #181b1e;
+                padding: 8px;
+            }
+            65% {
+
+                box-shadow: 0 0 5px 0 #181b1e;
+                padding: 0;
+            }
+            100% {
+
+                box-shadow: 0 0 5px 0 #181b1e;
+                padding: 0;
+            }
+        }
+
+    </style>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #3c434b;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dot {
+            width: 0.25cm;
+            height: 0.25cm;
+            padding: 0;
+            background: aliceblue;
+            display: block;
+            border-radius: 100px;
+            animation-iteration-count: infinite !important;
+            position: fixed;
+
+            box-shadow: 0 0 5px 0 #181b1e;
+        }
+
+        .loading {
+            position: fixed;
+            transform-origin: 50% 50%;
+            animation: rotate calc(var(--animation-speed) * 2) ease;
+            animation-iteration-count: infinite !important;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%);
+        }
+
+        .dot1 {
+            animation: a1 var(--animation-speed) ease, pulse var(--animation-speed) ease;
+        }
+
+        .dot2 {
+            animation: a2 var(--animation-speed) ease, pulse var(--animation-speed) ease;
+        }
+
+        .dot3 {
+            animation: a3 var(--animation-speed) ease, pulse var(--animation-speed) ease;
+        }
+
+        .dot4 {
+            animation: a4 var(--animation-speed) ease, pulse var(--animation-speed) ease;
+        }
+    </style>
+
+    		<div class="outline">
+    			<div class="loading">
+    				<span class="dot dot1"/>
+    				<span class="dot dot2"/>
+    				<span class="dot dot3"/>
+    				<span class="dot dot4"/>
+    			</div>
+    		</div>

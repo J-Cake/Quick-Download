@@ -1,0 +1,88 @@
+---
+  0 debug pnpm:scope: 
+    selected: 1
+    workspacePrefix: null
+  1 debug pnpm: 
+    isCaseSensitive: false
+    store: "C:\\Users\\Jacob Schneider\\.pnpm-store\\2"
+  2 debug pnpm:package-json: 
+    initial: 
+      name: "quick_downloader"
+      version: "1.0.0"
+      private: true
+      dependencies: 
+        abort-controller: "^2.0.2"
+        bad-words: "^3.0.1"
+        electron: "latest"
+        mousetrap: "^1.6.3"
+        node: "^11.13.0"
+        pac-resolver: "git+https://git@github.com/J-Cake/Node-PAC.git"
+        react: "^16.7.0"
+        react-dom: "^16.7.0"
+        react-scripts: "^2.1.8"
+        valid-filename: "^3.1.0"
+      scripts: 
+        start: "react-scripts start"
+        build: "node pre-build.js && react-scripts build && node post-build.js"
+        test: "react-scripts test"
+        eject: "react-scripts eject"
+        electron: "electron ."
+        pack-osx: "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=darwin --arch=x64 --overwrite --icon=./build/favicon.ico"
+        pack-win: "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=win32 --arch=x64 --overwrite --icon=./build/favicon.ico"
+        run-build: "electron ./build"
+      browserslist: 
+        - ">0.2%"
+        - "not dead"
+        - "not ie <= 11"
+        - "not op_mini all"
+      description: "We Download Things Quickly!"
+      main: "./main.js"
+      devDependencies: 
+        electron: "latest"
+        electron-packager: "latest"
+      productName: "Quick Downloader"
+      repository: 
+        type: "git"
+        url: "git+https://github.com/jbis9051/quick_download.git"
+      keywords: 
+        - "Quick"
+        - "Download"
+      author: 
+        name: "JBis, J-Cake"
+      license: "ISC"
+      bugs: 
+        url: "https://github.com/jbis9051/quick_download/issues"
+      homepage: "http://./"
+      build: 
+        appId: "com.quick-downloader"
+        files: 
+          - "build/**/*"
+          - "node_modules/**/*"
+        directories: 
+          buildResources: "assets"
+      eslintConfig: 
+        extends: "react-app"
+        env: 
+          es6: true
+          browser: true
+          node: true
+      readme: "# Quick Downloader\r\n\r\n\r\n## Description\r\n\r\nWe download things quickly.\r\n\r\n## Installation\r\n\r\nComing soon! Once quick downloader is ready for use, installable binaries will be released.\r\n\r\n### Development Installation\r\n\r\nTo install and run the source code, just clone the repository, install the packages, and run electron.\r\n\r\n    git clone https://github.com/jbis9051/quick_download.git\r\n    cd quick_download\r\n    npm install\r\n    npm run electron\r\n\r\n## Usage\r\n\r\n1. Open the application\r\n2. Go to preferences and adjust the amount of parts. Default is 10. Try different number of parts and try to find a *sweet spot* for your connection and download. It will vary on each download. We currently have no way to calculate the best number of the parts, but we are working on that.\r\n3. Click the \"+\" button\r\n4. Enter a name, location, and URL and click the checkmark to add the download to the queue.\r\n\r\n**Note:** Not all downloads will work with Quick Downloader. The server of the download must support byte requests and send `content-length` headers.\r\n\r\n## How it works\r\n\r\nUsing HTTP Byte Requests, Quick Downloader splits the download up into parts and downloads all parts simultaneously.  This allows you to take advantage of a couple different things:\r\n\r\n- CDN's (Different servers can handle different parts)\r\n- Connection isn't throttled by server (usually)\r\n\r\nFor example, if your are attempting to download a 1000Mb (1Gb) file and your download speed is 50Mbps, however the server throttles the download speed so you only get 10Mbps, a traditional download (the process used by Chrome, Safari, or most downloaders) is going to take 100 seconds (1000Mb/10Mbps = 100s).  Quick Downloader however, will split the file up into to, lets say, 5 parts.  Each part will be throttled download to 10Mbps, but since all 5 are simultaneously, your true download speed will be 50Mbps (10Mbps * 5 parts = 50Mbps).  At this speed, the download will only take 20 seconds (100Mb/50Mbps = 20s), reducing the download by 80%.  \r\n\r\n## Proven Results\r\n\r\nWe conducted thorough<sup>\\*</sup> testing and here are some of the results we have gotten<sup>\\*\\*</sup>:\r\n\r\n----\r\n\r\n**Test 1**\r\n\r\nFile Size: ~1.5GB\r\n\r\nStandard Download (Safari): ~ 13 Hours (Estimated)\r\nQuick Downloader: 10 min\r\n\r\n**Test 2**\r\n\r\nFile Size: ~7.67GB\r\n\r\nStandard Download (Chrome): ~ 12 Hours (Estimated)\r\nQuick Downloader: 4 Hours\r\n\r\n----\r\n\r\n<sup>\\*</sup> Our definition of thorough is very loose... \r\n\r\n<sup>\\*\\*</sup>We make no guarantees that the above data is 100% accurate and that you will get the same results.\r\n\r\n## TODO\r\n\r\nPlease Check `Projects` tab on GitHub for upcoming features.\r\n\r\n## Contributing\r\n\r\nContributions are gladly accepted and encouraged! Please submit pull requests and issues as needed. It is usually best to open an issue first to discuss your idea before you submit a PR. Also, look at the closed issues to make sure your issue has not been reported yet.\r\n\r\n## Legal Notices\r\n\r\n[**Apache License**](https://github.com/jbis9051/quick_download/blob/master/LICENSE)\r\n\r\n### tl;dr\r\n\r\nYou can do what ever you want with this. Just please give credit to the creators:\r\n\r\n- Josh Brown - @jbis9051 - https://joshbrown.info\r\n- Jake Schneider - @J-Cake - https://www.jacob-schneider.ga\r\n"
+      readmeFilename: "README.md"
+      gitHead: "0e4eed8b8353f553f03bb12380fea1c6962ce750"
+      _id: "quick_downloader@1.0.0"
+    prefix: "C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download"
+  3 warn pnpm: 
+    message: "Moving electron that was installed by a different package manager to \"node_modules/.ignored"
+    prefix: "C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download"
+  4 error pnpm: 
+    message: 
+      errno: -4048
+      code: "EPERM"
+      syscall: "rename"
+      path: "C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download\\node_modules\\electron"
+      dest: "C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download\\node_modules\\.ignored\\electron"
+    err: 
+      name: "Error"
+      message: "EPERM: operation not permitted, rename 'C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download\\node_modules\\electron' -> 'C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download\\node_modules\\.ignored\\electron'"
+      code: "EPERM"
+      stack: "Error: EPERM: operation not permitted, rename 'C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download\\node_modules\\electron' -> 'C:\\Users\\Jacob Schneider\\Code\\GIT\\quick_download\\node_modules\\.ignored\\electron'"
