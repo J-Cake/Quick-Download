@@ -39,8 +39,12 @@ a:hover {
     /* height: 100%; */
     flex: 1;
 }
-.menu_buttons {
+.menu_buttons_container {
     background: #202225;
+    padding-bottom: 3px;
+}
+.menu_buttons_wrapper {
+    margin-left: 3px;
 }
 
 .icon_button {
