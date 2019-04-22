@@ -8,6 +8,8 @@ export default class DownloadCarrier {
 		this.name = name;
 		this.customHeaders = JSON.parse(headers);
 
+		this.headersExpanded = false;
+
 		this.status = 3;
 
 		this.done = false;
@@ -18,7 +20,8 @@ export default class DownloadCarrier {
 
 		this.functions = {
 			cancel: this.cancel,
-			remove: this.remove
+			remove: this.remove,
+			toggleHeaders: () => this.toggleHeaders()
 		};
 
 		if (window.localStorage.proxySettings === "auth") {
@@ -82,7 +85,8 @@ export default class DownloadCarrier {
 			parts: `${this.stats.chunks_done} / ${this.stats.total_chunks}`,
 			path: this.stats.path,
 			url: this.url,
-			headers: this.customHeaders
+			headers: this.customHeaders,
+			headersExpanded: this.headersExpanded
 		};
 
 		if (filter) {
@@ -97,6 +101,10 @@ export default class DownloadCarrier {
 			return returnProps;
 		}
 		return props;
+	}
+
+	toggleHeaders() {
+		this.headersExpanded = !this.headersExpanded;
 	}
 
 	update(info) {
