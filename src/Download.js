@@ -87,7 +87,6 @@ export default class Download extends events.EventEmitter {
             this.protocol = https;
             this.port = "443";
         }
-        this.elapsedTimeUpdater = setInterval(() => this.madeProgress(0, false), 700);
 
         return this;
     }
@@ -272,33 +271,31 @@ export default class Download extends events.EventEmitter {
         return this;
     }
 
-    async madeProgress(amount, done) {
-        if (this.full_fail) {
-            return;
-        }
-        if (done)
-            clearInterval(this.elapsedTimeUpdater);
+	async madeProgress(amount, done) {
+		if (this.full_fail) {
+			return;
+		}
+		this.progress += amount;
 
-        this.progress += amount;
+		const now = Date.now();
+		const time = new Date(now - this.startTime);
+		if (Date.now() - this.last_update > 800 || done) {
+			this.last_update = Date.now();
 
-        const now = Date.now();
-        const time = new Date(now - this.startTime);
-        if (Date.now() - this.last_update > 800 || done) {
-            this.last_update = Date.now();
-            this.onUpdate({
-                eta: this.ETA,
-                percentage: ((this.progress / this.total_length) * 100) || 0,
-                speed: this.speed,
-                average_percentage: this.average_percentage,
-                size: this.total_length,
-                chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
-                total_chunks: this.num_of_parts_to_create,
-                done: done || false,
-                path: this.final_file,
-                elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
-            });
-        }
-    }
+			this.onUpdate({
+				percentage: ((this.progress / this.total_length) * 100) || 0,
+				progress: this.progress,
+				speed: this.speed,
+				size: this.total_length,
+				chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
+				total_chunks: this.num_of_parts_to_create,
+				done: done || false,
+				path: this.final_file,
+				eta: this.ETA,
+				elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
+			});
+		}
+	}
 
     get ETA() {
         /*  const elapsedTime = (Date.now() - this.startTime);
@@ -306,7 +303,7 @@ export default class Download extends events.EventEmitter {
           const remainingTime = (this.total_length / speed) - elapsedTime; */
         const elapsedTime = (Date.now() - this.last_speed_update_time);
         const speed = (this.progress - this.last_speed_progress) / elapsedTime;
-        console.log(speed);
+        // console.log(speed);
         const remainingTime = ((this.total_length - this.last_speed_progress) / speed) - elapsedTime;
         this.last_speed_update_time = Date.now();
         this.last_speed_progress = this.progress;
@@ -315,7 +312,7 @@ export default class Download extends events.EventEmitter {
             progress: this.progress
         });
 
-        this.speed = Math.floor(speed);
+		this.speed = Math.floor(speed);
 
         return new Date(Date.now() + remainingTime).toLocaleString();
     };
@@ -330,7 +327,7 @@ export default class Download extends events.EventEmitter {
         return new Promise((resolve, reject) => {
             const promises = [];
             for (let i = 0; i < this.parts.length; i++) {
-                promises.push(new Promise(async (resolve,reject) => {
+                promises.push(new Promise(async (resolve, reject) => {
                     await this.parts[i].download_bytes().catch(reject);
                     resolve();
                 }));
@@ -392,31 +389,39 @@ export default class Download extends events.EventEmitter {
 
     }
 
-    async beginDownload() {
-        // console.log("Beginning download sequence...");
-        try {
-            if (this.bytes_request_supported) {
-                // console.log("Creating parts...");
-                await this.createParts();
-                this.forceUpdate();
-                // console.log("Downloading parts...");
-                await this.download_all();
-                this.forceUpdate();
-                // console.log("Combining parts...");
-                await this.combineParts_move_to_final();
-                this.forceUpdate();
-                // console.log("Cleaning up parts...");
-                await this.cleanup();
-                await this.madeProgress(0, true);
-            }
-        } catch (e) {
-            this.onUpdate({
-                status: 1,
-                error: e,
-            });
-            await this.cleanup();
-            throw Error(e);
-        }
-    }
+	async * beginDownload() {
+		try {
+			if (this.bytes_request_supported) {
+
+				yield "CreateParts";
+				await this.createParts();
+				this.forceUpdate();
+
+				yield "BeginDownload";
+				this.elapsedTimeUpdater = setInterval(() => this.madeProgress(0, false), 700);
+				await this.download_all();
+				this.forceUpdate();
+
+				yield "CombineFile";
+				await this.combineParts_move_to_final();
+				this.forceUpdate();
+
+				yield "Cleanup";
+				await this.cleanup();
+				await this.madeProgress(0, true);
+
+                clearInterval(this.elapsedTimeUpdater);
+				yield "Complete";
+			}
+		} catch (e) {
+			this.onUpdate({
+				status: 1,
+				error: e,
+			});
+			await this.cleanup();
+			this.error(new Error(e));
+		}
+		this.emit("close", "hello world");
+	}
 
 }

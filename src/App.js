@@ -7,8 +7,8 @@ import './css/pastDownloads.css';
 import './css/standard_prompt.css';
 
 import Tool from './components/tool';
-import DownloadComp from './components/downloadComp';
-import DownloadDisplayComp from './components/downloadCompDisplay';
+// import DownloadComp from './components/downloadComp';
+// import DownloadDisplayComp from './components/downloadCompDisplay';
 import Checkbox from './components/checkbox';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
@@ -222,6 +222,8 @@ export default class App extends Component {
 
 		if (downloads[0])
 			downloads[0].startDownload();
+
+		this.forceUpdate();
 	}
 
     changeSelection(dir) {
@@ -792,8 +794,8 @@ export default class App extends Component {
                                         <h1>History</h1>
 
 										<div className={"flex"}>
-											<Tool left={true} tooltip={"Clear all history"} icon={"fas fa-ban"}
-												  onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}/>
+                                            {JSON.parse(window.localStorage.downloadHistory).length > 1 ? <Tool left={true} tooltip={"Clear all history"} icon={"fas fa-ban"}
+                                                                                                                onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}/> : null}
 											{/*<div className={"prompt_close_button"}>*/}
 											<Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
 												  onClick={e => this.setState({pastDownloadsVisible: false})}/>

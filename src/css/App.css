@@ -272,6 +272,7 @@ b {
     margin-top: 5px;
     position: relative;
     height: 12px;
+    overflow: hidden;
     /*padding: 10px;*/
 }
 
@@ -280,6 +281,7 @@ b {
     border: none;
     background: #b4c9e0;
     /*box-shadow: 1px 0 3px 0 #8d9daf;*/
+    overflow: hidden;
     position: relative;
     display: block;
     height: 100%;
@@ -445,6 +447,7 @@ textarea {
     line-height: 2em;
     text-align: center;
     min-width: 5em;
+    overflow: hidden;
 }
 
 .tool .tool-tip {
