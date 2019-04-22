@@ -89,21 +89,7 @@
     color: white;
     background: #66727f;
 }
-.standard_button {
-    display: block;
-    padding: 10px;
-    border: none;
-    background: #4f5660;
-    cursor: pointer;
-    color: #eee;
-    border-radius: 0.25rem;
-    margin: 10px 0;
-    user-select: none;
-    font-size: 11pt;
-}
-.standard_button:hover {
-    background: #66727f;
-}
+
 .standard_path_input {
     display: block;
     padding: 10px;
@@ -185,8 +171,7 @@ input[type="number"]::-webkit-inner-spin-button {
     background: #3c434b;
     color: #b4c9e0;
 }
-/*
+
 .prompt_wrapper button:not(.tool) {
     background: rgba(100, 100, 100, 0.2);
 }
- */
