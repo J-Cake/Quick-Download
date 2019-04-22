@@ -1,6 +1,6 @@
 {
 	"name": "quick_downloader",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
 		"abort-controller": "^2.0.2",
@@ -20,8 +20,8 @@
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
 		"electron": "electron .",
-		"pack-osx": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=darwin --arch=x64 --overwrite --icon=./build/favicon.ico",
-		"pack-win": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=win32 --arch=x64 --overwrite --icon=./build/favicon.ico",
+		"pack-osx": "npm run build && electron-packager . --overwrite --platform=darwin --arch=x64  --icon=./src/res/logo_mac.icns  --prune=true --out=release-builds",
+		"pack-win": "npm run build && electron-packager --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico  --out=release-builds",
 		"run-build": "electron ./build"
 	},
 	"browserslist": [

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Tool from './tool';
-import Progress from "./progress";
+import DownloadComp from './downloadComp';
 
 const {shell} = window.require('electron');
 
@@ -15,30 +15,16 @@ const format = (property, value, noWrap, onClick) => <div className={"download-d
 const formatHeaders = obj => JSON.stringify(obj, null, 2);
 
 export default props => <div
-	className={"download" + (props.status === 1 ? " failed" : props.status === 2 ? " done" : (props.status === 3 ? " pending" : (props.status === 4 ? " awaiting" : "")))}>
+	className={"download" + (props.contents.status === 1 ? " failed" : props.contents.status === 2 ? " done" : (props.contents.status === 3 ? " pending" : ""))}>
 	<div className="header">
 		<div className={"flex"}>
-			<span className={"progress"}>{Math.floor(props.content.percentage)}%</span>
-			<h2>{(props.content.path || "").split('/').pop()}</h2>
+			<span className={"progress"}>{Math.floor(props.contents.progress)}%</span>
+			<h2>{props.contents.fileName}</h2>
 		</div>
 		<div className="tools">
-			{props.status === 2 ?
-				<Tool left={true} tooltip={"Show file in folder"} className="open-in-folder"
-					  onClick={() => open(props.content.path)}
+			{props.contents.status === 2 ?
+				<Tool className="open-in-folder" onClick={() => open(props.contents.path)}
 					  icon={"fas fa-folder"}/> : null}
-			{props.status === 1 ?
-				<Tool left={true} tooltip={"Retry failed download"} className="retry"
-					  onClick={() => console.log("restarting downloads isn't supported yet")}
-					  icon={"fas fa-redo-alt"}/> : null}
-			{/*<Tool tooltip={"Expand download details"} className="show-download-details" onClick={() => state.showDetails ^= 1}*/}
-			{/*	  icon={!props.content.details ? "fas fa-chevron-left" : "fas fa-chevron-down"}/>*/}
-			{props.status === 0 ?
-				<Tool left={true} tooltip={"Cancel download"} className="download-cancel-btn"
-					  onClick={props.functions.cancel()} icon={"fas fa-times"}/> :
-				<Tool left={true} tooltip={"Dismiss download"} className="download-trash-btn" onClick={() => {
-					props.functions.remove();
-				}} icon={"fas fa-trash"}/>
-			}
 		</div>
 	</div>
 	<div className="download-details">
@@ -52,8 +38,4 @@ export default props => <div
 		{format("Parts Done", props.content.parts)}
 		{format("Progress", `${props.content.progress} (${props.content.percentage}%)`)}
 	</div>
-
-	{props.status === 0 ?
-		<Progress className={props.status === 1 ? "failed" : props.status === 2 ? "done" : ""}
-				  value={props.content.percentage}/> : null}
 </div>

@@ -73,11 +73,12 @@ export default class DownloadComp extends React.Component {
     }
 
     async startDownload() {
+
         this.setState({status: 4});
 
         const start = async () => {
-            let proxyOptions = false;
-
+            let proxyOptions;
+            proxyOptions = false;
             this.download = new Download();
             if (window.localStorage.proxySettings === "auth") {
                 proxyOptions = {
@@ -114,7 +115,7 @@ export default class DownloadComp extends React.Component {
 
             });
             this.download.on('error', error => {
-                this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>);
+                this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>)
                 this.props.onComplete.bind(this);
             });
             let json;

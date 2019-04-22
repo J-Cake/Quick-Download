@@ -4,8 +4,7 @@
     <meta charset="utf-8"/>
 
     <style>
-        .message {
-            font-family: "Cutive Mono", sans-serif;
+        #render-error {
             text-align: center;
             position: fixed;
             top: 50%;
@@ -17,7 +16,6 @@
             color: #b4c9e0;
             padding: 5px 10px;
         }
-
         body {
             background: #24282c;
         }
@@ -43,7 +41,7 @@
 			const root = document.querySelector("#root");
 			const platform = require('os').platform();
 			if (root.innerHTML === "") {
-				root.innerHTML = `<div class="message" id="render-error">
+				root.innerHTML = `<div id="render-error">
                     <h1>A React Render error has occurred.</h1>
                     <button id="reload-indicator">Press ${platform === "darwin" ? "CMD" : "CTRL"}+R or click here to reload</button>
                 </div>`;
@@ -53,6 +51,7 @@
 		}, 2000);
          */
     </script>
+
 </head>
 <body>
 <div id="root"></div>
