@@ -2,6 +2,10 @@ import Download from './Download';
 import DownloadDisplayComp from './components/downloadCompDisplay';
 import React from "react";
 
+Date.prototype.print = function() {
+	return `${this.getUTCHours() || 0}h:${this.getUTCMinutes() || 0}m:${this.getUTCSeconds() || 0}s`;
+};
+
 export default class DownloadCarrier {
 	constructor(url, name, headers) {
 		this.url = url;
@@ -50,6 +54,7 @@ export default class DownloadCarrier {
 	}
 
 	async startDownload() {
+		this.runStage("Init");
 		this.download = new Download();
 
 		this.download.on('update', info => this.update(info));
@@ -76,17 +81,17 @@ export default class DownloadCarrier {
 
 	prettyProps(filter) {
 		const props = {
-			percentage: Number(parseFloat(this.stats.percentage).toFixed(7)),
-			progress: `${DownloadCarrier.calculateSize(this.stats.progress)} / ${DownloadCarrier.calculateSize(this.stats.size)}`,
-			size: DownloadCarrier.calculateSize(this.stats.size),
-			speed: `${DownloadCarrier.calculateSize(this.stats.speed)}/s`,
-			eta: this.stats.eta,
-			elapsedTime: this.stats.elapsedTime,
-			parts: `${this.stats.chunks_done} / ${this.stats.total_chunks}`,
-			path: this.stats.path,
-			url: this.url,
-			headers: this.customHeaders,
-			headersExpanded: this.headersExpanded
+			percentage: Number(parseFloat(this.stats.percentage || 0).toFixed(7)),
+			progress: `${DownloadCarrier.calculateSize(this.stats.progress) || 0} / ${DownloadCarrier.calculateSize(this.stats.size) || 0}`,
+			size: DownloadCarrier.calculateSize(this.stats.size) || 0,
+			speed: `${DownloadCarrier.calculateSize(this.stats.speed) || 0}/s`,
+			eta: `${new Date(this.stats.eta || Date.now()).toLocaleString()} (${new Date(this.stats.eta - Date.now()).print()})` || 0,
+			elapsedTime: this.stats.elapsedTime || 0,
+			parts: `${this.stats.chunks_done || 0} / ${this.stats.total_chunks || 0}`,
+			path: this.stats.path || "",
+			url: this.url || "",
+			headers: this.customHeaders || "",
+			headersExpanded: this.headersExpanded || false
 		};
 
 		if (filter) {

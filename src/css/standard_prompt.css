@@ -177,6 +177,11 @@ input[type="number"]::-webkit-inner-spin-button {
     outline: none;
 }
 
+.standard_radio:focus:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #334c79;
+}
+
 *::selection {
     background: #3c434b;
     color: #b4c9e0;

@@ -49,7 +49,10 @@ a:hover {
     text-overflow: ellipsis;
 }
 .nav_item {
-    padding: 0 30px 0 10px;
+    /*padding: 0 10px 0 10px;*/
+    padding: 0 10px;
+    text-align: center;
+    min-width: 50px;
 }
 .nav_dropdown {
     position: relative;

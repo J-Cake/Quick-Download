@@ -69,14 +69,14 @@ export default class Download extends events.EventEmitter {
         this.bytes_request_supported = true;
         if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)
             .catch(
-                this.error
+                err => this.error(err)
             )
         ) {
             this.bytes_request_supported = false;
             this.error("Byte Requests are not supported.");
             return this;
         }
-        this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(this.error);
+        this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(err => this.error(err));
         this.name = name;
         this.numOfParts = parts || 10;
         this.startTime = Date.now();
@@ -298,15 +298,12 @@ export default class Download extends events.EventEmitter {
 	}
 
     get ETA() {
-        /*  const elapsedTime = (Date.now() - this.startTime);
-          const speed = this.progress / elapsedTime;
-          const remainingTime = (this.total_length / speed) - elapsedTime; */
         const elapsedTime = (Date.now() - this.last_speed_update_time);
         const speed = (this.progress - this.last_speed_progress) / elapsedTime;
-        // console.log(speed);
         const remainingTime = ((this.total_length - this.last_speed_progress) / speed) - elapsedTime;
         this.last_speed_update_time = Date.now();
         this.last_speed_progress = this.progress;
+
         this.stats.push({
             time: elapsedTime,
             progress: this.progress
@@ -314,7 +311,13 @@ export default class Download extends events.EventEmitter {
 
 		this.speed = Math.floor(speed);
 
-        return new Date(Date.now() + remainingTime).toLocaleString();
+		const eta = Date.now() + remainingTime;
+
+		if (eta === Infinity)
+		    return 0;
+		else
+
+		    return eta;
     };
 
     async forceUpdate(done) {

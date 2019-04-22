@@ -27,6 +27,13 @@ Array.prototype.switch = function (condition, goto, fallback) {
         return typeof goto === "function" ? goto(this) : goto;
 };
 
+Array.prototype.flip = function (shouldFlip) {
+    if (shouldFlip)
+        return this.reverse();
+    else
+        return this;
+};
+
 const path = window.require('path');
 const os = window.require('os');
 
@@ -80,7 +87,9 @@ export default class App extends Component {
             latestDownloadProgress: 0,
             pastDownloadsVisible: false,
             customHeaders: "",
-            showActive: true
+            showActive: true,
+            filter: "name",
+            filterValue: "",
         };
 
         App.loadSettings();
@@ -119,9 +128,12 @@ export default class App extends Component {
             headers = this.state.customHeaders || "{}";
 
         const download = new DownloadCarrier(url, name, headers);
-        download.stage("CreateParts", function () {
+        download.stage("Init", function () {
             this.status = 4;
             parent.forceUpdate();
+        });
+        download.stage("CreateParts", function () {
+            console.log();
         });
         download.stage("BeginDownload", function () {
             this.status = 0;
@@ -209,22 +221,28 @@ export default class App extends Component {
     //     }
     // }
 
+    filter(downloads) {
+        const filter = downloads => this.state.filter ? downloads.filter(i => i[this.state.filter].toLowerCase().indexOf(this.state.filterValue.toLowerCase()) > -1) : downloads;
+        const sort = downloads => this.state.sortBy ? downloads.sort((a, b) => a[this.state.sortBy] > b[this.state.sortBy] ? 1 : (a[this.state.sortBy] < b[this.state.sortBy] ? -1 : 0)) : downloads;
+        return sort(filter(downloads)).flip(this.state.reversed);
+    }
+
     getActive() {
-        return this.state.downloads.filter(i => !i.done);
+        return this.filter(this.state.downloads.filter(i => !i.done));
     }
 
     getInactive() {
-        return this.state.downloads.filter(i => i.done);
+        return this.filter(this.state.downloads.filter(i => i.done));
     }
 
     next() {
         const downloads = this.getActive();
 
-		if (downloads[0])
-			downloads[0].startDownload();
+        if (downloads[0])
+            downloads[0].startDownload();
 
-		this.forceUpdate();
-	}
+        this.forceUpdate();
+    }
 
     changeSelection(dir) {
         if (this.state.focused) {
@@ -270,21 +288,21 @@ export default class App extends Component {
     // 	}
     // }
 
-    static getDownloads() {
+    getDownloads() {
         const downloads = JSON.parse(window.localStorage.downloadHistory || "[]");
         return downloads.map((i, a) => downloads.slice(0, a).findIndex(j => j.url === downloads[a].url && j.name === downloads[a].name && j.headers === downloads[a].headers) === -1 ? downloads[a] : null);
     }
 
-    static getDownloadNames() {
-        return App.getDownloads().map(i => i ? i.name || "" : i);
+    getDownloadNames() {
+        return this.getDownloads().map(i => i ? i.name || "" : i);
     }
 
-    static getDownloadUrls() {
-        return App.getDownloads().map(i => i ? i.url || "" : i);
+    getDownloadUrls() {
+        return this.getDownloads().map(i => i ? i.url || "" : i);
     }
 
-    static getDownloadHeaders() {
-        return App.getDownloads().map(i => i ? i.headers || "" : i);
+    getDownloadHeaders() {
+        return this.getDownloads().map(i => i ? i.headers || "" : i);
     }
 
     filterSuggestion(i) {
@@ -342,9 +360,9 @@ export default class App extends Component {
     }
 
     acceptSuggestion(number) {
-        const names = App.getDownloadNames(),
-            urls = App.getDownloadUrls(),
-            headers = App.getDownloadHeaders();
+        const names = this.getDownloadNames(),
+            urls = this.getDownloadUrls(),
+            headers = this.getDownloadHeaders();
 
         this.setState({
             downloadURL: urls[number],
@@ -427,29 +445,51 @@ export default class App extends Component {
         </div>}/>)
     }
 
-	render() {
-		return (
-			<div className="wrapper">
-				<WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showPrompt()}/>
-				<div className={"menu_buttons"}>
-					<Tool tooltip={"New download"} className="icon_button" shortcut="+" onClick={e => this.showPrompt()}
-						  icon={"fas fa-plus"}/>
-					<Tool tooltip={"Settings"} className="icon_button"
-						  shortcut="*"
-						  onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
-						  icon={"fas fa-cog"}/>
-					<Tool tooltip={"Show download history"}
-						  className="icon_button"
-						  onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
-						  icon={"fas fa-history"}/>
-				</div>
-				<div className="App">
-					<div className={"download-tabs"}>
+    render() {
+        return (
+            <div className="wrapper">
+                <WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showPrompt()}/>
+                <div className={"menu_buttons"}>
+                    <Tool tooltip={"New download"} className="icon_button" shortcut="+" onClick={e => this.showPrompt()}
+                          icon={"fas fa-plus"}/>
+                    <Tool tooltip={"Settings"} className="icon_button"
+                          shortcut="*"
+                          onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
+                          icon={"fas fa-cog"}/>
+                    <Tool tooltip={"Show download history"}
+                          className="icon_button"
+                          onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
+                          icon={"fas fa-history"}/>
+                </div>
+                <div className="App">
+                    <div className={"download-tabs"}>
 							<span onClick={() => this.setState({showActive: true})} className={"tab"}
                                   id={this.state.showActive ? "active" : ""}>Queue</span>
                         <span onClick={() => this.setState({showActive: false})} className={"tab"}
                               id={!this.state.showActive ? "active" : ""}>Complete</span>
                     </div>
+
+                    <div className={"downloads-display-options"}>
+                        <input value={this.state.filterValue}
+                               onChange={text => this.setState({filterValue: text.target.value})}
+                               className={"input_standard"} placeholder={"Filter downloads"}/>
+
+                        <Tool left={true} tooltip={"Search by"} icon={"fas fa-sliders-h"}
+                              menu={{
+                                  "Name": () => this.setState({filter: "name"}),
+                                  "URL": () => this.setState({filter: "url"})
+                              }}/>
+
+                        <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
+                              menu={{
+                                  "Name": () => this.setState({sortBy: "downloadName"}),
+                                  "spacer":() => void 1,
+                                  "Reset": () => this.setState({sortBy: null})
+                              }}/>
+
+                        <Tool onClick={() => this.setState(prev => ({reversed: !prev.reversed}))} left={true} tooltip={"Reverse List"} icon={!this.state.reversed ? "fas fa-chevron-down" : "fas fa-chevron-up"}/>
+                    </div>
+
                     <div className={"download-tabs-content"}>
                         <div className={"downloads active"} id={this.state.showActive ? "active" : ""}>
                             {this.getActive().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Press the + button to start a download")}
@@ -489,9 +529,9 @@ export default class App extends Component {
                                                id={"dl-name"}
                                                placeholder={"Download Name"}/>
                                         <div className={"suggestions"}>
-                                            {App.getDownloadNames().map((i, a, x) => i ? <div key={a}
-                                                                                              onClick={() => this.acceptSuggestion(a)}
-                                                                                              className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+                                            {this.getDownloadNames().map((i, a, x) => i ? <div key={a}
+                                                                                               onClick={() => this.acceptSuggestion(a)}
+                                                                                               className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
                                                 <span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
@@ -511,9 +551,9 @@ export default class App extends Component {
                                                id={"dl-url"}
                                                placeholder={"Download URL"}/>
                                         <div className={"suggestions"}>
-                                            {App.getDownloadUrls().map((i, a, x) => i ? <div key={a}
-                                                                                             onClick={() => this.acceptSuggestion(a)}
-                                                                                             className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+                                            {this.getDownloadUrls().map((i, a, x) => i ? <div key={a}
+                                                                                              onClick={() => this.acceptSuggestion(a)}
+                                                                                              className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
                                                 <span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
@@ -536,9 +576,9 @@ export default class App extends Component {
                                                   placeholder={'Download Headers (JSON)'} // {"Cookie","token=quickdownloader"}
                                         />
                                         <div className={"suggestions"}>
-                                            {App.getDownloadHeaders().map((i, a, x) => i ? <div key={a}
-                                                                                                onClick={() => this.acceptSuggestion(a)}
-                                                                                                className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+                                            {this.getDownloadHeaders().map((i, a, x) => i ? <div key={a}
+                                                                                                 onClick={() => this.acceptSuggestion(a)}
+                                                                                                 className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
                                                 <span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
@@ -547,8 +587,10 @@ export default class App extends Component {
                                         <Tool left={true} tooltip={"Begin download"} className={"confirm-btn"}
                                               icon={"fas fa-check"}
                                               onClick={() => {
-                                                  this.addToDownloadHistory();
-                                                  this.initDownload()
+                                                  if (this.state.downloadName && this.state.downloadURL) {
+                                                      this.addToDownloadHistory();
+                                                      this.initDownload();
+                                                  }
                                               }}/>
                                     </div>
                                 </div>
@@ -793,47 +835,49 @@ export default class App extends Component {
                                     <header className={"prompt_header"}>
                                         <h1>History</h1>
 
-										<div className={"flex"}>
-                                            {JSON.parse(window.localStorage.downloadHistory).length > 1 ? <Tool left={true} tooltip={"Clear all history"} icon={"fas fa-ban"}
-                                                                                                                onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}/> : null}
-											{/*<div className={"prompt_close_button"}>*/}
-											<Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
-												  onClick={e => this.setState({pastDownloadsVisible: false})}/>
-											{/*</div>*/}
-										</div>
-									</header>
-									<div className={"prompt_content"}>
-										{JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) =>
-											<div
-												key={a}
-												className={"past-download"}>
-												<div className={"download-details"}>
-													<div className={"download-name"}>{i.name}:</div>
-													<div className={"download-url"}>{i.url}</div>
-												</div>
+                                        <div className={"flex"}>
+                                            {JSON.parse(window.localStorage.downloadHistory).length > 1 ?
+                                                <Tool left={true} tooltip={"Clear all history"} icon={"fas fa-ban"}
+                                                      onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}/> : null}
+                                            {/*<div className={"prompt_close_button"}>*/}
+                                            <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
+                                                  onClick={e => this.setState({pastDownloadsVisible: false})}/>
+                                            {/*</div>*/}
+                                        </div>
+                                    </header>
+                                    <div className={"prompt_content"}>
+                                        {JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) =>
+                                            <div
+                                                key={a}
+                                                className={"past-download"}>
+                                                <div className={"download-details"}>
+                                                    <div className={"download-name"}>{i.name}:</div>
+                                                    <div className={"download-url"}>{i.url}</div>
+                                                </div>
 
-												<div className={"delete"}>
-													<Tool left={true} tooltip={"Remove item from history"} icon={"fas fa-trash"}
-														  onClick={() => {
-															  const history = JSON.parse(window.localStorage.downloadHistory);
-															  history.splice(a, 1);
+                                                <div className={"delete"}>
+                                                    <Tool left={true} tooltip={"Remove item from history"}
+                                                          icon={"fas fa-trash"}
+                                                          onClick={() => {
+                                                              const history = JSON.parse(window.localStorage.downloadHistory);
+                                                              history.splice(a, 1);
 
-															  window.localStorage.downloadHistory = JSON.stringify(history);
-															  this.forceUpdate();
-														  }}/>
-												</div>
-											</div>)}
-									</div>
-									{/*{ Object.keys(JSON.parse(window.localStorage.getItem('downloadHistory'))).length > 0 ?*/}
-									{/*    <button className={"standard_button"}*/}
-									{/*            onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}>Clear All</button>*/}
-									{/*    : null*/}
-									{/*}*/}
-								</div>
-							</div>
-						</div>
-						: null}
-				</div>
+                                                              window.localStorage.downloadHistory = JSON.stringify(history);
+                                                              this.forceUpdate();
+                                                          }}/>
+                                                </div>
+                                            </div>)}
+                                    </div>
+                                    {/*{ Object.keys(JSON.parse(window.localStorage.getItem('downloadHistory'))).length > 0 ?*/}
+                                    {/*    <button className={"standard_button"}*/}
+                                    {/*            onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}>Clear All</button>*/}
+                                    {/*    : null*/}
+                                    {/*}*/}
+                                </div>
+                            </div>
+                        </div>
+                        : null}
+                </div>
 
                 <div className={"box-display-area"}>
                     {this.state.boxes}

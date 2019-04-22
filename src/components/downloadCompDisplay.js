@@ -1,7 +1,6 @@
 import React from 'react';
-
-import Tool from './tool';
 import Progress from "./progress";
+import Tool from "./tool";
 
 const {shell} = window.require('electron');
 
@@ -14,17 +13,34 @@ const format = (property, value, noWrap, onClick) => <div className={"download-d
 
 const formatHeaders = obj => JSON.stringify(obj, null, 2);
 
+const statusName = status => ["active", "failed", "done", "pending", "awaiting"][status];
+
+const getTools = props => {
+    switch (props.status) {
+        case 0:
+        case 3:
+        case 4:
+        default:
+            return [<Tool key={"option1"} left={true} tooltip={"Cancel Download"} icon={"fas fa-times"} onClick={props.functions.cancel}/>];
+        case 1:
+            return [<Tool key={"option1"} left={true} tooltip={"Retry Download"} icon={"fas fa-redo"} onClick={props.functions.retry}/>,
+                    <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"} onClick={props.functions.cancel}/>];
+        case 2:
+            return [<Tool key={"option1"} left={true} tooltip={"Show Download in folder"} icon={"fas fa-folder"} onClick={() => open(props.content.path)}/>,
+                    <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"} onClick={props.functions.cancel}/>];
+    }
+};
+
 export default props => <div
-    className={"download" + (props.status === 1 ? " failed" : props.status === 2 ? " done" : (props.status === 3 ? " pending" : ""))}>
+    className={`download ${statusName(props.status)}`}>
     <div className="header">
         <div className={"flex"}>
-            <span className={"progress"}>{Math.floor(props.content.percentage)}%</span>
-            <h2>{props.content.path}</h2>
+            <span className={"progress"}>{Math.floor(props.content.percentage) || 0}%</span>
+            <h2>{props.content.path.split('/').pop()}</h2>
         </div>
-        <div className="tools">
-            {props.status === 2 ?
-                <Tool className="open-in-folder" onClick={() => open(props.content.path)}
-                      icon={"fas fa-folder"}/> : null}
+
+        <div className="flex">
+            {getTools(props)}
         </div>
     </div>
     <div className="download-details">
@@ -39,7 +55,7 @@ export default props => <div
         {format("Progress", `${props.content.progress} (${props.content.percentage}%)`)}
     </div>
 
-	{props.status === 0 ?
-		<Progress className={props.status === 1 ? "failed" : props.status === 2 ? "done" : ""}
-				  value={props.content.percentage}/> : null}
+    {props.status === 0 ?
+        <Progress className={props.status === 1 ? "failed" : props.status === 2 ? "done" : ""}
+                  value={props.content.percentage}/> : null}
 </div>
