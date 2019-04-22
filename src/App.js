@@ -107,8 +107,8 @@ export default class App extends Component {
 
             const onStatusChange = async function (status) {
                 if (status === 2 || status === 3) {
-					that.forceUpdate();
-					// this.props.remove.bind(this)();
+                    that.forceUpdate();
+                    // this.props.remove.bind(this)();
                 }
             };
 
@@ -117,66 +117,66 @@ export default class App extends Component {
                     return array.findIndex(i => i.key === download.key);
                 }
 
-				const index = getIndex(that.state.activeDownloads);
+                const index = getIndex(that.state.activeDownloads);
 
-				that.state.activeDownloads.splice(index, 1);
+                that.state.activeDownloads.splice(index, 1);
 
-				console.log(that.state.activeDownloads.slice(index, 1));
+                console.log(that.state.activeDownloads.slice(index, 1));
 
                 that.forceUpdate();
             };
 
-			const url = this.state.downloadURL,
-				name = this.state.downloadName,
-				headers = this.state.customHeaders;
+            const url = this.state.downloadURL,
+                name = this.state.downloadName,
+                headers = this.state.customHeaders;
 
             const download = <DownloadComp
-				url={url}
-				name={name}
-				customHeaders={headers}
+                url={url}
+                name={name}
+                customHeaders={headers}
 
-				onComplete={function(err) {
-					if (!err)
-						this.props.remove.bind(this)();
-					that.next(this)
-				}}
+                onComplete={function (err) {
+                    if (!err)
+                        this.props.remove.bind(this)();
+                    that.next(this)
+                }}
                 onStatusChange={onStatusChange}
                 alert={box => this.alert(box)}
                 id={this.state.activeDownloads.length + 1}
                 remove={remove}
                 updateTaskBarProgress={(index, progress) => this.updateTaskBarValue(index, progress)}
-				key={`download${this.state.downloadNums}`}
-				ref={this.me}/>;
+                key={`download${this.state.downloadNums}`}
+                ref={this.me}/>;
 
             await this.setState(prev => ({
                 activeDownloads: [...prev.activeDownloads, download],
                 downloadNums: prev.downloadNums + 1
             }));
 
-			await App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
+            await App.addToDownloadHistory(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
             this.closePrompt();
 
-			console.log("Refs", this.state.activeDownloads.map(i => i.ref.current));
+            console.log("Refs", this.state.activeDownloads.map(i => i.ref.current));
 
-			if (this.state.activeDownloads.length === 1) {
-				// this.state.activeDownloads[0].ref.current.startDownload();
+            if (this.state.activeDownloads.length === 1) {
+                // this.state.activeDownloads[0].ref.current.startDownload();
                 this.next();
-			}
+            }
 
         } else {
             this.setState({requiredField: true});
         }
     }
 
-	next(download) {
-		if (download) {
-			console.log("Refs", download.startDownload);
-			this.setState(prev => ({
-				inactiveDownloads: [...(prev.inactiveDownloads || []),
-					<DownloadDisplayComp key={`downloadDisplay${this.state.downloadNums}`}
-										 contents={{...download.state}}/>]
-			}));
-		}
+    next(download) {
+        if (download) {
+            console.log("Refs", download.startDownload);
+            this.setState(prev => ({
+                inactiveDownloads: [...(prev.inactiveDownloads || []),
+                    <DownloadDisplayComp key={`downloadDisplay${this.state.downloadNums}`}
+                                         contents={{...download.state}}/>]
+            }));
+        }
         if (this.state.activeDownloads[0])
             this.state.activeDownloads[0].ref.current.startDownload();
     }
@@ -185,26 +185,26 @@ export default class App extends Component {
         if (this.state.focused) {
             if (this.state.focused.classList.contains('dl-name'))
                 this.setState(prev => {
-					const maxSelection = App.getDownloadNames().filter(i => !!i).length;
-					return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
-				});
-			else if (this.state.focused.classList.contains('dl-url'))
-				this.setState(prev => {
-					const maxSelection = App.getDownloadUrls().filter(i => !!i).length;
+                    const maxSelection = App.getDownloadNames().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
-			else if (this.state.focused.classList.contains('dl-headers'))
+            else if (this.state.focused.classList.contains('dl-url'))
                 this.setState(prev => {
-					const maxSelection = App.getDownloadHeaders().filter(i => !!i).length;
+                    const maxSelection = App.getDownloadUrls().filter(i => !!i).length;
+                    return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
+                });
+            else if (this.state.focused.classList.contains('dl-headers'))
+                this.setState(prev => {
+                    const maxSelection = App.getDownloadHeaders().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
 
-			console.log(this.state.currentSelection);
+            console.log(this.state.currentSelection);
         }
     }
 
-	static async addToDownloadHistory(url, name, headers) {
-		const _downloadHistory = JSON.parse(window.localStorage.downloadHistory || "[]");
+    static async addToDownloadHistory(url, name, headers) {
+        const _downloadHistory = JSON.parse(window.localStorage.downloadHistory || "[]");
         _downloadHistory.unshift({url, name, headers});
 
         window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
@@ -225,21 +225,21 @@ export default class App extends Component {
         }
     }
 
-	static getDownloads() {
-		const downloads = JSON.parse(window.localStorage.downloadHistory || "[]");
-		return downloads.map((i, a) => downloads.slice(0, a).findIndex(j => j.url === downloads[a].url && j.name === downloads[a].name && j.headers === downloads[a].headers) === -1 ? downloads[a] : null);
-	}
-
-	static getDownloadNames() {
-		return App.getDownloads().map(i => i ? i.name || "" : i);
+    static getDownloads() {
+        const downloads = JSON.parse(window.localStorage.downloadHistory || "[]");
+        return downloads.map((i, a) => downloads.slice(0, a).findIndex(j => j.url === downloads[a].url && j.name === downloads[a].name && j.headers === downloads[a].headers) === -1 ? downloads[a] : null);
     }
 
-	static getDownloadUrls() {
-		return App.getDownloads().map(i => i ? i.url || "" : i);
+    static getDownloadNames() {
+        return App.getDownloads().map(i => i ? i.name || "" : i);
     }
 
-	static getDownloadHeaders() {
-		return App.getDownloads().map(i => i ? i.headers || "" : i);
+    static getDownloadUrls() {
+        return App.getDownloads().map(i => i ? i.url || "" : i);
+    }
+
+    static getDownloadHeaders() {
+        return App.getDownloads().map(i => i ? i.headers || "" : i);
     }
 
     filterSuggestion(i) {
@@ -297,9 +297,9 @@ export default class App extends Component {
     }
 
     acceptSuggestion(number) {
-		const names = App.getDownloadNames(),
-			urls = App.getDownloadUrls(),
-			headers = App.getDownloadHeaders();
+        const names = App.getDownloadNames(),
+            urls = App.getDownloadUrls(),
+            headers = App.getDownloadHeaders();
 
         this.setState({
             downloadURL: urls[number],
@@ -386,16 +386,19 @@ export default class App extends Component {
         return (
             <div className="wrapper">
                 <WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showPrompt()}/>
-                <div className={"menu_buttons"}>
-                    <Tool className="icon_button" shortcut="+" onClick={e => this.showPrompt()} icon={"fas fa-plus"}/>
-                    <Tool className="icon_button"
-                          shortcut="*"
-                          onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
-                          icon={"fas fa-cog"}/>
-                    <Tool
-                        className="icon_button"
-                        onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
-                        icon={"fas fa-clock"}/>
+                <div className={"menu_buttons_container"}>
+                    <div className={"menu_buttons_wrapper"}>
+                        <Tool className="icon_button" shortcut="+" onClick={e => this.showPrompt()}
+                              icon={"fas fa-plus"}/>
+                        <Tool className="icon_button"
+                              shortcut="*"
+                              onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
+                              icon={"fas fa-cog"}/>
+                        <Tool
+                            className="icon_button"
+                            onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
+                            icon={"fas fa-clock"}/>
+                    </div>
                 </div>
                 <div className="App">
                     <div className={"download-tabs"}>
@@ -432,7 +435,7 @@ export default class App extends Component {
                                         <input autoFocus={true}
                                                onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
-											   value={this.state.downloadName || ""}
+                                               value={this.state.downloadName || ""}
                                                onChange={e => void ((() => {
                                                    if (this.state.stopSave)
                                                        this.setState({
@@ -443,10 +446,10 @@ export default class App extends Component {
                                                id={"dl-name"}
                                                placeholder={"Download Name"}/>
                                         <div className={"suggestions"}>
-											{App.getDownloadNames().map((i, a, x) => i ? <div key={a}
-                                                                                        onClick={() => this.acceptSuggestion(a)}
-																						   className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
-												<span>{i}</span><br/></div> : null)}
+                                            {App.getDownloadNames().map((i, a, x) => i ? <div key={a}
+                                                                                              onClick={() => this.acceptSuggestion(a)}
+                                                                                              className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+                                                <span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
 
@@ -454,21 +457,21 @@ export default class App extends Component {
                                         <label htmlFor={"dl-url"}>The location of the file to download</label>
                                         <input onFocus={field => this.setState({focused: field.target})}
                                                onBlur={() => this.setState({focused: null})}
-											   value={this.state.downloadURL || ""}
+                                               value={this.state.downloadURL || ""}
                                                onChange={e => void ((() => {
                                                    if (this.state.stopSave)
                                                        this.setState({
                                                            stopSave: false
                                                        });
                                                })()) || this.setState({downloadURL: e.target.value})}
-											   className={"input_standard dl-url mousetrap url"}
+                                               className={"input_standard dl-url mousetrap url"}
                                                id={"dl-url"}
                                                placeholder={"Download URL"}/>
                                         <div className={"suggestions"}>
-											{App.getDownloadUrls().map((i, a, x) => i ? <div key={a}
-                                                                                       onClick={() => this.acceptSuggestion(a)}
-																						  className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
-												<span>{i}</span><br/></div> : null)}
+                                            {App.getDownloadUrls().map((i, a, x) => i ? <div key={a}
+                                                                                             onClick={() => this.acceptSuggestion(a)}
+                                                                                             className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+                                                <span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
                                     <div className={"formItem"}>
@@ -485,15 +488,15 @@ export default class App extends Component {
                                                   })()) || this.setState({customHeaders: e.target.value})
                                                   }
 
-												  className={"input_standard dl-headers standard_code mousetrap url"}
+                                                  className={"input_standard dl-headers standard_code mousetrap url"}
                                                   id={"dl-headers"}
                                                   placeholder={'{"Cookie","token=quickdownloader"}'}
                                         />
                                         <div className={"suggestions"}>
-											{App.getDownloadHeaders().map((i, a, x) => i ? <div key={a}
-                                                                                          onClick={() => this.acceptSuggestion(a)}
-																							 className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
-												<span>{i}</span><br/></div> : null)}
+                                            {App.getDownloadHeaders().map((i, a, x) => i ? <div key={a}
+                                                                                                onClick={() => this.acceptSuggestion(a)}
+                                                                                                className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
+                                                <span>{i}</span><br/></div> : null)}
                                         </div>
                                     </div>
 
@@ -575,11 +578,11 @@ export default class App extends Component {
                                         />
                                         {/* //TODO: Add reference to docs explaining how to find the optimum part number */}
 
-										{/*{platform === "win32" ? <div><br/><Checkbox*/}
-										{/*	checked={window.localStorage.getItem('autoHideMenuBar') === true}*/}
-										{/*	text={`Auto-hide the menu bar (reveal by pressing Alt`}*/}
-										{/*	onChange={value => void window.localStorage.setItem('autoHideMenuBar', value) || this.forceUpdate()}/>*/}
-										{/*</div> : null}*/}
+                                        {/*{platform === "win32" ? <div><br/><Checkbox*/}
+                                        {/*	checked={window.localStorage.getItem('autoHideMenuBar') === true}*/}
+                                        {/*	text={`Auto-hide the menu bar (reveal by pressing Alt`}*/}
+                                        {/*	onChange={value => void window.localStorage.setItem('autoHideMenuBar', value) || this.forceUpdate()}/>*/}
+                                        {/*</div> : null}*/}
 
                                         <br/>
                                         <br/>
@@ -743,33 +746,38 @@ export default class App extends Component {
                                     <header className={"prompt_header"}>
                                         <h1>History</h1>
 
-										<div className={"right"}>
-											<Tool icon={"fas fa-times-circle"}
-												  onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()} />
-                                        <div className={"prompt_close_button"}>
-                                            <Tool icon={"fas fa-times"}
-                                                  onClick={e => this.setState({pastDownloadsVisible: false})}/>
-											</div>
+                                        <div className={"right"}>
+                                            <div className={"prompt_close_button"}>
+                                                <Tool icon={"fas fa-times"}
+                                                      onClick={e => this.setState({pastDownloadsVisible: false})}/>
+                                            </div>
                                         </div>
                                     </header>
                                     {
-                                        JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) => <div
-                                            key={a} className={"past-download"}>
-                                            <div className={"download-details"}>
-                                                <div className={"download-name"}>{i.name}:</div>
-                                                <div className={"download-url"}>{i.url}</div>
-                                            </div>
+                                        JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) =>
+                                            <div
+                                                key={a}
+                                                className={"past-download"}>
+                                                <div className={"download-details"}>
+                                                    <div className={"download-name"}>{i.name}:</div>
+                                                    <div className={"download-url"}>{i.url}</div>
+                                                </div>
 
-                                            <div className={"delete"}>
-                                                <Tool icon={"fas fa-trash"} onClick={() => {
-                                                    const history = JSON.parse(window.localStorage.downloadHistory);
-                                                    history.splice(a, 1);
+                                                <div className={"delete"}>
+                                                    <Tool icon={"fas fa-trash"} onClick={() => {
+                                                        const history = JSON.parse(window.localStorage.downloadHistory);
+                                                        history.splice(a, 1);
 
-                                                    window.localStorage.downloadHistory = JSON.stringify(history);
-                                                    this.forceUpdate();
-                                                }}/>
-                                            </div>
-                                        </div>)
+                                                        window.localStorage.downloadHistory = JSON.stringify(history);
+                                                        this.forceUpdate();
+                                                    }}/>
+                                                </div>
+                                            </div>)
+                                    }
+                                    { Object.keys(JSON.parse(window.localStorage.getItem('downloadHistory'))).length > 0 ?
+                                        <button className={"standard_button"}
+                                                onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}>Clear All</button>
+                                        : null
                                     }
                                 </div>
                             </div>
