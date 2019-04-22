@@ -57,7 +57,7 @@
 .prompt_header * {
     margin: 0;
     position: relative;
-    display: block;
+    /*display: block;*/
 }
 
 .prompt_header {
