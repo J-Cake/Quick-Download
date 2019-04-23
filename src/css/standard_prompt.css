@@ -57,7 +57,7 @@
 .prompt_header * {
     margin: 0;
     position: relative;
-    display: block;
+    /*display: block;*/
 }
 
 .prompt_header {
@@ -175,6 +175,11 @@ input[type="number"]::-webkit-inner-spin-button {
 .input_standard:focus, button:focus, textarea:focus, .inline_input:focus, .input_standard:focus  {
     background: #334c79 !important;
     outline: none;
+}
+
+.standard_radio:focus:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #334c79;
 }
 
 *::selection {

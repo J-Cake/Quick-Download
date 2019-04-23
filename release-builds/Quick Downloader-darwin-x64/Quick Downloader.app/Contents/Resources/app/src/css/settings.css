@@ -1,0 +1,101 @@
+.settings_header {
+    padding: 0;
+    border-bottom: 1px solid #4f5660;
+    margin: 0 0 30px;
+    background: transparent;
+}
+.checkbox,.setting {
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+.close_button {
+    position: absolute;
+    top: 0;
+    right:0;
+    margin: 10px;
+}
+.checkbox .indicator {
+    display: block;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: 2px solid #b4c9e0;
+    border-radius: 4px;
+    transition: 0.125s;
+}
+
+.checkbox .indicator.checked {
+    background: #b4c9e0;
+}
+
+.settings header {
+    box-shadow: none;
+    height: auto !important;
+}
+
+label {
+    font-size: 9pt;
+}
+
+.setting {
+    margin: 12px 0;
+}
+.reset_button {
+    text-align: center;
+    border: none;
+    background: rgba(102, 112, 123, 0.55);
+}
+.reset_button:hover {
+    color: white;
+    background: rgba(102, 112, 123, 1);
+}
+
+label.saveLocation {
+    display: block;
+    padding: 9px;
+    /* border: 2px solid #4f5660; */
+    box-sizing: border-box;
+    color: #eee;
+    border-radius: 0.25rem;
+    font-size: 11pt;
+    margin: 10px 0;
+    user-select: text;
+    /*position: absolute;*/
+    cursor: pointer;
+    font-family: monospace;
+    box-shadow: rgba(0.1,0.1,0.1,0.2) 0 5px 30px;
+    background: rgba(36, 40, 44, 0.9);
+}
+
+/*input[type="file"]:focus ~ label.saveLocation, label.saveLocation:focus, input[type="file"]:active ~ label.saveLocation, label.saveLocation:active {*/
+    /*border-color: #b4c9e0;*/
+/*}*/
+/*
+input[type="file"] + label {
+    border: none;
+    background: transparent;
+    color: #b4c9e0;
+}
+
+input[type="radio"] {
+    -webkit-appearance: none;
+    border-radius: 30px;
+    width: 10px !important;
+    height: 10px;
+    transition: 0.125s;
+
+}
+input[type="radio"]:checked {
+    background: #b4c9e0;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    display: none !important;
+}*/
+.right_aligned, .checkbox .indicator {
+    position: absolute;
+    right: 0;
+}

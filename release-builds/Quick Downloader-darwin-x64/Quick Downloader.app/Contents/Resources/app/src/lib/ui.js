@@ -58,7 +58,7 @@ class UIbox {
 		let templateHTML;
 		switch (template.type) {
 			case 'box':
-				templateHTML = `<br/><div class='uibox box wrapper' autofocus id='box${Math.floor(document.querySelector(".uibox.display_area").children.length / 2) + 1}'><span class='uibox box header'>${this.name}</span><div class='uibox box content'>`;
+				templateHTML = `<br/><div class='uibox box wrapper' autofocus id='box${Math.floor(document.querySelector(".uibox.display_area").children.length / 2) + 1}'><span class='uibox box header'>${this.name}</span><div class='uibox box content'>`
 				templateHTML += template.content + `</div><div class="uibox box buttons">`;
 				template.buttons.forEach((button, index) => {
 					templateHTML += `<button class='uibox button', id='btn${this.drawArea.querySelectorAll('.buttons button').length + index + 1}'>${button.text}</button>`;

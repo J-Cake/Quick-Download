@@ -55,7 +55,7 @@ a:hover {
 .downloads {
     display: block;
     overflow: auto;
-    padding: 10px;
+    padding: 0 10px 10px;
     height: 100%;
     box-sizing: border-box;
 }
@@ -70,9 +70,11 @@ a:hover {
     min-height: 35px;
     background: transparent;
     cursor: pointer;
+    text-align: center;
+    position: relative; /*To allow the menu to align itself relative to something*/
 
+    line-height: 34px;
 }
-
 
 .tool i {
     transition: 100ms ease;
@@ -156,12 +158,12 @@ a:hover {
     padding: 10px;
     /*box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);*/
     border-radius: 10px;
-    background: rgba(36, 40, 44, 0.9);
+    /*background: rgba(36, 40, 44, 0.9);*/
     font-weight: 300;
     position: relative;
     transition: 0.45s ease;
-    margin: 5px 0;
-    overflow: auto;
+    margin: 2px 0 5px;
+    overflow: hidden;
 }
 
 b {
@@ -169,8 +171,6 @@ b {
 }
 
 .download * {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
@@ -183,14 +183,14 @@ b {
 }
 
 .download.awaiting {
-    background: #ff7238;
+    background: #fff643;
 }
 
 .download.failed {
     background: #b81d27;
 }
 
-.download.done *, .download.failed * {
+.download.done *, .download.failed *, .download.awaiting {
     color: #3c434b;
 }
 
@@ -208,11 +208,11 @@ b {
 }
 
 .download.failed .download-detail {
-    color: #202225 !important;
+    color: #3c434b !important;
 }
 
-.download.done .download-detail, .download.failed .download-detail {
-    color: #66727f;
+.download.done .download-detail, .download.failed .download-detail, .download.awaiting .download-detail {
+    color: #4f5660;
 }
 
 .download .header {
@@ -237,8 +237,8 @@ b {
     margin-block-end: 0;
 }
 
-.download.done .header h2, .download.failed .header h2 {
-    color: #181b1e;
+.download.done .header h2, .download.failed .header h2, .download.awaiting .header h2 {
+    color: #3c434b;
 }
 
 .progress-bar > .progress-visual {
@@ -269,17 +269,18 @@ b {
     margin-top: 5px;
     position: relative;
     height: 12px;
+    overflow: hidden;
     /*padding: 10px;*/
 }
 
 .progress-bar-wrapper {
     border-radius: 15px;
-    border: none;
-    background: #b4c9e0;
-    /*box-shadow: 1px 0 3px 0 #8d9daf;*/
+    border: 1px solid #334c79;
+    overflow: hidden;
     position: relative;
     display: block;
     height: 100%;
+    padding: 3px;
 }
 
 .progress-bar-wrapper.failed .progress-bar-inner {
@@ -291,24 +292,12 @@ b {
 }
 
 .progress-bar-inner {
-    background: cornflowerblue;
+    border-radius: 15px;
+    background: #334c79;
     display: block;
     position: relative;
     height: 100%;
-    /*border-radius: inherit;*/
-    transition: 400ms ease;
-}
-
-.progress-bar-wrapper .chunk {
-    background: rgba(126, 128, 133, 0.8);
-    border-radius: inherit;
-    width: 30px;
-    left: 100px;
-    display: block;
-    position: absolute;
-    z-index: 2;
-    top: 0;
-    height: 100%;
+    transition: 200ms ease;
 }
 
 *::-webkit-scrollbar {
@@ -340,7 +329,7 @@ b {
 input, textarea {
     /*box-shadow: rgba(0.1, 0.1, 0.1, 0.2) 0 5px 30px;*/
     /* border: 2px solid #4f5660; */
-    background: #303237;
+    background: #3c434b;
     color: #eee;
     border-radius: 6px;
     font-size: 11pt;
@@ -442,4 +431,99 @@ textarea {
     line-height: 2em;
     text-align: center;
     min-width: 5em;
+    overflow: hidden;
+}
+
+.tool .tool-tip {
+    display: block;
+    position: absolute;
+    overflow: visible;
+    z-index: 170 !important;
+    margin-left: -7.5px;
+    background: #181b1e;
+    color: #b4c9e0;
+    visibility: hidden;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 9pt;
+    white-space: nowrap;
+    line-height: initial;
+}
+
+.tool .tool-tip.left {
+    margin-top: -0.75em;
+    transform: translate(-100%, -50%);
+}
+
+.tool:hover .tool-tip {
+    /*visibility: visible;*/
+    animation: reveal 1s;
+    animation-fill-mode: forwards;
+}
+
+.tool .tool-tip.left::after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent transparent #181b1e;
+}
+
+.tool .tool-tip.bottom::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;  /* At the top of the tooltip */
+    left: 20px;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #181b1e transparent
+}
+
+@keyframes reveal {
+    0% {
+        visibility: hidden;
+    }
+    99% {
+        visibility: hidden;
+    }
+    100% {
+        visibility: visible;
+    }
+}
+
+.downloads-display-options {
+    display: flex;
+    padding: 0 10px;
+}
+
+.tool.menu-container {
+    text-align: center;
+}
+
+.tool.menu-container .tool-menu {
+    position: absolute;
+    background: #181b1e;
+    right: 0;
+    display: none;
+    top: 100%;
+    min-width: 7em;
+    z-index: 150;
+}
+
+.tool-menu .nav_bar_dropdown div { /*so we don't restyle the menu*/
+    text-align: left;
+    white-space: nowrap;
+    padding: 0 10px;
+}
+
+.tool-menu .nav_bar_dropdown div:hover {
+    background: #202225;
+}
+
+.tool.menu-container:focus .tool-menu {
+    display: block;
 }

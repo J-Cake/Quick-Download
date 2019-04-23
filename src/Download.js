@@ -69,14 +69,17 @@ export default class Download extends events.EventEmitter {
         this.bytes_request_supported = true;
         if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)
             .catch(
-                this.error
+                err => {
+                    this.error(err.toString());
+                    return this;
+                }
             )
         ) {
             this.bytes_request_supported = false;
             this.error("Byte Requests are not supported.");
             return this;
         }
-        this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(this.error);
+        this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(err => this.error(err));
         this.name = name;
         this.numOfParts = parts || 10;
         this.startTime = Date.now();
@@ -87,7 +90,6 @@ export default class Download extends events.EventEmitter {
             this.protocol = https;
             this.port = "443";
         }
-        this.elapsedTimeUpdater = setInterval(() => this.madeProgress(0, false), 700);
 
         return this;
     }
@@ -166,6 +168,7 @@ export default class Download extends events.EventEmitter {
             });
             request.end();
             // resolve(true);
+            // reject("False");
         });
     }
 
@@ -272,52 +275,53 @@ export default class Download extends events.EventEmitter {
         return this;
     }
 
-    async madeProgress(amount, done) {
-        if (this.full_fail) {
-            return;
-        }
-        if (done)
-            clearInterval(this.elapsedTimeUpdater);
+	async madeProgress(amount, done) {
+		if (this.full_fail) {
+			return;
+		}
+		this.progress += amount;
 
-        this.progress += amount;
+		const now = Date.now();
+		const time = new Date(now - this.startTime);
+		if (Date.now() - this.last_update > 800 || done) {
+			this.last_update = Date.now();
 
-        const now = Date.now();
-        const time = new Date(now - this.startTime);
-        if (Date.now() - this.last_update > 800 || done) {
-            this.last_update = Date.now();
-            this.onUpdate({
-                eta: this.ETA,
-                percentage: ((this.progress / this.total_length) * 100) || 0,
-                speed: this.speed,
-                average_percentage: this.average_percentage,
-                size: this.total_length,
-                chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
-                total_chunks: this.num_of_parts_to_create,
-                done: done || false,
-                path: this.final_file,
-                elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
-            });
-        }
-    }
+			this.onUpdate({
+				percentage: ((this.progress / this.total_length) * 100) || 0,
+				progress: this.progress,
+				speed: this.speed,
+				size: this.total_length,
+				chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
+				total_chunks: this.num_of_parts_to_create,
+				done: done || false,
+				path: this.final_file,
+				eta: this.ETA,
+				elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
+			});
+		}
+	}
 
     get ETA() {
-        /*  const elapsedTime = (Date.now() - this.startTime);
-          const speed = this.progress / elapsedTime;
-          const remainingTime = (this.total_length / speed) - elapsedTime; */
         const elapsedTime = (Date.now() - this.last_speed_update_time);
         const speed = (this.progress - this.last_speed_progress) / elapsedTime;
-        console.log(speed);
         const remainingTime = ((this.total_length - this.last_speed_progress) / speed) - elapsedTime;
         this.last_speed_update_time = Date.now();
         this.last_speed_progress = this.progress;
+
         this.stats.push({
             time: elapsedTime,
             progress: this.progress
         });
 
-        this.speed = Math.floor(speed);
+		this.speed = Math.floor(speed);
 
-        return new Date(Date.now() + remainingTime).toLocaleString();
+		const eta = Date.now() + remainingTime;
+
+		if (eta === Infinity)
+		    return 0;
+		else
+
+		    return eta;
     };
 
     async forceUpdate(done) {
@@ -330,7 +334,7 @@ export default class Download extends events.EventEmitter {
         return new Promise((resolve, reject) => {
             const promises = [];
             for (let i = 0; i < this.parts.length; i++) {
-                promises.push(new Promise(async (resolve,reject) => {
+                promises.push(new Promise(async (resolve, reject) => {
                     await this.parts[i].download_bytes().catch(reject);
                     resolve();
                 }));
@@ -392,31 +396,30 @@ export default class Download extends events.EventEmitter {
 
     }
 
-    async beginDownload() {
-        // console.log("Beginning download sequence...");
-        try {
-            if (this.bytes_request_supported) {
-                // console.log("Creating parts...");
-                await this.createParts();
-                this.forceUpdate();
-                // console.log("Downloading parts...");
-                await this.download_all();
-                this.forceUpdate();
-                // console.log("Combining parts...");
-                await this.combineParts_move_to_final();
-                this.forceUpdate();
-                // console.log("Cleaning up parts...");
-                await this.cleanup();
-                await this.madeProgress(0, true);
+	async beginDownload() {
+			if (this.bytes_request_supported) {
+
+			    this.emit("create_parts");
+				await this.createParts();
+				this.forceUpdate();
+
+                this.emit("download_all");
+				await this.download_all();
+				this.forceUpdate();
+
+
+                this.emit("combine_parts");
+				await this.combineParts_move_to_final();
+				this.forceUpdate();
+
+
+                this.emit("cleanup");
+				await this.cleanup();
+				await this.madeProgress(0, true);
+                this.emit("complete");
+			} else {
+			    console.error("beginDownload called even though bytes requests aren't supported")
             }
-        } catch (e) {
-            this.onUpdate({
-                status: 1,
-                error: e,
-            });
-            await this.cleanup();
-            throw Error(e);
-        }
-    }
+	}
 
 }

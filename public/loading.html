@@ -1,211 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<title>Title</title>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
 
-		<script>
-			const {ipcRenderer} = require('electron');
-			ipcRenderer.on('getPage', e => {
-				window.location.href = "http://localhost:3000";
+    <script>
+		const {ipcRenderer} = require('electron');
+		ipcRenderer.on('getPage', e => {
+			window.location.href = "http://localhost:3000";
+		});
+    </script>
+
+    <style>
+        body {
+            background: #24282c;
+        }
+
+        .message {
+            font-family: "Cutive Mono", sans-serif;
+            text-align: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            color: #b4c9e0;
+            transform: translate(-50%, -50%);
+        }
+
+
+        .fas.fa-spinner {
+            animation: rotate 1s linear;
+            animation-iteration-count: infinite;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="./fa.css">
+    <link rel="stylesheet" href="./cutive.css">
+</head>
+<body>
+
+<div class="message">
+    <h1>Loading</h1>
+    <i class="fas fa-spinner"> </i>
+</div>
+
+<script>
+	let net = require('net');
+
+	let ping = function (options, callback) {
+		let i = 0;
+		let results = [];
+		options.address = options.address || 'localhost';
+		options.port = options.port || 80;
+		options.attempts = options.attempts || 10;
+		options.timeout = options.timeout || 5000;
+		let check = function (options, callback) {
+			if (i < options.attempts) {
+				connect(options, callback);
+			} else {
+				let avg = results.reduce(function (prev, curr) {
+					return prev + curr.time;
+				}, 0);
+				let max = results.reduce(function (prev, curr) {
+					return (prev > curr.time) ? prev : curr.time;
+				}, results[0].time);
+				let min = results.reduce(function (prev, curr) {
+					return (prev < curr.time) ? prev : curr.time;
+				}, results[0].time);
+				avg = avg / results.length;
+				let out = {
+					address: options.address,
+					port: options.port,
+					attempts: options.attempts,
+					avg: avg,
+					max: max,
+					min: min,
+					results: results
+				};
+				callback(undefined, out);
+			}
+		};
+
+		let connect = function (options, callback) {
+			let s = new net.Socket();
+			let start = process.hrtime();
+			s.connect(options.port, options.address, function () {
+				let time_arr = process.hrtime(start);
+				let time = (time_arr[0] * 1e9 + time_arr[1]) / 1e6;
+				results.push({seq: i, time: time});
+				s.destroy();
+				i++;
+				check(options, callback);
 			});
-		</script>
+			s.on('error', function (e) {
+				results.push({seq: i, time: undefined, err: e});
+				s.destroy();
+				i++;
+				check(options, callback);
+			});
+			s.setTimeout(options.timeout, function () {
+				results.push({seq: i, time: undefined, err: Error('Request timeout')});
+				s.destroy();
+				i++;
+				check(options, callback);
+			});
+		};
+		connect(options, callback);
+	};
+</script>
 
-		<style>
-			* {
-				--animation-speed: 0.85s;
-			}
-		</style>
+<script>
+	const {exec} = require('child_process');
 
-		<style>
-			@keyframes a1 {
-				0% {
-					left: 0;
-				}
-				50% {
-					left: 3.75cm;
-				}
-				100% {
-					left: 0;
-				}
-			}
+	(async function () {
+		let server;
+		let nextDatum = false; // when set to true, the next stdout item from the server will cause the loading phase to end.
 
-			@keyframes a2 {
-				0% {
-					left: 0;
-				}
-				50% {
-					left: 1.25cm;
-				}
-				100% {
-					left: 0;
-				}
-			}
+		ping({address: "localhost", port: 3000, attempts: 1}, (opts, result) => {
+			console.log(result);
+			if (isNaN(result.avg)) {
+				server = exec('npm start');
+				console.log("starting server");
+				server.stdout.on('data', e => {
+					if (e.trim().indexOf(`Starting the development server...`) > -1)
+						nextDatum = true;
 
-			@keyframes a3 {
-				0% {
-					right: 0;
-				}
-				50% {
-					right: 1.25cm;
-				}
-				100% {
-					right: 0;
-				}
-			}
+					if (nextDatum)
+						nextDatum = load() || false;
 
-			@keyframes a4 {
-				0% {
-					right: 0;
-				}
-				50% {
-					right: 3.75cm;
-				}
-				100% {
-					right: 0;
-				}
-			}
-
-			@keyframes rotate {
-				0% {
-					transform: rotate(0deg);
-				}
-				37.5% {
-					transform: rotate(180deg);
-				}
-				50% {
-					transform: rotate(180deg);
-				}
-				87.5% {
-					transform: rotate(360deg);
-				}
-				100% {
-					transform: rotate(360deg);
-				}
-			}
-
-			@keyframes pulse {
-				0% {
-
-					box-shadow: 0 0 5px 0 #181b1e;
-					padding: 0;
-				}
-				35% {
-
-					box-shadow: 0 0 5px 0 #181b1e;
-					padding: 0;
-				}
-				50% {
-
-					box-shadow: 0 0 10px 0 #181b1e;
-					padding: 8px;
-				}
-				65% {
-
-					box-shadow: 0 0 5px 0 #181b1e;
-					padding: 0;
-				}
-				100% {
-
-					box-shadow: 0 0 5px 0 #181b1e;
-					padding: 0;
-				}
-			}
-
-		</style>
-
-		<style>
-			* {
-				margin: 0;
-				padding: 0;
-			}
-			body {
-				background: #3c434b;
-				width: 100vw;
-				height: 100vh;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
-			.dot {
-				width: 0.25cm;
-				height: 0.25cm;
-				padding: 0;
-				background: aliceblue;
-				display: block;
-				border-radius: 100px;
-				animation-iteration-count: infinite !important;
-				position: fixed;
-
-				box-shadow: 0 0 5px 0 #181b1e;
-			}
-			.loading {
-				position: fixed;
-				transform-origin: 50% 50%;
-				animation: rotate calc(var(--animation-speed) * 2) ease;
-				animation-iteration-count: infinite !important;
-				left: 50%;
-				top: 50%;
-				transform: translate(-50%);
-			}
-
-			.dot1 {
-				animation: a1 var(--animation-speed) ease, pulse var(--animation-speed) ease;
-			}
-			.dot2 {
-				animation: a2 var(--animation-speed) ease, pulse var(--animation-speed) ease;
-			}
-			.dot3 {
-				animation: a3 var(--animation-speed) ease, pulse var(--animation-speed) ease;
-			}
-			.dot4 {
-				animation: a4 var(--animation-speed) ease, pulse var(--animation-speed) ease;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="outline">
-			<div class="loading">
-				<span class="dot dot1"/>
-				<span class="dot dot2"/>
-				<span class="dot dot3"/>
-				<span class="dot dot4"/>
-			</div>
-		</div>
-
-		<script>
-			const { ping } = require('./ping.js');
-			const { exec } = require('child_process');
-
-			(async function() {
-				// server launch control
-
-				console.log('Server Launch Control');
-
-				let server;
-				let nextDatum = false; // when set to true, the next stdout item from the server will cause the loading phase to end.
-
-				ping({address: "localhost", port: 3000, attempts: 1}, (opts, result) => {
-					console.log(result);
-					if (isNaN(result.avg)) {
-						server = exec('npm start');
-						server.stdout.on('data', e => {
-							if (e.trim().indexOf(`Starting the development server...`) > -1)
-								nextDatum = true;
-
-							if (nextDatum)
-								nextDatum = load() || false;
-
-							process.stdout.write(e);
-						});
-						// start server
-					} else {
-						load();
-					}
+					process.stdout.write(e);
 				});
+			} else {
+				load();
+			}
+		});
 
-				const load = () => void (window.location.href = "http://localhost:3000");
-			})();
-		</script>
-	</body>
+		const load = () => void (window.location.href = "http://localhost:3000");
+	})();
+</script>
+</body>
 </html>
