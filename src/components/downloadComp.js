@@ -115,7 +115,7 @@ export default class DownloadComp extends React.Component {
 
             });
             this.download.on('error', error => {
-                this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>);
+                this.props.alert(<Alert key={new Date().toLocaleString()} header={"Error"} body={error}/>)
                 this.props.onComplete.bind(this);
             });
             let json;
