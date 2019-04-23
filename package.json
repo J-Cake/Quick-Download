@@ -20,8 +20,8 @@
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
 		"electron": "electron .",
-		"pack-osx": "npm run build && electron-packager . --overwrite --platform=darwin --arch=x64  --icon=./src/res/logo_mac.icns  --prune=true --out=release-builds",
-		"pack-win": "npm run build && electron-packager --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico  --out=release-builds",
+		"pack-osx": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=darwin --arch=x64 --overwrite --icon=./build/favicon.ico",
+		"pack-win": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=win32 --arch=x64 --overwrite --icon=./build/favicon.ico",
 		"run-build": "electron ./build"
 	},
 	"browserslist": [
