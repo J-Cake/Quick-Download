@@ -59,11 +59,10 @@ export default class Part {
                     });
                 });
                 this.download.on("error", (e) => {
-                    console.error(e);
-                    // debugger;
+                    reject(e);
                 })
             } catch (e) {
-                console.error(e);
+                reject(e);
                 reject(e);
             }
         });

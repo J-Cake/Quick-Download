@@ -7,14 +7,13 @@ import './css/pastDownloads.css';
 import './css/standard_prompt.css';
 
 import Tool from './components/tool';
-// import DownloadComp from './components/downloadComp';
-// import DownloadDisplayComp from './components/downloadCompDisplay';
 import Checkbox from './components/checkbox';
 import WindowFrame from './components/windowframe';
 import Alert from './components/alert';
 import {$} from './components/utils';
 
 import DownloadCarrier from './download-carrier';
+import Download from "./Download";
 
 Array.prototype.switch = function (condition, goto, fallback) {
     // a ternary operator for arrays.
@@ -36,6 +35,7 @@ Array.prototype.flip = function (shouldFlip) {
 
 const path = window.require('path');
 const os = window.require('os');
+const fs = window.require('fs');
 
 const Mousetrap = window.require('mousetrap');
 
@@ -89,6 +89,7 @@ export default class App extends Component {
             customHeaders: "",
             showActive: true,
             filter: "name",
+            showError: false,
             filterValue: "",
         };
 
@@ -104,6 +105,7 @@ export default class App extends Component {
         window.localStorage.preferredUnit = window.localStorage.getItem("preferredUnit") || "bin";
         window.localStorage.allowNotifications = window.localStorage.getItem("allowNotifications") || "true";
         window.localStorage.autoHideMenuBar = window.localStorage.getItem("autoHideMenuBar") || "false";
+        window.localStorage.showAdvancedDetails = window.localStorage.getItem("showAdvancedDetails") || "true";
     }
 
     alert(box) {
@@ -121,13 +123,88 @@ export default class App extends Component {
         this.setState({downloadName: "", downloadURL: "", promptShowing: false});
     }
 
+    confirmExists(fullLocation, name) {
+        return new Promise(resolve => {
+            if (fs.existsSync(fullLocation)) {
+                let box;
+                this.alert(<Alert noClose={true} ref={dialog => box = dialog} key={new Date().getTime().toLocaleString()}
+                                  header={"File already exists"}>
+                    <div>
+                        The file "{fullLocation.split('/').pop()}" already exists. You can replace it or keep it or rename
+                        the
+                        download.
+
+                        <br/>
+                        <br/>
+
+                        <b>Note:</b> If you choose to keep it, the file's contents will not be deleted, instead
+                        additional
+                        content will be appended to it. This will render the resulting and the original files unusable.
+
+                        <br/>
+                        <br/>
+
+                        <div className={"right"}>
+                            <button onClick={async () => {
+                                let newName = name;
+                                while (fs.existsSync(Download.getFileName(name, window.localStorage.saveLocation, this.state.url)))
+                                    newName += ' 2';
+
+                                this.setState({showing: false});
+                                resolve(newName);
+                                box.state.showing = false;
+                                box.forceUpdate();
+                                this.forceUpdate();
+                            }}>Rename
+                            </button>
+
+                            <button onClick={async () => {
+                                fs.unlinkSync(fullLocation);
+                                this.setState({showing: false});
+                                resolve();
+                                box.state.showing = false;
+                                box.forceUpdate();
+                                this.forceUpdate();
+                            }}>Overwrite
+                            </button>
+
+                            <button onClick={async () => {
+                                this.setState({showing: false});
+                                resolve();
+                                box.state.showing = false;
+                                box.forceUpdate();
+                                this.forceUpdate();
+                            }}>Keep
+                            </button>
+
+                            <button onClick={() => {
+                                this.setState({showing: false});
+                                resolve();
+                                box.state.showing = false;
+                                box.forceUpdate();
+                                this.forceUpdate();
+                            }}>Cancel
+                            </button>
+                        </div>
+                    </div>
+                </Alert>);
+            } else {
+                resolve();
+            }
+        });
+    }
+
     async initDownload() {
         const parent = this;
         const url = this.state.downloadURL || "",
             name = this.state.downloadName || "",
             headers = this.state.customHeaders || "{}";
 
-        const download = new DownloadCarrier(url, name, headers);
+        this.closePrompt();
+
+        const newName = await this.confirmExists(Download.getFileName(name, window.localStorage.saveLocation, url), name);
+
+        const download = new DownloadCarrier(url, newName || name, headers);
         download.stage("Init", function () {
             this.status = 4;
             parent.forceUpdate();
@@ -145,13 +222,27 @@ export default class App extends Component {
         });
         download.stage("Finished", () => this.next());
         download.stage("Update", info => this.forceUpdate());
+        download.stage("Error", err => void this.alert(<Alert header={"Error"}>
+            An error has occurred and the download could not be completed. Do you wish to restart the download?
+            <br />
+            <div className={"advanced-error"}>
+                <div className={"right"}>
+                    <Tool tooltip={"Show Error"} left={true} icon={this.state.showError ? "fas fa-chevron-down" : "fas fa-chevron-right"}
+                          onClick={() => this.setState(prev => ({showError: !prev.showError}) )}/></div>
+                <div className={"error-traceback"}>{this.state.showError && err.toString()}</div>
+            </div>
+            <br />
+            <div className={"right"}>
+                <button onClick={() => this.initDownload()}>Ok</button>
+                <button onClick={() => void download.cancel()}>No</button>
+            </div>
+        </Alert>) || void download.cancel() || void download.remove());
 
         this.state.downloads.push(download);
 
-        this.closePrompt();
-
-        if (this.getActive().length === 1)
+        if (this.getActive().length === 1) {
             this.next();
+        }
     }
 
     // async beginDownload() {
@@ -223,8 +314,9 @@ export default class App extends Component {
 
     filter(downloads) {
         const filter = downloads => this.state.filter ? downloads.filter(i => i[this.state.filter].toLowerCase().indexOf(this.state.filterValue.toLowerCase()) > -1) : downloads;
-        const sort = downloads => this.state.sortBy ? downloads.sort((a, b) => a[this.state.sortBy] > b[this.state.sortBy] ? 1 : (a[this.state.sortBy] < b[this.state.sortBy] ? -1 : 0)) : downloads;
-        return sort(filter(downloads)).flip(this.state.reversed);
+        const getProperty = (obj, prop) => prop.reduce((a, i) => (obj[a] || a)[i]);
+        const sort = (downloads, selector) => downloads.sort((a, b) => ((a, b) => a > b ? 1 : (a < b ? -1 : 0))(getProperty(a, selector), getProperty(b, selector)));
+        return sort(filter(downloads), (this.state.sortBy || "").split('.')).flip(this.state.reversed);
     }
 
     getActive() {
@@ -248,17 +340,17 @@ export default class App extends Component {
         if (this.state.focused) {
             if (this.state.focused.classList.contains('dl-name'))
                 this.setState(prev => {
-                    const maxSelection = App.getDownloadNames().filter(i => !!i).length;
+                    const maxSelection = this.getDownloadNames().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
             else if (this.state.focused.classList.contains('dl-url'))
                 this.setState(prev => {
-                    const maxSelection = App.getDownloadUrls().filter(i => !!i).length;
+                    const maxSelection = this.getDownloadUrls().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
             else if (this.state.focused.classList.contains('dl-headers'))
                 this.setState(prev => {
-                    const maxSelection = App.getDownloadHeaders().filter(i => !!i).length;
+                    const maxSelection = this.getDownloadHeaders().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
 
@@ -474,7 +566,7 @@ export default class App extends Component {
                                onChange={text => this.setState({filterValue: text.target.value})}
                                className={"input_standard"} placeholder={"Filter downloads"}/>
 
-                        <Tool left={true} tooltip={"Search by"} icon={"fas fa-sliders-h"}
+                        <Tool left={true} tooltip={"Search by"} icon={"fas fa-search"}
                               menu={{
                                   "Name": () => this.setState({filter: "name"}),
                                   "URL": () => this.setState({filter: "url"})
@@ -482,12 +574,16 @@ export default class App extends Component {
 
                         <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
                               menu={{
-                                  "Name": () => this.setState({sortBy: "downloadName"}),
-                                  "spacer":() => void 1,
+                                  "Name": () => this.setState({sortBy: "name"}),
+                                  "URL": () => this.setState({sortBy: "url"}),
+                                  "Completion Time": () => this.setState({sortBy: "stats.eta"}),
+                                  "spacer": () => void 1,
                                   "Reset": () => this.setState({sortBy: null})
                               }}/>
 
-                        <Tool onClick={() => this.setState(prev => ({reversed: !prev.reversed}))} left={true} tooltip={"Reverse List"} icon={!this.state.reversed ? "fas fa-chevron-down" : "fas fa-chevron-up"}/>
+                        <Tool onClick={() => this.setState(prev => ({reversed: !prev.reversed}))} left={true}
+                              tooltip={"Reverse List"}
+                              icon={!this.state.reversed ? "fas fa-chevron-down" : "fas fa-chevron-up"}/>
                     </div>
 
                     <div className={"download-tabs-content"}>
@@ -643,6 +739,8 @@ export default class App extends Component {
                                                 checked={window.localStorage.getItem('theme') === 'light'}/>
                                         </div>
                                     </div>
+
+                                    <Checkbox checked={window.localStorage.getItem('showAdvancedDetails') === "true"} onChange={value => void window.localStorage.setItem('showAdvancedDetails', value) || this.forceUpdate()} text={"Show Advanced Download Details"}/>
 
                                     <br/>
 

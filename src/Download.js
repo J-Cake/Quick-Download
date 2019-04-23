@@ -165,6 +165,7 @@ export default class Download extends events.EventEmitter {
             });
             request.end();
             // resolve(true);
+            // reject("False");
         });
     }
 
@@ -395,7 +396,6 @@ export default class Download extends events.EventEmitter {
 	async * beginDownload() {
 		try {
 			if (this.bytes_request_supported) {
-
 				yield "CreateParts";
 				await this.createParts();
 				this.forceUpdate();
@@ -415,7 +415,9 @@ export default class Download extends events.EventEmitter {
 
                 clearInterval(this.elapsedTimeUpdater);
 				yield "Complete";
-			}
+			} else {
+			    this.error("Byte Range Requests Not Supported")
+            }
 		} catch (e) {
 			this.onUpdate({
 				status: 1,

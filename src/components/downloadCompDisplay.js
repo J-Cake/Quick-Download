@@ -21,13 +21,13 @@ const getTools = props => {
         case 3:
         case 4:
         default:
-            return [<Tool key={"option1"} left={true} tooltip={"Cancel Download"} icon={"fas fa-times"} onClick={props.functions.cancel}/>];
+            return [<Tool key={"option1"} left={true} tooltip={"Cancel Download"} icon={"fas fa-times"} onClick={() => props.functions.cancel()}/>];
         case 1:
-            return [<Tool key={"option1"} left={true} tooltip={"Retry Download"} icon={"fas fa-redo"} onClick={props.functions.retry}/>,
-                    <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"} onClick={props.functions.cancel}/>];
+            return [<Tool key={"option1"} left={true} tooltip={"Retry Download"} icon={"fas fa-redo"} onClick={() => props.functions.retry}/>,
+                    <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"} onClick={() => props.functions.remove()}/>];
         case 2:
             return [<Tool key={"option1"} left={true} tooltip={"Show Download in folder"} icon={"fas fa-folder"} onClick={() => open(props.content.path)}/>,
-                    <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"} onClick={props.functions.cancel}/>];
+                    <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"} onClick={() => props.functions.remove()}/>];
     }
 };
 
@@ -43,7 +43,7 @@ export default props => <div
             {getTools(props)}
         </div>
     </div>
-    <div className="download-details">
+    {window.localStorage.getItem('showAdvancedDetails') === 'true' ? <div className="download-details">
         {format("Source", props.content.url)}
         {format("Final File", props.content.path)}
         {format("Headers", formatHeaders(props.content.headers), props.content.headersExpanded, () => props.functions.toggleHeaders())}
@@ -53,7 +53,7 @@ export default props => <div
         {format("Speed", props.content.speed)}
         {format("Parts Done", props.content.parts)}
         {format("Progress", `${props.content.progress} (${props.content.percentage}%)`)}
-    </div>
+    </div> : null}
 
     {props.status === 0 ?
         <Progress className={props.status === 1 ? "failed" : props.status === 2 ? "done" : ""}

@@ -118,8 +118,7 @@ export default class DownloadCarrier {
 	}
 
 	error(err) {
-		void this; // shut it web-storm
-		throw err; // do something with the error
+		this.runStage("Error", err);
 	}
 
 	static calculateSize(bytes) {
