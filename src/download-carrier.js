@@ -2,12 +2,15 @@ import Download from './Download';
 import DownloadDisplayComp from './components/downloadCompDisplay';
 import React from "react";
 
+const events = window.require('events');
+
 Date.prototype.print = function() {
 	return `${this.getUTCHours() || 0}h:${this.getUTCMinutes() || 0}m:${this.getUTCSeconds() || 0}s`;
 };
 
-export default class DownloadCarrier {
+export default class DownloadCarrier extends events.EventEmitter {
 	constructor(url, name, headers) {
+		super();
 		this.url = url;
 		this.name = name;
 		this.customHeaders = JSON.parse(headers);
@@ -19,8 +22,6 @@ export default class DownloadCarrier {
 		this.done = false;
 
 		this.stats = {};
-
-		this.stages = {};
 
 		this.functions = {
 			cancel: this.cancel,
@@ -54,29 +55,15 @@ export default class DownloadCarrier {
 	}
 
 	async startDownload() {
-		this.runStage("Init");
 		this.download = new Download();
-
 		this.download.on('update', info => this.update(info));
 		this.download.on('error', err => this.error(err));
-
-		this.download.on('close', data => (this.done = true) && this.runStage("Finished", data));
-
+		this.download.on('finish', data => {
+			this.done = true;
+			this.emit('finish',data);
+		});
 		await this.download.init(this.url, this.name, window.localStorage.saveLocation, Number(window.localStorage.partsToCreate), this.customHeaders, this.proxyOptions || false);
-
-		let stage = this.download.beginDownload();
-		for await (const currentStage of stage) {
-			this.runStage(currentStage, this);
-		} // new JS proposal. Works in node v10+. allows the use of `async` generator functions
-	}
-
-	stage(stage, callback) { // small event handling system. It's quite easy to use, define the event name (`stage`) and the handler (`callback`).
-		this.stages[stage] = callback;
-	}
-
-	runStage(stage, info) {
-		if (this.stages[stage])
-			this.stages[stage].bind(this)(info);
+		await this.download.beginDownload();
 	}
 
 	prettyProps(filter) {
@@ -85,6 +72,7 @@ export default class DownloadCarrier {
 			progress: `${DownloadCarrier.calculateSize(this.stats.progress) || 0} / ${DownloadCarrier.calculateSize(this.stats.size) || 0}`,
 			size: DownloadCarrier.calculateSize(this.stats.size) || 0,
 			speed: `${DownloadCarrier.calculateSize(this.stats.speed) || 0}/s`,
+			error: this.stats.error,
 			eta: `${new Date(this.stats.eta || Date.now()).toLocaleString()} (${new Date(this.stats.eta - Date.now()).print()})` || 0,
 			elapsedTime: this.stats.elapsedTime || 0,
 			parts: `${this.stats.chunks_done || 0} / ${this.stats.total_chunks || 0}`,
@@ -114,11 +102,16 @@ export default class DownloadCarrier {
 
 	update(info) {
 		this.stats = info;
-		this.runStage("Update", this.stats);
+		this.emit("update", this.stats);
 	}
 
 	error(err) {
-		this.runStage("Error", err);
+		console.error("Error: " + err);
+		this.update({
+			status: 1,
+			error: err
+		});
+		this.emit('error',err);
 	}
 
 	static calculateSize(bytes) {

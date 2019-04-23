@@ -30,10 +30,11 @@ export default class Download extends events.EventEmitter {
 
     error(e) {
         this.full_fail = true;
+        /*
         this.onUpdate({
             status: 1,
             error: e
-        });
+        }); */
         this.emit('error', e);
     }
 
@@ -55,6 +56,7 @@ export default class Download extends events.EventEmitter {
      */
 
     async init(url, name, save_location, parts, custom_headers, proxyOptions) {
+        this.emit('init');
         if(!validFilename(name)){
             this.error("Invalid File Name");
             return this;
@@ -68,9 +70,7 @@ export default class Download extends events.EventEmitter {
         this.speed = 0;
         this.bytes_request_supported = true;
         if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)
-            .catch(
-                err => this.error(err)
-            )
+            .catch(err => this.error(err))
         ) {
             this.bytes_request_supported = false;
             this.error("Byte Requests are not supported.");
@@ -346,7 +346,7 @@ export default class Download extends events.EventEmitter {
     }
 
     combineParts_move_to_final() {
-        return new Promise((resolve => {
+        return new Promise((resolve,reject) => {
             let final = fs.createWriteStream(this.final_file, {flags: 'a'});
             final.on('finish', resolve);
             final.on('open', async () => {
@@ -356,22 +356,19 @@ export default class Download extends events.EventEmitter {
                         const r = fs.createReadStream(part.file.path);
                         r.on('close', resolve);
                         r.on('error', (err) => {
-                            // console.log(err)
+                            reject(err);
                         });
                         r.pipe(final, {end: false});
                     });
                 }
                 final.end();
             });
-        }));
+        });
     }
 
     async cleanup() {
         for (const part of this.parts) {
-            part.cleanup().then(() => {
-                this.madeProgress(0);
-                this.forceUpdate();
-            });
+            part.cleanup();
         }
     }
 
@@ -393,40 +390,27 @@ export default class Download extends events.EventEmitter {
 
     }
 
-	async * beginDownload() {
-		try {
+	async beginDownload() {
 			if (this.bytes_request_supported) {
-				yield "CreateParts";
+				this.emit('create_parts');
 				await this.createParts();
-				this.forceUpdate();
 
-				yield "BeginDownload";
-				this.elapsedTimeUpdater = setInterval(() => this.madeProgress(0, false), 700);
-				await this.download_all();
-				this.forceUpdate();
+                this.emit('begin_download');
+			//	this.elapsedTimeUpdater = setInterval(() => this.madeProgress(0, false), 700);
+				await this.download_all().catch(this.error);
 
-				yield "CombineFile";
-				await this.combineParts_move_to_final();
-				this.forceUpdate();
+                this.emit('combine_parts');
+				await this.combineParts_move_to_final().catch(this.error);
 
-				yield "Cleanup";
+                this.emit('cleanup');
 				await this.cleanup();
-				await this.madeProgress(0, true);
 
-                clearInterval(this.elapsedTimeUpdater);
-				yield "Complete";
+                this.emit('finish');
+				await this.madeProgress(0, true);
+             //   clearInterval(this.elapsedTimeUpdater);
 			} else {
-			    this.error("Byte Range Requests Not Supported")
+			    console.error("beginDownload was called event though byte requests aren't supported.")
             }
-		} catch (e) {
-			this.onUpdate({
-				status: 1,
-				error: e,
-			});
-			await this.cleanup();
-			this.error(new Error(e));
-		}
-		this.emit("close", "hello world");
 	}
 
 }

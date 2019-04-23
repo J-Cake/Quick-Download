@@ -6,10 +6,12 @@ const {shell} = window.require('electron');
 
 const open = path => shell.showItemInFolder(path);
 
-const format = (property, value, noWrap, onClick) => <div className={"download-detail"}>
-    <b>{property}: </b>
-    {noWrap ? <pre onClick={onClick}>{value}</pre> : <span onClick={onClick} className={"monospace"}>{value}</span>}
-</div>;
+const format = (property, value, noWrap, onClick) => {
+    return <div className={"download-detail"}>
+        <b>{property}: </b>
+        {noWrap ? <pre onClick={onClick}>{value}</pre> : <span onClick={onClick} className={"monospace"}>{value}</span>}
+    </div>;
+};
 
 const formatHeaders = obj => JSON.stringify(obj, null, 2);
 
@@ -48,6 +50,7 @@ export default props => <div
         {format("Final File", props.content.path)}
         {format("Headers", formatHeaders(props.content.headers), props.content.headersExpanded, () => props.functions.toggleHeaders())}
         {format("Size", props.content.size)}
+        {format("Error", props.content.error || "None")}
         {format("Elapsed Time", props.content.elapsedTime)}
         {format("Estimated Time Of Completion", props.content.eta)}
         {format("Speed", props.content.speed)}
