@@ -1,0 +1,41 @@
+.past-download {
+    background: #4f5660;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 15px;
+    cursor: pointer;
+    -webkit-transition: 0.125s;
+    transition: 0.125s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+}
+.past-download:hover {
+   /* background: #3c434b; */
+    /* Commented out until something happens when the user clicks */
+}
+
+.prompt header {
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.past-download .delete {
+    width: 100%;
+
+    display: flex;
+    justify-content: flex-end;
+}
+.download-details {
+    width: 90%;
+}
+.download-name {
+    word-wrap: break-word;
+}
+.download-url {
+    font-size: 9pt;
+    font-weight: 300;
+    word-wrap: break-word;
+}
