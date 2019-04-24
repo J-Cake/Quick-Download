@@ -5,6 +5,7 @@ import './css/box.css';
 import './css/settings.css';
 import './css/pastDownloads.css';
 import './css/standard_prompt.css';
+import './css/tooltip.css';
 
 import Tool from './components/tool';
 import Checkbox from './components/checkbox';

@@ -1,0 +1,121 @@
+.tool.menu-container {
+    text-align: center;
+}
+
+.tool.menu-container .tool-menu {
+    position: absolute;
+    background: #181b1e;
+    right: 0;
+    display: none;
+    top: 100%;
+    min-width: 7em;
+    z-index: 150;
+}
+
+.tool-menu .nav_bar_dropdown div { /*so we don't restyle the menu*/
+    text-align: left;
+    white-space: nowrap;
+    padding: 0 10px;
+}
+
+.tool-menu .nav_bar_dropdown div:hover {
+    background: #202225;
+}
+
+.tool.menu-container:focus .tool-menu {
+    display: block;
+}
+
+.tool .tool-tip {
+    display: block;
+    position: absolute;
+    overflow: visible;
+    z-index: 170;
+    margin-left: -7.5px;
+    background: #181b1e;
+    color: #b4c9e0;
+    visibility: hidden;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 9pt;
+    white-space: nowrap;
+    line-height: initial;
+}
+
+.tool .tool-tip.left {
+    margin-top: -0.75em;
+    transform: translate(-100%, -50%);
+}
+
+.tool:hover .tool-tip {
+    /*visibility: visible;*/
+    animation: reveal 1s;
+    animation-fill-mode: forwards;
+}
+
+.tool .tool-tip.left::after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent transparent #181b1e;
+}
+
+.tool .tool-tip.bottom::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%; /* At the top of the tooltip */
+    left: 20px;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #181b1e transparent
+}
+
+.tool, button {
+    color: #eee;
+    font-size: 11pt;
+    border-radius: 9px;
+    border: 0;
+    margin: 3px;
+    min-width: 35px;
+    min-height: 35px;
+    background: transparent;
+    cursor: pointer;
+    text-align: center;
+    position: relative; /*To allow the menu to align itself relative to something*/
+
+    line-height: 34px;
+}
+
+.tool i {
+    transition: 100ms ease;
+}
+
+.tool:hover, button:hover {
+    background: rgba(102, 112, 123, 0.55);
+    color: white;
+}
+
+.tool:hover i {
+    color: white;
+}
+
+.tool:active, button:active {
+    background: rgba(124, 136, 149, 0.55);
+}
+
+@keyframes reveal {
+    0% {
+        visibility: hidden;
+    }
+    99% {
+        visibility: hidden;
+    }
+    100% {
+        visibility: visible;
+    }
+}
