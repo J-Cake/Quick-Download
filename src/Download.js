@@ -265,7 +265,7 @@ export default class Download extends events.EventEmitter {
     }
 
     createParts() {
-        this.num_of_parts_to_create = this.numOfParts || 10;
+        this.num_of_parts_to_create = this.numOfParts;
         let last_int = -1;
         for (let i = 0; i < this.num_of_parts_to_create; i++) {
             let to_byte = (this.total_length / this.num_of_parts_to_create) * (i + 1);

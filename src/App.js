@@ -197,7 +197,6 @@ export default class App extends Component {
     }
 
     async initDownload() {
-        const parent = this;
         const url = this.state.downloadURL || "",
             name = this.state.downloadName || "",
             headers = this.state.customHeaders || "{}";
@@ -208,20 +207,21 @@ export default class App extends Component {
 
         const download = new DownloadCarrier(url, newName || name, headers);
         download.download.on("init", function () {
-            this.status = 4;
-            parent.forceUpdate();
+            download.status = 4;
+            this.forceUpdate();
         });
         download.download.on("create_parts",  () => {
             console.log();
         });
         download.download.on("download_all", () => {
-            this.status = 0;
-            parent.forceUpdate();
+            download.status = 0;
+            this.forceUpdate();
         });
         download.download.on("complete", () => {
+            download.done = true;
             this.next();
-            this.status = 2;
-            parent.forceUpdate();
+            download.status = 2;
+            this.forceUpdate();
         });
         download.on("update", info => this.forceUpdate());
         download.on("error", err => {
@@ -229,7 +229,6 @@ export default class App extends Component {
         });
         this.state.downloads.push(download);
         download.on("remove", () => {
-            debugger;
             this.state.downloads.splice(this.state.downloads.indexOf(download),1);
         });
         if (this.getActive().length === 1) {
