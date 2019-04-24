@@ -241,7 +241,7 @@ export default class App extends Component {
         download.on("retry",() => {
             download.constructor(download.url,download.name,download.customHeaders);
             download.status = 3;
-            if (this.getActive().length === 1) {
+            if (this.getReady().length === 1) {
                 this.next();
             }
         });
@@ -249,7 +249,7 @@ export default class App extends Component {
     }
     addDownload(download){
         this.state.downloads.push(download);
-        if (this.getActive().length === 1) {
+        if (this.getReady().length === 1) {
             this.next();
         }
     }
@@ -262,11 +262,14 @@ export default class App extends Component {
         return sort(filter(downloads), (this.state.sortBy || "").split('.')).flip(this.state.reversed);
     }
 
+    getDisplayDownloads() {
+        return this.filter(this.state.downloads.filter(i => !i.done));
+    }
     getAllDownloads() {
         return this.filter(this.state.downloads);
     }
 
-    getActive() {
+    getReady() {
         return this.filter(this.state.downloads.filter(i =>
             !i.done
             && i.status !== 1
@@ -279,7 +282,7 @@ export default class App extends Component {
     }
 
     next() {
-        const downloads = this.getActive();
+        const downloads = this.getReady();
 
         if (downloads[0])
             downloads[0].startDownload();
@@ -542,7 +545,7 @@ export default class App extends Component {
 
                     <div className={"download-tabs-content"}>
                         <div className={"downloads active"} id={this.state.showActive ? "active" : ""}>
-                            {this.getAllDownloads().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Press the + button to start a download")}
+                            {this.getDisplayDownloads().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Press the + button to start a download")}
                         </div>
                         <div className={"downloads inactive"} id={!this.state.showActive ? "active" : ""}>
                             {this.getInactive().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Wait until a download completes to see it here")}

@@ -97,14 +97,11 @@ export default class WindowFrame extends React.Component {
                                         <div className="nav_dropdown">
 											<div>Theme <i style={{fontSize: "10px"}} className={"more fas fa-chevron-right"}/>
                                                 <div className="nav_dropdown toggle">
-                                                    <div active={(window.localStorage.getItem('theme') === 'light').toString()}>Light</div>
-                                                    <div active={(window.localStorage.getItem('theme') === 'dark').toString()}>Dark</div>
+                                                    <div active={window.localStorage.getItem('theme') === 'light' ? 'active' : undefined}>Light</div>
+                                                    <div active={window.localStorage.getItem('theme') === 'dark' ? 'active' : undefined}>Dark</div>
                                                 </div>
                                             </div>
-											{/*<div onClick={remote.getCurrentWindow().toggleDevTools()}>Toggle Developer*/}
-											{/*	Tools<span*/}
-											{/*		className={"nav_accelerator"}>{(platform === "darwin" ? "CMD" : "CTRL") + "+Shift+I"}</span>*/}
-											{/*</div>*/}
+                                            <div onClick={e => _electron.ipcRenderer.send('toggledevtools')}>Toggle Dev Tools</div>
                                         </div>
                                     </div>
                                     <div className="nav_item">Help
@@ -114,7 +111,6 @@ export default class WindowFrame extends React.Component {
                                             <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Contribute</div>
                                             <div onClick={e => this.props.about()}>About</div>
                                             <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Docs</div>
-                                            <div onClick={e => _electron.ipcRenderer.send('toggledevtools')}>Toggle Dev Tools</div>
                                         </div>
                                     </div>
                                 </div>
