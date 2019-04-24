@@ -24,19 +24,6 @@ export default class Download extends events.EventEmitter {
         this.last_speed_progress = 0;
     }
 
-    onUpdate(e) {
-        this.emit('update', e);
-    }
-
-    error(e) {
-        this.full_fail = true;
-        this.onUpdate({
-            status: 1,
-            error: e
-        });
-        this.emit('error', e);
-    }
-
     /**
      * @param url
      * @param name
@@ -55,12 +42,12 @@ export default class Download extends events.EventEmitter {
      */
 
     async init(url, name, save_location, parts, custom_headers, proxyOptions) {
-        if(!validFilename(name)){
+        if (!validFilename(name)) {
             this.error("Invalid File Name");
             return this;
         }
         this.save_location = save_location;
-        this.proxyOptions =  (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
+        this.proxyOptions = (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
         this.custom_headers = custom_headers || {};
         this.final_file = Download.getFileName(name, save_location, url).replace(/\\/g, '/');
         this.url = url;
@@ -93,6 +80,20 @@ export default class Download extends events.EventEmitter {
 
         return this;
     }
+
+    onUpdate(e) {
+        this.emit('update', e);
+    }
+
+    error(e) {
+        this.full_fail = true;
+        this.onUpdate({
+            status: 1,
+            error: e
+        });
+        this.emit('error', e);
+    }
+
 
     static getFileName(name, saveLocation, url) {
         // Apply download extension if name doesn't have one:
@@ -275,31 +276,31 @@ export default class Download extends events.EventEmitter {
         return this;
     }
 
-	async madeProgress(amount, done) {
-		if (this.full_fail) {
-			return;
-		}
-		this.progress += amount;
+    async madeProgress(amount, done) {
+        if (this.full_fail) {
+            return;
+        }
+        this.progress += amount;
 
-		const now = Date.now();
-		const time = new Date(now - this.startTime);
-		if (Date.now() - this.last_update > 800 || done) {
-			this.last_update = Date.now();
+        const now = Date.now();
+        const time = new Date(now - this.startTime);
+        if (Date.now() - this.last_update > 800 || done) {
+            this.last_update = Date.now();
 
-			this.onUpdate({
-				percentage: ((this.progress / this.total_length) * 100) || 0,
-				progress: this.progress,
-				speed: this.speed,
-				size: this.total_length,
-				chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
-				total_chunks: this.num_of_parts_to_create,
-				done: done || false,
-				path: this.final_file,
-				eta: this.ETA,
-				elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
-			});
-		}
-	}
+            this.onUpdate({
+                percentage: ((this.progress / this.total_length) * 100) || 0,
+                progress: this.progress,
+                speed: this.speed,
+                size: this.total_length,
+                chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
+                total_chunks: this.num_of_parts_to_create,
+                done: done || false,
+                path: this.final_file,
+                eta: this.ETA,
+                elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
+            });
+        }
+    }
 
     get ETA() {
         const elapsedTime = (Date.now() - this.last_speed_update_time);
@@ -313,15 +314,15 @@ export default class Download extends events.EventEmitter {
             progress: this.progress
         });
 
-		this.speed = Math.floor(speed)*1000;
+        this.speed = Math.floor(speed) * 1000;
 
-		const eta = Date.now() + remainingTime;
+        const eta = Date.now() + remainingTime;
 
-		if (eta === Infinity)
-		    return 0;
-		else
+        if (eta === Infinity)
+            return 0;
+        else
 
-		    return eta;
+            return eta;
     };
 
     async forceUpdate(done) {
@@ -329,8 +330,6 @@ export default class Download extends events.EventEmitter {
     }
 
     download_all() {
-        // console.log("Downloading All Parts");
-        // console.log("Num of parts: " + this.parts.length);
         return new Promise((resolve, reject) => {
             const promises = [];
             for (let i = 0; i < this.parts.length; i++) {
@@ -349,24 +348,23 @@ export default class Download extends events.EventEmitter {
     }
 
     combineParts_move_to_final() {
-        return new Promise((resolve => {
+        return new Promise((resolve,reject) => {
             let final = fs.createWriteStream(this.final_file, {flags: 'a'});
             final.on('finish', resolve);
             final.on('open', async () => {
                 for (const part of this.parts) {
-                    // console.log(part.file.path);
                     await new Promise(resolve => {
                         const r = fs.createReadStream(part.file.path);
                         r.on('close', resolve);
                         r.on('error', (err) => {
-                            // console.log(err)
+                           reject(err);
                         });
                         r.pipe(final, {end: false});
                     });
                 }
                 final.end();
             });
-        }));
+        });
     }
 
     async cleanup() {
@@ -379,47 +377,41 @@ export default class Download extends events.EventEmitter {
     }
 
     async cancel() {
-        // console.log("Canceling parts...");
-        clearInterval(this.elapsedTimeUpdater);
         for (const part of this.parts) {
             part.cancel(); // complete download cancellation
 
         }
         await this.cleanup();
-        try {
-            this.onUpdate({
-                status: 1
-            });
-        } catch (e) {
-            console.error(e);
-        }
+        this.onUpdate({
+            status: 1
+        });
 
     }
 
-	async beginDownload() {
-			if (this.bytes_request_supported) {
+    async beginDownload() {
+        if (this.bytes_request_supported) {
 
-			    this.emit("create_parts");
-				await this.createParts();
-				this.forceUpdate();
+            this.emit("create_parts");
+            await this.createParts();
+            this.forceUpdate();
 
-                this.emit("download_all");
-				await this.download_all();
-				this.forceUpdate();
-
-
-                this.emit("combine_parts");
-				await this.combineParts_move_to_final();
-				this.forceUpdate();
+            this.emit("download_all");
+            await this.download_all();
+            this.forceUpdate();
 
 
-                this.emit("cleanup");
-				await this.cleanup();
-				await this.madeProgress(0, true);
-                this.emit("complete");
-			} else {
-			    console.error("beginDownload called even though bytes requests aren't supported")
-            }
-	}
+            this.emit("combine_parts");
+            await this.combineParts_move_to_final().catch(err => this.error(err));
+            this.forceUpdate();
+
+
+            this.emit("cleanup");
+            await this.cleanup();
+            await this.madeProgress(0, true);
+            this.emit("complete");
+        } else {
+            console.error("beginDownload called even though bytes requests aren't supported")
+        }
+    }
 
 }
