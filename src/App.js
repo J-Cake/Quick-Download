@@ -198,9 +198,9 @@ export default class App extends Component {
     }
 
     async createDownload(url, name, headers) {
-            url = url || "";
-            name = name || "";
-            headers = headers|| "{}";
+        url = url || "";
+        name = name || "";
+        headers = headers || "{}";
 
         this.closePrompt();
 
@@ -211,7 +211,7 @@ export default class App extends Component {
             download.status = 4;
             this.forceUpdate();
         });
-        download.download.on("create_parts",  () => {
+        download.download.on("create_parts", () => {
             console.log();
         });
         download.download.on("download_all", () => {
@@ -231,15 +231,15 @@ export default class App extends Component {
             console.error(err);
         });
         download.on("cancel", () => {
-              download.status = 5;
+            download.status = 5;
             this.forceUpdate();
             this.next();
         });
         download.on("remove", () => {
-            this.state.downloads.splice(this.state.downloads.indexOf(download),1);
+            this.state.downloads.splice(this.state.downloads.indexOf(download), 1);
         });
-        download.on("retry",() => {
-            download.constructor(download.url,download.name,download.customHeaders);
+        download.on("retry", () => {
+            download.constructor(download.url, download.name, download.customHeaders);
             download.status = 3;
             if (this.getReady().length === 1) {
                 this.next();
@@ -247,7 +247,8 @@ export default class App extends Component {
         });
         return download;
     }
-    addDownload(download){
+
+    addDownload(download) {
         this.state.downloads.push(download);
         if (this.getReady().length === 1) {
             this.next();
@@ -265,6 +266,7 @@ export default class App extends Component {
     getDisplayDownloads() {
         return this.filter(this.state.downloads.filter(i => !i.done));
     }
+
     getAllDownloads() {
         return this.filter(this.state.downloads);
     }
@@ -582,10 +584,18 @@ export default class App extends Component {
                                                id={"dl-name"}
                                                placeholder={"Download Name"}/>
                                         <div className={"suggestions"}>
-                                            {this.getDownloadNames().map((i, a, x) => i ? <div key={a}
-                                                                                               onClick={() => this.acceptSuggestion(a)}
-                                                                                               className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
-                                                <span>{i}</span><br/></div> : null)}
+                                            {
+                                                this.getDownloads().map((i, a, x) => {
+                                                    if (i && i.name.length > 1 && this.filterSuggestion(i)) {
+                                                        return (<div key={a}
+                                                                     onClick={() => this.acceptSuggestion(a)}
+                                                                     className={"suggestion"}>
+                                                            <span>{i.name}</span>
+                                                            <br/>
+                                                        </div>);
+                                                    }
+                                                })
+                                            }
                                         </div>
                                     </div>
 
@@ -604,10 +614,18 @@ export default class App extends Component {
                                                id={"dl-url"}
                                                placeholder={"Download URL"}/>
                                         <div className={"suggestions"}>
-                                            {this.getDownloadUrls().map((i, a, x) => i ? <div key={a}
-                                                                                              onClick={() => this.acceptSuggestion(a)}
-                                                                                              className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
-                                                <span>{i}</span><br/></div> : null)}
+                                            {
+                                                this.getDownloads().map((i, a, x) => {
+                                                    if (i && i.url.length > 1 && this.filterSuggestion(i)) {
+                                                        return (<div key={a}
+                                                                     onClick={() => this.acceptSuggestion(a)}
+                                                                     className={"suggestion"}>
+                                                            <span>{i.url}</span>
+                                                            <br/>
+                                                        </div>);
+                                                    }
+                                                })
+                                            }
                                         </div>
                                     </div>
                                     <div className={"formItem"}>
@@ -629,20 +647,28 @@ export default class App extends Component {
                                                   placeholder={'Download Headers (JSON)'} // {"Cookie","token=quickdownloader"}
                                         />
                                         <div className={"suggestions"}>
-                                            {this.getDownloadHeaders().map((i, a, x) => i ? <div key={a}
-                                                                                                 onClick={() => this.acceptSuggestion(a)}
-                                                                                                 className={"suggestion" + (this.state.currentSelection === a - (x.slice(0, a).filter(i => !i).length) ? " focused" : "")}>
-                                                <span>{i}</span><br/></div> : null)}
+                                            {
+                                                this.getDownloads().map((i, a, x) => {
+                                                    if (i && i.headers.length > 1 && this.filterSuggestion(i)) {
+                                                        return (<div key={a}
+                                                                     onClick={() => this.acceptSuggestion(a)}
+                                                                     className={"suggestion"}>
+                                                            <span>{i.headers}</span>
+                                                            <br/>
+                                                        </div>);
+                                                    }
+                                                })
+                                            }
                                         </div>
                                     </div>
 
                                     <div className={"right-align"}>
                                         <Tool left={true} tooltip={"Begin download"} className={"confirm-btn"}
                                               icon={"fas fa-check"}
-                                              onClick={ async () => {
+                                              onClick={async () => {
                                                   if (this.state.downloadName && this.state.downloadURL) {
-                                                    await this.addToDownloadHistory();
-                                                    this.addDownload(await this.createDownload(this.state.downloadURL,this.state.downloadName,this.state.customHeaders));
+                                                      await this.addToDownloadHistory();
+                                                      this.addDownload(await this.createDownload(this.state.downloadURL, this.state.downloadName, this.state.customHeaders));
                                                   }
                                               }}/>
                                     </div>
@@ -894,8 +920,47 @@ export default class App extends Component {
 
                                         <div className={"flex"}>
                                             {JSON.parse(window.localStorage.downloadHistory).length > 1 ?
-                                                <Tool left={true} tooltip={"Clear all history"} icon={"fas fa-ban"}
-                                                      onClick={e => (window.localStorage.downloadHistory = "[]") && this.forceUpdate()}/> : null}
+                                                <Tool left={true} tooltip={"Clear all history"} icon={"fas fa-trash"}
+                                                      onClick={async e => {
+                                                          this.setState({pastDownloadsVisible: false});
+                                                          this.forceUpdate();
+                                                          await new Promise(resolve => {
+                                                              let box;
+                                                              this.alert(<Alert noClose={true}
+                                                                                ref={dialog => box = dialog}
+                                                                                key={new Date().getTime().toLocaleString()}
+                                                                                header={"Clear History"}>
+                                                                  <div>
+                                                                      Are you sure you would like to clear all past downloads from history and suggestions? This cannot be undone.
+                                                                      <div className={"right"}>
+                                                                          <button onClick={() => {
+                                                                              this.setState({showing: false});
+                                                                              this.forceUpdate();
+                                                                              resolve();
+                                                                              box.state.showing = false;
+                                                                              box.forceUpdate();
+                                                                          }
+                                                                          }>No
+                                                                          </button>
+
+                                                                          <button onClick={() => {
+                                                                              window.localStorage.downloadHistory = "[]";
+                                                                              this.setState({showing: false});
+                                                                              this.forceUpdate();
+                                                                              resolve();
+                                                                              box.state.showing = false;
+                                                                              box.forceUpdate();
+                                                                          }}>Yes
+                                                                          </button>
+
+                                                                      </div>
+                                                                  </div>
+                                                              </Alert>);
+                                                          });
+                                                          this.setState({pastDownloadsVisible: true});
+                                                          this.forceUpdate();
+                                                        }
+                                                      }/> : null}
                                             {/*<div className={"prompt_close_button"}>*/}
                                             <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
                                                   onClick={e => this.setState({pastDownloadsVisible: false})}/>

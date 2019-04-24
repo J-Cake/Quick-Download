@@ -323,9 +323,10 @@ input, textarea {
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     position: relative;
-    overflow: hidden;
     top: 100%;
     bottom: 5px;
+    max-height: 130px;
+    overflow: auto;
 
 }
 
@@ -336,6 +337,7 @@ input, textarea {
     text-overflow: ellipsis;
     width: 100%;
     white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .suggestion:hover {
