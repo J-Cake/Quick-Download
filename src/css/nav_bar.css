@@ -60,7 +60,7 @@ a:hover {
     margin: 0 -10px;
     top: 100%;
 }
-.nav_item[active] {
+.nav_item[data-active] {
     color: white;
     background: rgb(79, 86, 96);
 }
@@ -79,7 +79,7 @@ a:hover {
 .nav_dropdown div[disabled]{
 
 }
-.nav_dropdown.toggle div[active]:before {
+.nav_dropdown.toggle div[data-active]:before {
     font-family: "Font Awesome 5 Free";
     content: "\f00c";
     -webkit-font-smoothing: antialiased;

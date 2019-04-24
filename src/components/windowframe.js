@@ -97,8 +97,8 @@ export default class WindowFrame extends React.Component {
                                         <div className="nav_dropdown">
 											<div>Theme <i style={{fontSize: "10px"}} className={"more fas fa-chevron-right"}/>
                                                 <div className="nav_dropdown toggle">
-                                                    <div active={window.localStorage.getItem('theme') === 'light' ? 'active' : undefined}>Light</div>
-                                                    <div active={window.localStorage.getItem('theme') === 'dark' ? 'active' : undefined}>Dark</div>
+                                                    <div data-active={window.localStorage.getItem('theme') === 'light' ? 'active' : undefined}>Light</div>
+                                                    <div data-active={window.localStorage.getItem('theme') === 'dark' ? 'active' : undefined}>Dark</div>
                                                 </div>
                                             </div>
                                             <div onClick={e => _electron.ipcRenderer.send('toggledevtools')}>Toggle Dev Tools</div>
