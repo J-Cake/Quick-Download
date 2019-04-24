@@ -5,6 +5,8 @@
 
 We download things quickly.
 
+https://jbis9051.github.io/quick_download/
+
 ## Installation
 
 Coming soon! Once quick downloader is ready for use, installable binaries will be released.
