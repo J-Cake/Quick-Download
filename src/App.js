@@ -196,10 +196,10 @@ export default class App extends Component {
         });
     }
 
-    async initDownload() {
-        const url = this.state.downloadURL || "",
-            name = this.state.downloadName || "",
-            headers = this.state.customHeaders || "{}";
+    async createDownload(url, name, headers) {
+            url = url || "";
+            name = name || "";
+            headers = headers|| "{}";
 
         this.closePrompt();
 
@@ -225,12 +225,29 @@ export default class App extends Component {
         });
         download.on("update", info => this.forceUpdate());
         download.on("error", err => {
+            download.status = 1;
+            this.forceUpdate();
             console.error(err);
         });
-        this.state.downloads.push(download);
+        download.on("cancel", () => {
+              download.status = 5;
+            this.forceUpdate();
+            this.next();
+        });
         download.on("remove", () => {
             this.state.downloads.splice(this.state.downloads.indexOf(download),1);
         });
+        download.on("retry",() => {
+            download.constructor(download.url,download.name,download.customHeaders);
+            download.status = 3;
+            if (this.getActive().length === 1) {
+                this.next();
+            }
+        });
+        return download;
+    }
+    addDownload(download){
+        this.state.downloads.push(download);
         if (this.getActive().length === 1) {
             this.next();
         }
@@ -244,8 +261,16 @@ export default class App extends Component {
         return sort(filter(downloads), (this.state.sortBy || "").split('.')).flip(this.state.reversed);
     }
 
+    getAllDownloads() {
+        return this.filter(this.state.downloads);
+    }
+
     getActive() {
-        return this.filter(this.state.downloads.filter(i => !i.done));
+        return this.filter(this.state.downloads.filter(i =>
+            !i.done
+            && i.status !== 1
+            && i.status !== 5
+        ));
     }
 
     getInactive() {
@@ -516,7 +541,7 @@ export default class App extends Component {
 
                     <div className={"download-tabs-content"}>
                         <div className={"downloads active"} id={this.state.showActive ? "active" : ""}>
-                            {this.getActive().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Press the + button to start a download")}
+                            {this.getAllDownloads().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Press the + button to start a download")}
                         </div>
                         <div className={"downloads inactive"} id={!this.state.showActive ? "active" : ""}>
                             {this.getInactive().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Wait until a download completes to see it here")}
@@ -610,10 +635,10 @@ export default class App extends Component {
                                     <div className={"right-align"}>
                                         <Tool left={true} tooltip={"Begin download"} className={"confirm-btn"}
                                               icon={"fas fa-check"}
-                                              onClick={() => {
+                                              onClick={ async () => {
                                                   if (this.state.downloadName && this.state.downloadURL) {
-                                                      this.addToDownloadHistory();
-                                                      this.initDownload();
+                                                    await this.addToDownloadHistory();
+                                                    this.addDownload(await this.createDownload(this.state.downloadURL,this.state.downloadName,this.state.customHeaders));
                                                   }
                                               }}/>
                                     </div>

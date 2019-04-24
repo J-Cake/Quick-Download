@@ -13,7 +13,7 @@ export default class DownloadCarrier extends events.EventEmitter {
 		super();
 		this.url = url;
 		this.name = name;
-		this.customHeaders = JSON.parse(headers);
+		this.customHeaders = (typeof headers === "string") ? JSON.parse(headers) : headers;
 		this.download = new Download();
 		this.headersExpanded = false;
 
@@ -26,8 +26,9 @@ export default class DownloadCarrier extends events.EventEmitter {
 		this.stages = {};
 
 		this.functions = {
-			cancel: this.cancel,
-			remove: this.remove,
+			cancel: this.cancel.bind(this),
+			remove: this.remove.bind(this),
+			retry: this.retry.bind(this),
 			toggleHeaders: () => this.toggleHeaders()
 		};
 
@@ -50,12 +51,15 @@ export default class DownloadCarrier extends events.EventEmitter {
 	cancel() {
 		if (this.download)
 			this.download.cancel();
+		this.emit('cancel');
 	}
 
 	remove() {
 		this.emit('remove');
 	}
-
+	retry(){
+		this.emit('retry');
+	}
 	async startDownload() {
 				this.emit("init");
 				this.download.on('update', info => this.update(info));

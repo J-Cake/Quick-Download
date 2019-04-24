@@ -313,7 +313,7 @@ export default class Download extends events.EventEmitter {
             progress: this.progress
         });
 
-		this.speed = Math.floor(speed);
+		this.speed = Math.floor(speed)*1000;
 
 		const eta = Date.now() + remainingTime;
 
