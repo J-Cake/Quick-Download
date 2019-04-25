@@ -126,7 +126,8 @@ export default class App extends Component {
         this.setState({downloadName: "", downloadURL: "", promptShowing: false});
     }
 
-    confirmExists(fullLocation, name) {
+    generateUniqueFileName(name, saveLocation, url) {
+        const fullLocation = Download.getFileName(name, saveLocation, url);
         return new Promise(resolve => {
             if (fs.existsSync(fullLocation)) {
                 let box;
@@ -142,21 +143,14 @@ export default class App extends Component {
                         <br/>
                         <br/>
 
-                        <b>Note:</b> If you choose to keep it, the file's contents will not be deleted, instead
-                        additional
-                        content will be appended to it. This will render the resulting and the original files unusable.
-
-                        <br/>
-                        <br/>
-
                         <div className={"right"}>
                             <button onClick={async () => {
-                                let newName = name;
-                                while (fs.existsSync(Download.getFileName(name, window.localStorage.saveLocation, this.state.url)))
-                                    newName += ' 2';
-
+                                let num = 2;
+                                while (fs.existsSync(Download.getFileName(name + " " + num, saveLocation, url))) {
+                                    num++;
+                                }
                                 this.setState({showing: false});
-                                resolve(newName);
+                                resolve(name + " " + num);
                                 box.state.showing = false;
                                 box.forceUpdate();
                                 this.forceUpdate();
@@ -166,25 +160,16 @@ export default class App extends Component {
                             <button onClick={async () => {
                                 fs.unlinkSync(fullLocation);
                                 this.setState({showing: false});
-                                resolve();
+                                resolve(name);
                                 box.state.showing = false;
                                 box.forceUpdate();
                                 this.forceUpdate();
                             }}>Overwrite
                             </button>
 
-                            <button onClick={async () => {
-                                this.setState({showing: false});
-                                resolve();
-                                box.state.showing = false;
-                                box.forceUpdate();
-                                this.forceUpdate();
-                            }}>Keep
-                            </button>
-
                             <button onClick={() => {
                                 this.setState({showing: false});
-                                resolve();
+                                resolve(false);
                                 box.state.showing = false;
                                 box.forceUpdate();
                                 this.forceUpdate();
@@ -206,9 +191,11 @@ export default class App extends Component {
 
         this.closePrompt();
 
-        const newName = await this.confirmExists(Download.getFileName(name, window.localStorage.saveLocation, url), name);
-
-        const download = new DownloadCarrier(url, newName || name, headers);
+        const newName = await this.generateUniqueFileName(name,window.localStorage.saveLocation,url);
+        if(!newName){
+            return false;
+        }
+        const download = new DownloadCarrier(url, newName, headers);
         download.download.on("init", function () {
             download.status = 4;
             this.forceUpdate();
@@ -252,7 +239,9 @@ export default class App extends Component {
     }
 
     addDownload(download) {
-        this.state.downloads.push(download);
+        if(download){
+            this.state.downloads.push(download);
+        }
         if (this.getReady().length === 1) {
             this.next();
         }
