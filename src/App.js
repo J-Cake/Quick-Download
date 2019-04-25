@@ -41,6 +41,7 @@ const fs = window.require('fs');
 const Mousetrap = window.require('mousetrap');
 
 const _electron = window.require('electron');
+const version = _electron.ipcRenderer.sendSync('version');
 const remote = _electron.remote;
 const {ipcRenderer} = window.require('electron');
 
@@ -470,6 +471,10 @@ export default class App extends Component {
     about() {
         this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<div>
             <ul className={"about-details"}>
+                <li>
+                    <b>Quick Downloader Version: </b>
+                    <span>{ version }</span>
+                </li>
                 <li>
                     <b>Node Version: </b>
                     <span>{window.process.versions.node}</span>

@@ -152,13 +152,13 @@ function createMenu() {
 				{
 					label: 'Learn More',
 					click() {
-						require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+						app.shell.openExternal('https://github.com/jbis9051/quick_download')
 					}
 				},
 				{
 					label: 'Contribute',
 					click() {
-						require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+						app.shell.openExternal('https://github.com/jbis9051/quick_download')
 					}
 				},
 				{
@@ -173,7 +173,7 @@ function createMenu() {
 				{
 					label: "Docs",
 					click() {
-						require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+						app.shell.openExternal('https://github.com/jbis9051/quick_download')
 					}
 				}
 			]
@@ -230,10 +230,13 @@ ipcMain.on('pickDir', e => {
 });
 
 ipcMain.on('openURL', (e,url) => {
-	require('electron').shell.openExternal(url);
+	app.shell.openExternal(url);
 });
 ipcMain.on('toggledevtools', (e,url) => {
 	 mainWindow.toggleDevTools();
+});
+ipcMain.on('version', e => {
+	e.returnValue = app.getVersion();
 });
 
 ipcMain.on('confirmClear', e => {

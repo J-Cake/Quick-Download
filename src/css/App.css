@@ -354,8 +354,8 @@ input, textarea {
 }
 
 .about-details {
-    margin-left: 20px;
-    padding-bottom: 10px;
+    margin: 0;
+    padding: 0;
 }
 
 .about-details li {
