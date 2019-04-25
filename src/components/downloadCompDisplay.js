@@ -28,17 +28,17 @@ const getTools = props => {
         case 1:
             return [<Tool key={"option1"} left={true} tooltip={"Retry Download"} icon={"fas fa-redo"}
                           onClick={() => props.functions.retry()}/>,
-                <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"}
+                <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-trash"}
                       onClick={() => props.functions.remove()}/>];
         case 2:
             return [<Tool key={"option1"} left={true} tooltip={"Show Download in folder"} icon={"fas fa-folder"}
                           onClick={() => open(props.content.path)}/>,
-                <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"}
+                <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-trash"}
                       onClick={() => props.functions.remove()}/>];
         case 5:
             return [<Tool key={"option1"} left={true} tooltip={"Retry Download"} icon={"fas fa-redo"}
                           onClick={() => props.functions.retry()}/>,
-                <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-ban"}
+                <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-trash"}
                       onClick={() => props.functions.remove()}/>];
     }
 };
