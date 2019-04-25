@@ -22,6 +22,7 @@ export default class Download extends events.EventEmitter {
         this.last_update = 0;
         this.last_speed_update_time = 0;
         this.last_speed_progress = 0;
+        this.cancelled = false;
     }
 
     /**
@@ -377,6 +378,7 @@ export default class Download extends events.EventEmitter {
     }
 
     async cancel() {
+        this.cancelled = true;
         for (const part of this.parts) {
             part.cancel(); // complete download cancellation
 
@@ -398,17 +400,17 @@ export default class Download extends events.EventEmitter {
             this.emit("download_all");
             await this.download_all();
             this.forceUpdate();
+            if(!this.cancelled) {
+                this.emit("combine_parts");
+                await this.combineParts_move_to_final().catch(err => this.error(err.toString()));
+                this.forceUpdate();
 
 
-            this.emit("combine_parts");
-            await this.combineParts_move_to_final().catch(err => this.error(err));
-            this.forceUpdate();
-
-
-            this.emit("cleanup");
-            await this.cleanup();
-            await this.madeProgress(0, true);
-            this.emit("complete");
+                this.emit("cleanup");
+                await this.cleanup();
+                await this.madeProgress(0, true);
+                this.emit("complete");
+            }
         } else {
             console.error("beginDownload called even though bytes requests aren't supported")
         }

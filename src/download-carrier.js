@@ -23,12 +23,10 @@ export default class DownloadCarrier extends events.EventEmitter {
 
 		this.stats = {};
 
-		this.stages = {};
-
 		this.functions = {
 			cancel: this.cancel.bind(this),
 			remove: this.remove.bind(this),
-			retry: this.retry.bind(this),
+			retry: this.retry,
 			toggleHeaders: () => this.toggleHeaders()
 		};
 

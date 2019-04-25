@@ -237,6 +237,7 @@ export default class App extends Component {
         });
         download.on("remove", () => {
             this.state.downloads.splice(this.state.downloads.indexOf(download), 1);
+            this.forceUpdate();
         });
         download.on("retry", () => {
             download.constructor(download.url, download.name, download.customHeaders);
