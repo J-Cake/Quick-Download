@@ -157,7 +157,7 @@ b {
     background: #b81d27;
 }
 
-.download.done *, .download.failed *, .download.awaiting {
+.download.done *, .download.awaiting * {
     color: #3c434b;
 }
 
