@@ -73,6 +73,8 @@ export default class Part {
     }
 
     async cleanup() {
-        this.file.deleteSync();
+        if(this.file.exists()){
+            this.file.deleteSync();
+        }
     }
 }

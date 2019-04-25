@@ -29,7 +29,9 @@ class TmpFile {
 
 		})
 	}
-
+	exists(){
+		return fs.existsSync(this.path);
+	}
 	writeSync(content) {
 		this.file.write(content);
 	}

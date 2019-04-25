@@ -51,6 +51,9 @@ export default class Download extends events.EventEmitter {
         this.proxyOptions = (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
         this.custom_headers = custom_headers || {};
         this.final_file = Download.getFileName(name, save_location, url).replace(/\\/g, '/');
+        this.onUpdate({
+            path: this.final_file,
+        });
         this.url = url;
         this.full_fail = false;
         this.speed = 0;
@@ -68,8 +71,14 @@ export default class Download extends events.EventEmitter {
             return this;
         }
         this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(err => this.error(err));
+        this.onUpdate({
+            size: this.total_length,
+        });
         this.name = name;
         this.numOfParts = parts || 10;
+        this.onUpdate({
+            total_chunks: this.numOfParts,
+        });
         this.startTime = Date.now();
         if (url_lib.parse(url).protocol === "http:") {
             this.protocol = http;
@@ -267,6 +276,7 @@ export default class Download extends events.EventEmitter {
     }
 
     createParts() {
+        this.emit("create_parts");
         this.num_of_parts_to_create = this.numOfParts;
         let last_int = -1;
         for (let i = 0; i < this.num_of_parts_to_create; i++) {
@@ -287,16 +297,12 @@ export default class Download extends events.EventEmitter {
         const time = new Date(now - this.startTime);
         if (Date.now() - this.last_update > 800 || done) {
             this.last_update = Date.now();
-
             this.onUpdate({
                 percentage: ((this.progress / this.total_length) * 100) || 0,
                 progress: this.progress,
                 speed: this.speed,
-                size: this.total_length,
                 chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
-                total_chunks: this.num_of_parts_to_create,
                 done: done || false,
-                path: this.final_file,
                 eta: this.ETA,
                 elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
             });
@@ -331,6 +337,7 @@ export default class Download extends events.EventEmitter {
     }
 
     download_all() {
+        this.emit("download_all");
         return new Promise((resolve, reject) => {
             const promises = [];
             for (let i = 0; i < this.parts.length; i++) {
@@ -349,6 +356,7 @@ export default class Download extends events.EventEmitter {
     }
 
     combineParts_move_to_final() {
+        this.emit("combine_parts");
         return new Promise((resolve,reject) => {
             let final = fs.createWriteStream(this.final_file, {flags: 'a'});
             final.on('finish', resolve);
@@ -369,44 +377,36 @@ export default class Download extends events.EventEmitter {
     }
 
     async cleanup() {
+        this.emit("cleanup");
         for (const part of this.parts) {
-            part.cleanup().then(() => {
-                this.madeProgress(0);
-                this.forceUpdate();
-            });
+            part.cleanup();
         }
     }
 
     async cancel() {
+        this.emit("cancel");
         this.cancelled = true;
         for (const part of this.parts) {
             part.cancel(); // complete download cancellation
 
         }
         await this.cleanup();
-        this.onUpdate({
-            status: 1
-        });
-
     }
 
     async beginDownload() {
         if (this.bytes_request_supported) {
 
-            this.emit("create_parts");
             await this.createParts();
             this.forceUpdate();
 
-            this.emit("download_all");
+
             await this.download_all();
             this.forceUpdate();
             if(!this.cancelled) {
-                this.emit("combine_parts");
                 await this.combineParts_move_to_final().catch(err => this.error(err.toString()));
                 this.forceUpdate();
 
 
-                this.emit("cleanup");
                 await this.cleanup();
                 await this.madeProgress(0, true);
                 this.emit("complete");
