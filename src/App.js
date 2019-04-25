@@ -179,7 +179,7 @@ export default class App extends Component {
                     </div>
                 </Alert>);
             } else {
-                resolve();
+                resolve(name);
             }
         });
     }
@@ -228,13 +228,15 @@ export default class App extends Component {
             this.state.downloads.splice(this.state.downloads.indexOf(download), 1);
             this.forceUpdate();
         });
-        download.on("retry", () => {
+        download.on("retry", async () => {
             download.constructor(download.url, download.name, download.customHeaders);
             download.status = 3;
             if (this.getReady().length === 1) {
+                await download.initateDownload();
                 this.next();
             }
         });
+        await download.initateDownload();
         return download;
     }
 

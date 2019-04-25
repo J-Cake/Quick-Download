@@ -54,6 +54,7 @@ export default class Download extends events.EventEmitter {
         this.onUpdate({
             path: this.final_file,
         });
+        fs.closeSync(fs.openSync(this.final_file, 'w')); /* touches the file to alert everyone that this is my final and no one should touch it */
         this.url = url;
         this.full_fail = false;
         this.speed = 0;
