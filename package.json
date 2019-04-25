@@ -50,7 +50,7 @@
 	"bugs": {
 		"url": "https://github.com/jbis9051/quick_download/issues"
 	},
-	"homepage": "https://jbis9051.github.io/quick_download/",
+	"homepage": "./",
 	"build": {
 		"appId": "com.quick-downloader",
 		"files": [
