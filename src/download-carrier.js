@@ -62,14 +62,14 @@ export default class DownloadCarrier extends events.EventEmitter {
 	retry(){
 		this.emit('retry');
 	}
-	async initateDownload(){
+	async initiateDownload(){
 		this.emit("init");
 		this.download.on('update', info => this.update(info));
 		this.download.on('error', err => this.error(err));
 		await this.download.init(this.url, this.name, window.localStorage.saveLocation, Number(window.localStorage.partsToCreate), this.customHeaders, this.proxyOptions || false);
 	}
 	async startDownload() {
-				await this.download.beginDownload();
+		await this.download.beginDownload();
 	}
 
 	prettyProps(filter) {

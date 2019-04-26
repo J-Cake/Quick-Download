@@ -36,7 +36,7 @@ Array.prototype.flip = function (shouldFlip) {
 };
 
 Array.prototype.except = function (excluder) {
-  return this.filter(i => i !== excluder);
+    return this.filter(i => i !== excluder);
 };
 
 const path = window.require('path');
@@ -194,8 +194,8 @@ export default class App extends Component {
 
         this.closePrompt();
 
-        const newName = await this.generateUniqueFileName(name,window.localStorage.saveLocation,url);
-        if(!newName){
+        const newName = await this.generateUniqueFileName(name, window.localStorage.saveLocation, url);
+        if (!newName) {
             return false;
         }
         const download = new DownloadCarrier(url, newName, headers);
@@ -226,8 +226,10 @@ export default class App extends Component {
             download.cancel();
         });
         download.on("cancel", () => {
-            download.status = 5;
-            this.forceUpdate();
+            if (download.status !== 1) {
+                download.status = 5;
+                this.forceUpdate();
+            }
             this.next();
         });
         download.on("remove", () => {
@@ -238,16 +240,15 @@ export default class App extends Component {
             download.constructor(download.url, download.name, download.customHeaders);
             download.status = 3;
             if (this.getReady().length === 1) {
-                await download.initateDownload();
+                await download.initiateDownload();
                 this.next();
             }
         });
-        await download.initateDownload();
         return download;
     }
 
     addDownload(download) {
-        if(download){
+        if (download) {
             this.state.downloads.push(download);
             this.forceUpdate();
         }
@@ -298,7 +299,7 @@ export default class App extends Component {
                 console.log(err);
             });
         }
-        
+
         this.forceUpdate();
     }
 
@@ -479,7 +480,7 @@ export default class App extends Component {
             <ul className={"about-details"}>
                 <li>
                     <b>Quick Downloader Version: </b>
-                    <span>{ version }</span>
+                    <span>{version}</span>
                 </li>
                 <li>
                     <b>Node Version: </b>
@@ -527,8 +528,8 @@ export default class App extends Component {
                 <div className="App">
                     <div className={"download-tabs"}>
 							<span onClick={() => {
-							    debugger;
-							    this.setState({showActive: true});
+                                debugger;
+                                this.setState({showActive: true});
                             }} className={"tab"}
                                   id={this.state.showActive ? "active" : ""}>Queue</span>
                         <span onClick={() => this.setState({showActive: false})} className={"tab"}
@@ -542,18 +543,24 @@ export default class App extends Component {
 
                         <Tool left={true} tooltip={"Search by"} icon={"fas fa-search"}
                               menu={{
-                                  "Name": () => this.setState(prev => ({filters: {
+                                  "Name": () => this.setState(prev => ({
+                                      filters: {
                                           ...prev.filters,
                                           name: !prev.filters.name
-                                      }})),
-                                  "URL": () => this.setState(prev => ({filters: {
+                                      }
+                                  })),
+                                  "URL": () => this.setState(prev => ({
+                                      filters: {
                                           ...prev.filters,
                                           url: !prev.filters.url
-                                      }})),
-                                  "Status": () => this.setState(prev => ({filters: {
+                                      }
+                                  })),
+                                  "Status": () => this.setState(prev => ({
+                                      filters: {
                                           ...prev.filters,
                                           statusName: !prev.filters.statusName
-                                      }}))
+                                      }
+                                  }))
                               }}/>
 
                         <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
@@ -693,7 +700,10 @@ export default class App extends Component {
                                               onClick={async () => {
                                                   if (this.state.downloadName && this.state.downloadURL) {
                                                       await this.addToDownloadHistory();
-                                                      this.addDownload(await this.createDownload(this.state.downloadURL, this.state.downloadName, this.state.customHeaders));
+                                                      const download = await this.createDownload(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
+                                                      this.addDownload(download);
+                                                      await download.initiateDownload();
+                                                      this.next();
                                                   }
                                               }}/>
                                     </div>
@@ -956,7 +966,9 @@ export default class App extends Component {
                                                                                 key={new Date().getTime().toLocaleString()}
                                                                                 header={"Clear History"}>
                                                                   <div>
-                                                                      Are you sure you would like to clear all past downloads from history and suggestions? This cannot be undone.
+                                                                      Are you sure you would like to clear all past
+                                                                      downloads from history and suggestions? This
+                                                                      cannot be undone.
                                                                       <div className={"right"}>
                                                                           <button onClick={() => {
                                                                               this.setState({showing: false});
@@ -984,7 +996,7 @@ export default class App extends Component {
                                                           });
                                                           this.setState({pastDownloadsVisible: true});
                                                           this.forceUpdate();
-                                                        }
+                                                      }
                                                       }/> : null}
                                             {/*<div className={"prompt_close_button"}>*/}
                                             <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
