@@ -528,7 +528,6 @@ export default class App extends Component {
                 <div className="App">
                     <div className={"download-tabs"}>
 							<span onClick={() => {
-                                debugger;
                                 this.setState({showActive: true});
                             }} className={"tab"}
                                   id={this.state.showActive ? "active" : ""}>Queue</span>
