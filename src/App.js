@@ -212,8 +212,8 @@ export default class App extends Component {
         });
         download.download.on("complete", () => {
             download.done = true;
-            this.next();
             download.status = 2;
+            this.next();
             this.forceUpdate();
         });
         download.on("update", info => {
@@ -252,9 +252,6 @@ export default class App extends Component {
             this.state.downloads.push(download);
             this.forceUpdate();
         }
-        if (this.getReady().length === 1) {
-            this.next();
-        }
     }
 
 
@@ -277,12 +274,14 @@ export default class App extends Component {
     getAllDownloads() {
         return this.filter(this.state.downloads);
     }
-
+    getActive() {
+        return this.filter(this.state.downloads.filter(i =>
+            i.status === 0
+        ));
+    }
     getReady() {
         return this.filter(this.state.downloads.filter(i =>
-            !i.done
-            && i.status !== 1
-            && i.status !== 5
+            i.status === 3
         ));
     }
 
@@ -292,8 +291,7 @@ export default class App extends Component {
 
     next() {
         const downloads = this.getReady();
-
-        if (downloads[0]) {
+        if (downloads[0] && this.getActive().length === 0) {
             const download = downloads[0];
             download.startDownload().catch(err => {
                 console.log(err);
@@ -329,21 +327,6 @@ export default class App extends Component {
 
         window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
     }
-
-    // updateTaskBarValue(index, progress) {
-    // 	if (index === this.state.activeDownloads.length) {
-    //
-    // 		console.log(progress);
-    //
-    // 		(async function (progress) {
-    // 			window.require('electron').remote.getCurrentWindow().setProgressBar(progress / 100);
-    // 		})(progress).catch(err => console.error(err) || err);
-    //
-    // 		if (progress === 100) (async function () {
-    // 			window.require('electron').remote.getCurrentWindow().setProgressBar(-1);
-    // 		})().catch(err => console.error(err) || err);
-    // 	}
-    // }
 
     getDownloads() {
         const downloads = JSON.parse(window.localStorage.downloadHistory || "[]");
