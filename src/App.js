@@ -35,6 +35,10 @@ Array.prototype.flip = function (shouldFlip) {
         return this;
 };
 
+Array.prototype.except = function (excluder) {
+  return this.filter(i => i !== excluder);
+};
+
 const path = window.require('path');
 const os = window.require('os');
 const fs = window.require('fs');
@@ -91,7 +95,7 @@ export default class App extends Component {
             pastDownloadsVisible: false,
             customHeaders: "",
             showActive: true,
-            filter: "name",
+            filters: {name: true},
             showError: false,
             filterValue: "",
         };
@@ -113,7 +117,6 @@ export default class App extends Component {
 
     alert(box) {
         this.setState(prev => ({boxes: [...prev.boxes, box]}));
-        console.log("showing box");
     }
 
     showPrompt() {
@@ -220,6 +223,7 @@ export default class App extends Component {
             download.status = 1;
             this.forceUpdate();
             console.error(err);
+            download.cancel();
         });
         download.on("cancel", () => {
             download.status = 5;
@@ -253,8 +257,13 @@ export default class App extends Component {
     }
 
 
-    filter(downloads) {
-        const filter = downloads => this.state.filter ? downloads.filter(i => i[this.state.filter].toLowerCase().indexOf(this.state.filterValue.toLowerCase()) > -1) : downloads;
+    filter(downloads) { // challenge, turn this into a one-liner
+        const filterList = Object.keys(this.state.filters).filter(i => this.state.filters[i]);
+
+        //filterList.map(j => this.state.filters[j]).reduce((a, j) => a || (i[j].toLowerCase().indexOf(this.state.filterValue.toLowerCase()) > -1))
+
+        const filter = downloads => (filterList.length > 0) ? downloads.filter(i => filterList.reduce((a, j) => a || (i[j] === this.state.filterValue))) : downloads;
+
         const getProperty = (obj, prop) => prop.reduce((a, i) => (obj[a] || a)[i]);
         const sort = (downloads, selector) => downloads.sort((a, b) => ((a, b) => a > b ? 1 : (a < b ? -1 : 0))(getProperty(a, selector), getProperty(b, selector)));
         return sort(filter(downloads), (this.state.sortBy || "").split('.')).flip(this.state.reversed);
@@ -283,9 +292,13 @@ export default class App extends Component {
     next() {
         const downloads = this.getReady();
 
-        if (downloads[0])
-            downloads[0].startDownload();
-
+        if (downloads[0]) {
+            const download = downloads[0];
+            download.startDownload().catch(err => {
+                console.log(err);
+            });
+        }
+        
         this.forceUpdate();
     }
 
@@ -306,8 +319,6 @@ export default class App extends Component {
                     const maxSelection = this.getDownloadHeaders().filter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
-
-            console.log(this.state.currentSelection);
         }
     }
 
@@ -526,13 +537,23 @@ export default class App extends Component {
 
                     <div className={"downloads-display-options"}>
                         <input value={this.state.filterValue}
-                               onChange={text => this.setState({filterValue: text.target.value})}
+                               onChange={async text => (await this.setState({filterValue: text.target.value}) || console.log(this.state.filters, this.state.filterValue))}
                                className={"input_standard"} placeholder={"Filter downloads"}/>
 
                         <Tool left={true} tooltip={"Search by"} icon={"fas fa-search"}
                               menu={{
-                                  "Name": () => this.setState({filter: "name"}),
-                                  "URL": () => this.setState({filter: "url"})
+                                  "Name": () => this.setState(prev => ({filters: {
+                                          ...prev.filters,
+                                          name: !prev.filters.name
+                                      }})),
+                                  "URL": () => this.setState(prev => ({filters: {
+                                          ...prev.filters,
+                                          url: !prev.filters.url
+                                      }})),
+                                  "Status": () => this.setState(prev => ({filters: {
+                                          ...prev.filters,
+                                          statusName: !prev.filters.statusName
+                                      }}))
                               }}/>
 
                         <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
