@@ -13,7 +13,7 @@ export default class DownloadCarrier extends events.EventEmitter {
 		super();
 		this.url = url;
 		this.name = name;
-		this.customHeaders = (typeof headers === "string") ? JSON.parse(headers) : headers;
+		this.customHeaders = (typeof headers === "string") ? DownloadCarrier.JSONparse(headers) : headers;
 		if(this.download){
 			this.download.constructor(); // retry download, need to reset everything
 		} else {
@@ -44,6 +44,15 @@ export default class DownloadCarrier extends events.EventEmitter {
 				} : false,
 			};
 		}
+	}
+	static JSONparse(str){
+		str = str || "{}";
+		try {
+			JSON.parse(str);
+		} catch (e) {
+			return false;
+		}
+		return JSON.parse(str);
 	}
 
 	render(key) {

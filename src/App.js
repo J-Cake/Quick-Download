@@ -119,14 +119,17 @@ export default class App extends Component {
         this.setState(prev => ({boxes: [...prev.boxes, box]}));
     }
 
-    showPrompt() {
+    showDownloadPrompt() {
         if (!this.state.promptShowing) {
             this.setState(prevState => ({promptShowing: !prevState.promptShowing}));
         }
     }
 
-    closePrompt() {
-        this.setState({downloadName: "", downloadURL: "", promptShowing: false});
+    closeDownloadPrompt() {
+        this.setState({promptShowing: false});
+    }
+    clearDownloadPrompt() {
+        this.setState({downloadName: "", downloadURL: ""});
     }
 
     generateUniqueFileName(name, saveLocation, url) {
@@ -251,10 +254,11 @@ export default class App extends Component {
             window.localStorage.downloadHistory = JSON.stringify([]);
 
         try {
-            Mousetrap.bind('mod+n', () => this.showPrompt());
+            Mousetrap.bind('mod+n', () => this.showDownloadPrompt());
             Mousetrap.bind('esc', () => {
                 // this.forceUpdate();
-                this.closePrompt();
+                this.closeDownloadPrompt();
+                this.clearDownloadPrompt();
                 this.setState(prev => ({
                     settingsVisible: false,
                     pastDownloadsVisible: false,
@@ -281,7 +285,7 @@ export default class App extends Component {
         }
 
         window.App = {
-            show: () => this.showPrompt(),
+            show: () => this.showDownloadPrompt(),
             showPastDownloads: () => this.pastDownloads(),
             close: () => App.confirmExit(),
             toggleFullScreen: () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()),
@@ -333,7 +337,6 @@ export default class App extends Component {
     }
 
     contact() {
-        console.log("contact");
         this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={
             <ul>
                 <li><a target={"_blank"}
@@ -387,19 +390,18 @@ export default class App extends Component {
         name = name || "";
         headers = headers || "{}";
 
-        this.closePrompt();
+        this.closeDownloadPrompt();
+        this.clearDownloadPrompt();
 
         const newName = await this.generateUniqueFileName(name, window.localStorage.saveLocation, url);
         if (!newName) {
             return false;
         }
         const download = new DownloadCarrier(url, newName, headers);
+
         download.download.on("init", function () {
             download.status = 4;
             this.forceUpdate();
-        });
-        download.download.on("create_parts", () => {
-            console.log();
         });
         download.download.on("download_all", () => {
             download.status = 0;
@@ -433,7 +435,6 @@ export default class App extends Component {
             this.next();
         });
         download.on("remove", () => {
-            console.log([...this.state.downloads.filter(d => d !== download)]);
             this.setState({
                 downloads: [...this.state.downloads.filter(d => d !== download)],
             });
@@ -489,7 +490,7 @@ export default class App extends Component {
         if (downloads[0] && this.getActive().length === 0) {
             const download = downloads[0];
             download.startDownload().catch(err => {
-                console.log(err);
+                console.error(err);
             });
         }
 
@@ -499,11 +500,11 @@ export default class App extends Component {
     render() {
         return (
             <div className="wrapper">
-                <WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showPrompt()}/>
+                <WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showDownloadPrompt()}/>
                 <div className={"menu_buttons_container"}>
                     <div className={"menu_buttons_wrapper"}>
                         <Tool tooltip={"New download"} className="icon_button" shortcut="+"
-                              onClick={e => this.showPrompt()}
+                              onClick={e => this.showDownloadPrompt()}
                               icon={"fas fa-plus"}/>
                         <Tool tooltip={"Settings"} className="icon_button"
                               shortcut="*"
@@ -584,7 +585,7 @@ export default class App extends Component {
                                         <h1>New Download</h1>
                                         <div className={"prompt_close_button"}>
                                             <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
-                                                  onClick={e => this.closePrompt()}/>
+                                                  onClick={e => this.closeDownloadPrompt() && this.clearDownloadPrompt()}/>
 
                                         </div>
                                     </header>
@@ -665,7 +666,7 @@ export default class App extends Component {
 
                                                   className={"input_standard dl-headers standard_code mousetrap url"}
                                                   id={"dl-headers"}
-                                                  placeholder={'Download Headers (JSON)'} // {"Cookie","token=quickdownloader"}
+                                                  placeholder={'Download Headers (JSON)'}
                                         />
                                         <div className={"suggestions"}>
                                             {
@@ -688,11 +689,59 @@ export default class App extends Component {
                                               icon={"fas fa-check"}
                                               onClick={async () => {
                                                   if (this.state.downloadName && this.state.downloadURL) {
-                                                      await this.addToDownloadHistory();
-                                                      const download = await this.createDownload(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
-                                                      this.addDownload(download);
-                                                      await download.initiateDownload();
-                                                      this.next();
+                                                      let shouldContinue = true;
+                                                      if (!DownloadCarrier.JSONparse(this.state.customHeaders)) {
+                                                          this.closeDownloadPrompt();
+                                                           shouldContinue = await new Promise(resolve => {
+                                                              let box;
+                                                              this.alert(<Alert noClose={true}
+                                                                                ref={dialog => box = dialog}
+                                                                                key={new Date().getTime().toLocaleString()}
+                                                                                header={"Invalid JSON"}>
+                                                                  <div>
+                                                                      The custom headers input is not valid JSON. Would
+                                                                      you like to continue
+                                                                      download <b>without</b> custom headers or cancel?
+                                                                      <div className={"right"}>
+                                                                          <button onClick={() => {
+                                                                              this.setState({
+                                                                                  showing: false
+                                                                              });
+                                                                              this.setState({
+                                                                                  customHeaders: "",
+                                                                              });
+                                                                              resolve(true);
+                                                                              box.setState({
+                                                                                  showing: false,
+                                                                              });
+                                                                          }
+                                                                          }>Clear Custom Headers
+                                                                          </button>
+
+                                                                          <button onClick={() => {
+                                                                              this.setState({showing: false});
+                                                                              this.showDownloadPrompt();
+                                                                              resolve(false);
+                                                                              box.setState({
+                                                                                  showing: false,
+                                                                              });
+                                                                          }}>Cancel
+                                                                          </button>
+                                                                      </div>
+                                                                  </div>
+                                                              </Alert>);
+                                                          });
+
+                                                      }
+                                                      if(shouldContinue){
+                                                          await this.addToDownloadHistory();
+                                                          const download = await this.createDownload(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
+                                                          if(download){
+                                                              this.addDownload(download);
+                                                              await download.initiateDownload();
+                                                              this.next();
+                                                          }
+                                                      }
                                                   }
                                               }}/>
                                     </div>
