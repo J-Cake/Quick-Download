@@ -154,28 +154,22 @@ export default class App extends Component {
                                 }
                                 this.setState({showing: false});
                                 resolve(name + " " + num);
-                                box.state.showing = false;
-                                box.forceUpdate();
-                                this.forceUpdate();
+                                box.setState({showing: false});
                             }}>Rename
                             </button>
 
                             <button onClick={async () => {
                                 fs.unlinkSync(fullLocation);
-                                this.setState({showing: false});
                                 resolve(name);
-                                box.state.showing = false;
-                                box.forceUpdate();
-                                this.forceUpdate();
+                                this.setState({showing: false});
+                                box.setState({showing: false});
                             }}>Overwrite
                             </button>
 
                             <button onClick={() => {
-                                this.setState({showing: false});
                                 resolve(false);
-                                box.state.showing = false;
-                                box.forceUpdate();
-                                this.forceUpdate();
+                                this.setState({showing: false});
+                                box.setState({showing: false});
                             }}>Cancel
                             </button>
                         </div>
@@ -233,8 +227,10 @@ export default class App extends Component {
             this.next();
         });
         download.on("remove", () => {
-            this.state.downloads.splice(this.state.downloads.indexOf(download), 1);
-            this.forceUpdate();
+            console.log([...this.state.downloads.filter(d => d !== download)]);
+            this.setState({
+                downloads: [...this.state.downloads.filter(d => d !== download)],
+            });
         });
         download.on("retry", async () => {
             download.constructor(download.url, download.name, download.customHeaders);
@@ -249,8 +245,12 @@ export default class App extends Component {
 
     addDownload(download) {
         if (download) {
-            this.state.downloads.push(download);
-            this.forceUpdate();
+            this.setState({
+                downloads: [
+                    ...this.state.downloads,
+                    download
+                ]
+            });
         }
     }
 
@@ -274,11 +274,13 @@ export default class App extends Component {
     getAllDownloads() {
         return this.filter(this.state.downloads);
     }
+
     getActive() {
         return this.filter(this.state.downloads.filter(i =>
             i.status === 0
         ));
     }
+
     getReady() {
         return this.filter(this.state.downloads.filter(i =>
             i.status === 3
@@ -940,7 +942,6 @@ export default class App extends Component {
                                                 <Tool left={true} tooltip={"Clear all history"} icon={"fas fa-trash"}
                                                       onClick={async e => {
                                                           this.setState({pastDownloadsVisible: false});
-                                                          this.forceUpdate();
                                                           await new Promise(resolve => {
                                                               let box;
                                                               this.alert(<Alert noClose={true}
@@ -954,10 +955,10 @@ export default class App extends Component {
                                                                       <div className={"right"}>
                                                                           <button onClick={() => {
                                                                               this.setState({showing: false});
-                                                                              this.forceUpdate();
                                                                               resolve();
-                                                                              box.state.showing = false;
-                                                                              box.forceUpdate();
+                                                                              box.setState({
+                                                                                  showing: false,
+                                                                              });
                                                                           }
                                                                           }>No
                                                                           </button>
@@ -965,10 +966,10 @@ export default class App extends Component {
                                                                           <button onClick={() => {
                                                                               window.localStorage.downloadHistory = "[]";
                                                                               this.setState({showing: false});
-                                                                              this.forceUpdate();
                                                                               resolve();
-                                                                              box.state.showing = false;
-                                                                              box.forceUpdate();
+                                                                              box.setState({
+                                                                                  showing: false,
+                                                                              });
                                                                           }}>Yes
                                                                           </button>
 
@@ -977,7 +978,6 @@ export default class App extends Component {
                                                               </Alert>);
                                                           });
                                                           this.setState({pastDownloadsVisible: true});
-                                                          this.forceUpdate();
                                                       }
                                                       }/> : null}
                                             {/*<div className={"prompt_close_button"}>*/}

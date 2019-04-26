@@ -399,15 +399,14 @@ export default class Download extends events.EventEmitter {
         if (this.bytes_request_supported) {
 
             await this.createParts();
-            this.forceUpdate();
+            await this.forceUpdate();
 
 
             await this.download_all();
-            this.forceUpdate();
+            await this.forceUpdate();
             if (!this.cancelled) {
                 await this.combineParts_move_to_final().catch(err => this.error(err.toString()));
-                this.forceUpdate();
-
+                await this.forceUpdate();
 
                 await this.cleanup();
                 await this.madeProgress(0, true);
