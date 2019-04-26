@@ -31,7 +31,6 @@ const formatHeaders = obj => JSON.stringify(obj, null, 2);
 const statusName = status => ["active", "failed", "done", "pending", "awaiting","stopped","finishing"][status];
 
 const getTools = props => {
-   console.log("Status:" + props.status);
     switch (props.status) {
         case 0:
         case 3:

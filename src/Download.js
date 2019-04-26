@@ -288,7 +288,7 @@ export default class Download extends events.EventEmitter {
         return this;
     }
 
-    async madeProgress(amount, done) {
+    async madeProgress(amount, done, forceUpdate) {
         if (this.full_fail) {
             return;
         }
@@ -304,7 +304,7 @@ export default class Download extends events.EventEmitter {
             done: done || false,
            elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
         });
-        if (Date.now() - this.last_update > 800 || done) {
+        if (Date.now() - this.last_update > 800 || done || forceUpdate) {
             this.last_update = Date.now();
             this.onUpdate({
                 eta: this.ETA,
@@ -400,9 +400,11 @@ export default class Download extends events.EventEmitter {
 
             await this.createParts();
             await this.forceUpdate();
-
-
+            const updateInterval = setInterval(()=>{
+                this.madeProgress(0,false,true);
+            },800);
             await this.download_all();
+            clearInterval(updateInterval);
             await this.forceUpdate();
             if (!this.cancelled) {
                 this.emit("downloads_complete");
