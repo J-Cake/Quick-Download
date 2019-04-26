@@ -296,16 +296,18 @@ export default class Download extends events.EventEmitter {
 
         const now = Date.now();
         const time = new Date(now - this.startTime);
+        this.onUpdate({
+            percentage: ((this.progress / this.total_length) * 100) || 0,
+            progress: this.progress,
+            speed: this.speed,
+            chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
+            done: done || false,
+           elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
+        });
         if (Date.now() - this.last_update > 800 || done) {
             this.last_update = Date.now();
             this.onUpdate({
-                percentage: ((this.progress / this.total_length) * 100) || 0,
-                progress: this.progress,
-                speed: this.speed,
-                chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
-                done: done || false,
                 eta: this.ETA,
-                elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
             });
         }
     }
@@ -329,7 +331,6 @@ export default class Download extends events.EventEmitter {
         if (eta === Infinity)
             return 0;
         else
-
             return eta;
     };
 
@@ -358,7 +359,7 @@ export default class Download extends events.EventEmitter {
 
     combineParts_move_to_final() {
         this.emit("combine_parts");
-        return new Promise((resolve,reject) => {
+        return new Promise((resolve, reject) => {
             let final = fs.createWriteStream(this.final_file, {flags: 'a'});
             final.on('finish', resolve);
             final.on('open', async () => {
@@ -367,7 +368,7 @@ export default class Download extends events.EventEmitter {
                         const r = fs.createReadStream(part.file.path);
                         r.on('close', resolve);
                         r.on('error', (err) => {
-                           reject(err);
+                            reject(err);
                         });
                         r.pipe(final, {end: false});
                     });
@@ -403,7 +404,7 @@ export default class Download extends events.EventEmitter {
 
             await this.download_all();
             this.forceUpdate();
-            if(!this.cancelled) {
+            if (!this.cancelled) {
                 await this.combineParts_move_to_final().catch(err => this.error(err.toString()));
                 this.forceUpdate();
 

@@ -26,7 +26,7 @@ export default class DownloadCarrier extends events.EventEmitter {
 		this.done = false;
 
 		this.stats = {};
-
+		this.last_update = 0;
 		this.functions = {
 			cancel: this.cancel.bind(this),
 			remove: this.remove.bind(this),
@@ -107,8 +107,11 @@ export default class DownloadCarrier extends events.EventEmitter {
 	}
 
 	update(info) {
-		this.stats = Object.assign({},this.stats,info);
-		this.emit("update", this.stats);
+		this.stats = Object.assign({}, this.stats, info);
+		if (Date.now() - this.last_update > 800 || info.done) {
+			this.last_update = Date.now();
+			this.emit("update", this.stats);
+		}
 	}
 
 	error(err) {

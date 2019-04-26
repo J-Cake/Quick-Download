@@ -213,7 +213,9 @@ export default class App extends Component {
             download.status = 2;
             this.forceUpdate();
         });
-        download.on("update", info => this.forceUpdate());
+        download.on("update", info => {
+            this.forceUpdate();
+        });
         download.on("error", err => {
             download.status = 1;
             this.forceUpdate();
@@ -243,6 +245,7 @@ export default class App extends Component {
     addDownload(download) {
         if(download){
             this.state.downloads.push(download);
+            this.forceUpdate();
         }
         if (this.getReady().length === 1) {
             this.next();
@@ -512,7 +515,10 @@ export default class App extends Component {
                 </div>
                 <div className="App">
                     <div className={"download-tabs"}>
-							<span onClick={() => this.setState({showActive: true})} className={"tab"}
+							<span onClick={() => {
+							    debugger;
+							    this.setState({showActive: true});
+                            }} className={"tab"}
                                   id={this.state.showActive ? "active" : ""}>Queue</span>
                         <span onClick={() => this.setState({showActive: false})} className={"tab"}
                               id={!this.state.showActive ? "active" : ""}>Complete</span>
