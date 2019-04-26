@@ -15,9 +15,23 @@ const format = (property, value, noWrap, onClick) => {
 
 const formatHeaders = obj => JSON.stringify(obj, null, 2);
 
-const statusName = status => ["active", "failed", "done", "pending", "awaiting","stopped"][status];
+/**
+ *
+ * @param status
+ * @returns {string}
+ * active - currently downloading (should only be one at a time)
+ * failed - an error has occurred forcing the download to fail and stop
+ * done - the download has successfully completed
+ * pending - the download is in the queue and is awaiting other downloading to complete before it will start (purple)
+ * awaiting - the download has to be initiated and is not ready to enter the queue
+ * stopped - the user has stopped the download and it has been taken out of the queue while it awaits further instruction (either to retry to trash)
+ * finishing - the download has completed however more actions are needed (moving to final file, etc.), but the next download in the queue can be started
+ */
+
+const statusName = status => ["active", "failed", "done", "pending", "awaiting","stopped","finishing"][status];
 
 const getTools = props => {
+   console.log("Status:" + props.status);
     switch (props.status) {
         case 0:
         case 3:
@@ -40,6 +54,9 @@ const getTools = props => {
                           onClick={() => props.functions.retry()}/>,
                 <Tool key={"option2"} left={true} tooltip={"Remove Download From List"} icon={"fas fa-trash"}
                       onClick={() => props.functions.remove()}/>];
+        case 6:
+            return [<Tool key={"option1"} left={true} tooltip={"Cancel Download"} icon={"fas fa-times"}
+                                 onClick={() => props.functions.cancel()}/>];
     }
 };
 
@@ -69,7 +86,7 @@ export default props => {
             {format("Progress", `${props.content.progress} (${props.content.percentage}%)`)}
         </div> : null}
 
-        {props.status === 0 ?
+        {props.status === 0  ?
             <Progress className={props.status === 1 ? "failed" : props.status === 2 ? "done" : ""}
                       value={props.content.percentage}/> : null}
     </div>

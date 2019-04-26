@@ -405,6 +405,7 @@ export default class Download extends events.EventEmitter {
             await this.download_all();
             await this.forceUpdate();
             if (!this.cancelled) {
+                this.emit("downloads_complete");
                 await this.combineParts_move_to_final().catch(err => this.error(err.toString()));
                 await this.forceUpdate();
 

@@ -181,80 +181,6 @@ export default class App extends Component {
         });
     }
 
-    async createDownload(url, name, headers) {
-        url = url || "";
-        name = name || "";
-        headers = headers || "{}";
-
-        this.closePrompt();
-
-        const newName = await this.generateUniqueFileName(name, window.localStorage.saveLocation, url);
-        if (!newName) {
-            return false;
-        }
-        const download = new DownloadCarrier(url, newName, headers);
-        download.download.on("init", function () {
-            download.status = 4;
-            this.forceUpdate();
-        });
-        download.download.on("create_parts", () => {
-            console.log();
-        });
-        download.download.on("download_all", () => {
-            download.status = 0;
-            this.forceUpdate();
-        });
-        download.download.on("complete", () => {
-            download.done = true;
-            download.status = 2;
-            this.next();
-            this.forceUpdate();
-        });
-        download.on("update", info => {
-            this.forceUpdate();
-        });
-        download.on("error", err => {
-            download.status = 1;
-            this.forceUpdate();
-            console.error(err);
-            download.cancel();
-        });
-        download.on("cancel", () => {
-            if (download.status !== 1) {
-                download.status = 5;
-                this.forceUpdate();
-            }
-            this.next();
-        });
-        download.on("remove", () => {
-            console.log([...this.state.downloads.filter(d => d !== download)]);
-            this.setState({
-                downloads: [...this.state.downloads.filter(d => d !== download)],
-            });
-        });
-        download.on("retry", async () => {
-            download.constructor(download.url, download.name, download.customHeaders);
-            download.status = 3;
-            if (this.getReady().length === 1) {
-                await download.initiateDownload();
-                this.next();
-            }
-        });
-        return download;
-    }
-
-    addDownload(download) {
-        if (download) {
-            this.setState({
-                downloads: [
-                    ...this.state.downloads,
-                    download
-                ]
-            });
-        }
-    }
-
-
     filter(downloads) { // challenge, turn this into a one-liner
         const filterList = Object.keys(this.state.filters).filter(i => this.state.filters[i]);
 
@@ -267,41 +193,6 @@ export default class App extends Component {
         return sort(filter(downloads), (this.state.sortBy || "").split('.')).flip(this.state.reversed);
     }
 
-    getDisplayDownloads() {
-        return this.filter(this.state.downloads.filter(i => !i.done));
-    }
-
-    getAllDownloads() {
-        return this.filter(this.state.downloads);
-    }
-
-    getActive() {
-        return this.filter(this.state.downloads.filter(i =>
-            i.status === 0
-        ));
-    }
-
-    getReady() {
-        return this.filter(this.state.downloads.filter(i =>
-            i.status === 3
-        ));
-    }
-
-    getInactive() {
-        return this.filter(this.state.downloads.filter(i => i.done));
-    }
-
-    next() {
-        const downloads = this.getReady();
-        if (downloads[0] && this.getActive().length === 0) {
-            const download = downloads[0];
-            download.startDownload().catch(err => {
-                console.log(err);
-            });
-        }
-
-        this.forceUpdate();
-    }
 
     changeSelection(dir) {
         if (this.state.focused) {
@@ -489,6 +380,120 @@ export default class App extends Component {
                 </li>
             </ul>
         </div>}/>)
+    }
+
+    async createDownload(url, name, headers) {
+        url = url || "";
+        name = name || "";
+        headers = headers || "{}";
+
+        this.closePrompt();
+
+        const newName = await this.generateUniqueFileName(name, window.localStorage.saveLocation, url);
+        if (!newName) {
+            return false;
+        }
+        const download = new DownloadCarrier(url, newName, headers);
+        download.download.on("init", function () {
+            download.status = 4;
+            this.forceUpdate();
+        });
+        download.download.on("create_parts", () => {
+            console.log();
+        });
+        download.download.on("download_all", () => {
+            download.status = 0;
+            this.forceUpdate();
+        });
+        download.download.on("downloads_complete", () => {
+            download.status = 6;
+            this.next();
+            this.forceUpdate();
+        });
+        download.download.on("complete", () => {
+            download.done = true;
+            download.status = 2;
+            this.next();
+            this.forceUpdate();
+        });
+        download.on("update", info => {
+            this.forceUpdate();
+        });
+        download.on("error", err => {
+            download.status = 1;
+            this.forceUpdate();
+            console.error(err);
+            download.cancel();
+        });
+        download.on("cancel", () => {
+            if (download.status !== 1) {
+                download.status = 5;
+                this.forceUpdate();
+            }
+            this.next();
+        });
+        download.on("remove", () => {
+            console.log([...this.state.downloads.filter(d => d !== download)]);
+            this.setState({
+                downloads: [...this.state.downloads.filter(d => d !== download)],
+            });
+        });
+        download.on("retry", async () => {
+            download.constructor(download.url, download.name, download.customHeaders);
+            download.status = 3;
+            await download.initiateDownload();
+            if (this.getActive().length === 0) {
+                this.next();
+            }
+        });
+        return download;
+    }
+
+    addDownload(download) {
+        if (download) {
+            this.setState({
+                downloads: [
+                    ...this.state.downloads,
+                    download
+                ]
+            });
+        }
+    }
+
+    getDisplayDownloads() {
+        return this.filter(this.state.downloads.filter(i => !i.done));
+    }
+
+    getAllDownloads() {
+        return this.filter(this.state.downloads);
+    }
+
+    getActive() {
+        return this.filter(this.state.downloads.filter(i =>
+            i.status === 0
+        ));
+    }
+
+    getReady() {
+        return this.filter(this.state.downloads.filter(i =>
+            i.status === 3
+        ));
+    }
+
+    getInactive() {
+        return this.filter(this.state.downloads.filter(i => i.done));
+    }
+
+    next() {
+        const downloads = this.getReady();
+        if (downloads[0] && this.getActive().length === 0) {
+            const download = downloads[0];
+            download.startDownload().catch(err => {
+                console.log(err);
+            });
+        }
+
+        this.forceUpdate();
     }
 
     render() {
