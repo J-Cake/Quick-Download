@@ -16,6 +16,7 @@ import {$} from './components/utils';
 
 import DownloadCarrier from './download-carrier';
 import Download from "./Download";
+import * as url_lib from "url";
 
 Array.prototype.switch = function (condition, goto, fallback) {
     // a ternary operator for arrays.
@@ -42,6 +43,8 @@ Array.prototype.except = function (excluder) {
 const path = window.require('path');
 const os = window.require('os');
 const fs = window.require('fs');
+const https = window.require('https');
+
 
 const Mousetrap = window.require('mousetrap');
 
@@ -74,6 +77,10 @@ ipcRenderer.on('menu-contact', function (event) {
     window.App.contact();
 });
 
+ipcRenderer.on('check-update', function (event) {
+    window.App.CheckForUpdate(true);
+});
+
 
 export default class App extends Component {
     constructor(...args) {
@@ -99,7 +106,7 @@ export default class App extends Component {
             showError: false,
             filterValue: "",
         };
-
+        this.CheckForUpdate(false);
         App.loadSettings();
     }
 
@@ -293,6 +300,7 @@ export default class App extends Component {
             showSettings: () => this.showSettings(),
             alert: (box) => this.alert(box),
             contact: () => this.contact(),
+            CheckForUpdate: (displayFailPrompt) => this.CheckForUpdate(displayFailPrompt)
         };
     }
 
@@ -497,10 +505,98 @@ export default class App extends Component {
         this.forceUpdate();
     }
 
+     async CheckForUpdate(displayFailPrompt) {
+         const url = "https://raw.githubusercontent.com/jbis9051/quick_download/master/version";
+         const q = url_lib.parse(url);
+         const currentVersion = await new Promise((resolve,reject) => {
+             let data = "";
+             const request = https.get({
+                 path: q.path,
+                 host: q.hostname,
+                 port: 443,
+             }, res => {
+                 res.on("data", (chunk) => {
+                     data += chunk;
+                 });
+                 res.on('error',(e) => {
+                     console.error(e);
+                     resolve(false);
+                 });
+                 res.on('end', () => {
+                     resolve(data);
+                 });
+             });
+             request.on('error', (e) => {
+                 console.error(e);
+                 resolve(false);
+             });
+         });
+         if(!currentVersion){
+             if(displayFailPrompt){
+                 let box;
+                 this.alert(<Alert noClose={false}
+                                   ref={dialog => box = dialog}
+                                   key={new Date().getTime().toLocaleString()}
+                                   header={"Update Check Failed"}>
+                     <div>
+                        An Error occurred while checking for an update.
+                     </div>
+                 </Alert>);
+             }
+             return false;
+         }
+         console.log("Current Version: " + currentVersion);
+         console.log("This Version: " + version);
+         if(version !== currentVersion){
+                 let box;
+                 this.alert(<Alert noClose={true}
+                                   ref={dialog => box = dialog}
+                                   key={new Date().getTime().toLocaleString()}
+                                   header={"Update Available"}>
+                     <div>
+                         An update is available. You are currently on version {version}. The current version is {currentVersion}. Would you like to update?
+                         <div className={"right"}>
+                             <button onClick={() => {
+                                 this.setState({showing: false});
+                                 box.setState({
+                                     showing: false,
+                                 });
+                             }
+                             }>No
+                             </button>
+
+                             <button onClick={() => {
+                                 window.localStorage.downloadHistory = "[]";
+                                 this.setState({showing: false});
+                                 box.setState({
+                                     showing: false,
+                                 });
+                                 _electron.ipcRenderer.send('openURL', 'https://jbis9051.github.io/quick_download/');
+                             }}>Yes
+                             </button>
+
+                         </div>
+                     </div>
+                 </Alert>);
+         } else {
+             if(displayFailPrompt){
+                 let box;
+                 this.alert(<Alert noClose={false}
+                                   ref={dialog => box = dialog}
+                                   key={new Date().getTime().toLocaleString()}
+                                   header={"Current Version"}>
+                     <div>
+                         You have the current version, {version}.
+                     </div>
+                 </Alert>);
+             }
+         }
+         return true;
+     }
     render() {
         return (
             <div className="wrapper">
-                <WindowFrame contact={e => this.contact()} about={e => this.about()} download={e => this.showDownloadPrompt()}/>
+                <WindowFrame contact={e => this.contact()} update={e => this.CheckForUpdate(true)} about={e => this.about()} download={e => this.showDownloadPrompt()}/>
                 <div className={"menu_buttons_container"}>
                     <div className={"menu_buttons_wrapper"}>
                         <Tool tooltip={"New download"} className="icon_button" shortcut="+"

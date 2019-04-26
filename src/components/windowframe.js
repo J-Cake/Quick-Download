@@ -107,6 +107,7 @@ export default class WindowFrame extends React.Component {
                                     <div className="nav_item">Help
                                         <div className="nav_dropdown">
                                             <div onClick={e => this.props.contact()}>Contact Developers</div>
+                                            <div onClick={e => this.props.update()}>Check for Updates...</div>
                                             <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Learn More</div>
                                             <div onClick={e => _electron.ipcRenderer.send('openURL', "https://github.com/jbis9051/quick_download")}>Contribute</div>
                                             <div onClick={e => this.props.about()}>About</div>

@@ -65,14 +65,20 @@ function createMenu() {
 		},
 			{
 				label: 'Check for updates...',
-				click() {
-					/* TODO */
+				async click() {
+					if (mainWindow === null) {
+						await createWindow();
+					}
+					mainWindow.webContents.send("check-update");
 				}
 			},
 			{type: 'separator'},
 			{
 				label: 'Preferences...',
-				click() {
+				async click() {
+					if (mainWindow === null) {
+						await createWindow();
+					}
 					mainWindow.webContents.send("menu-settings");
 				}
 			},
