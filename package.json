@@ -20,8 +20,8 @@
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
 		"electron": "electron .",
-		"pack-osx": "npm run build && electron-packager . --overwrite --platform=darwin --arch=x64  --icon=./src/res/logo_mac.icns  --prune=true --out=release-builds",
-		"pack-win": "npm run build && electron-packager . --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico  --out=release-builds",
+		"pack-osx": "npm run build && electron-packager ./build --overwrite --platform=darwin --arch=x64 --icon=./src/res/logo_mac.icns --name=\"Quick Downloader\" --prune=true --out=release-builds",
+		"pack-win": "npm run build && electron-packager ./build --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico --name=\"Quick Downloader\" --out=release-builds && node winstaller",
 		"run-build": "electron ./build"
 	},
 	"browserslist": [
@@ -34,7 +34,8 @@
 	"main": "./main.js",
 	"devDependencies": {
 		"electron": "latest",
-		"electron-packager": "latest"
+		"electron-packager": "latest",
+		"electron-winstaller": "^3.0.4"
 	},
 	"productName": "Quick Downloader",
 	"repository": {

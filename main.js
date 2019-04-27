@@ -19,10 +19,10 @@ async function createWindow() {
 		nodeIntegration: true,
 		frame: os.platform() !== "win32",
 		icon: "./build/favicon.ico",
-		webPreferences: {webSecurity: false}
+		webPreferences: {nodeIntegration: true, webSecurity: false}
 	});
 
-	mainWindow.loadFile(path.join(__dirname, mainFile));
+	await mainWindow.loadFile(path.join(__dirname, mainFile));
 
 	mainWindow.frame = withFrame;
 	mainWindow.setTitle("Quick Downloader");

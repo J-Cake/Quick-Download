@@ -262,3 +262,16 @@ textarea {
     padding: 0 10px;
 }
 
+.tool-menu .menu-item {
+    display: grid;
+    grid-template-columns: 35px auto;
+}
+
+.tool-menu .menu-item i { /*not to be confused with any other `i` element nested in a `.menu-item`*/
+    grid-row: 1;
+    line-height: 35px;
+}
+
+.tool-menu .menu-item .content {
+    grid-column: 2;
+}

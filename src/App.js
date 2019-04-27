@@ -105,6 +105,7 @@ export default class App extends Component {
             filters: {name: true},
             showError: false,
             filterValue: "",
+            sortBy: "stats.eta"
         };
         this.CheckForUpdate(false);
         App.loadSettings();
@@ -193,17 +194,28 @@ export default class App extends Component {
     }
 
     filter(downloads) { // challenge, turn this into a one-liner
-        const filterList = Object.keys(this.state.filters).filter(i => this.state.filters[i]);
+        const filtered = [];
+        for (let i of downloads) {
+            let matchesCriteria = false;
+            for (let j in this.state.filters) {
+                if (this.state.filters[j]) {
+                    if (!matchesCriteria)
+                        matchesCriteria = i[j].toLowerCase().indexOf(this.state.filterValue.toLowerCase()) > -1;
+                }
+            }
+            if (matchesCriteria)
+                filtered.push(i);
+        }
 
-        //filterList.map(j => this.state.filters[j]).reduce((a, j) => a || (i[j].toLowerCase().indexOf(this.state.filterValue.toLowerCase()) > -1))
-
-        const filter = downloads => (filterList.length > 0) ? downloads.filter(i => filterList.reduce((a, j) => a || (i[j] === this.state.filterValue))) : downloads;
-
-        const getProperty = (obj, prop) => prop.reduce((a, i) => (obj[a] || a)[i]);
-        const sort = (downloads, selector) => downloads.sort((a, b) => ((a, b) => a > b ? 1 : (a < b ? -1 : 0))(getProperty(a, selector), getProperty(b, selector)));
-        return sort(filter(downloads), (this.state.sortBy || "").split('.')).flip(this.state.reversed);
+        return filtered.sort((downloadA, downloadB) => {
+            if (downloadA[this.state.sortBy] > downloadB[this.state.sortBy])
+                return 1;
+            else if (downloadA[this.state.sortBy] < downloadB[this.state.sortBy])
+                return -1;
+            else
+                return 0;
+        });
     }
-
 
     changeSelection(dir) {
         if (this.state.focused) {
@@ -651,16 +663,14 @@ export default class App extends Component {
                                           statusName: !prev.filters.statusName
                                       }
                                   }))
-                              }}/>
+                              }} getActive={() => ({Name: this.state.filters.name, URL: this.state.filters.url, Status: this.state.filters.statusName})}/>
 
                         <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
                               menu={{
                                   "Name": () => this.setState({sortBy: "name"}),
                                   "URL": () => this.setState({sortBy: "url"}),
-                                  "Completion Time": () => this.setState({sortBy: "stats.eta"}),
-                                  "spacer": () => void 1,
-                                  "Reset": () => this.setState({sortBy: null})
-                              }}/>
+                                  "Completion Time": () => this.setState({sortBy: "stats.eta"})
+                              }} getActive={() => ({"Name": this.state.sortBy === "name", "URL": this.state.sortBy === "url", "Completion Time": this.state.sortBy === "stats.eta"})}/>
 
                         <Tool onClick={() => this.setState(prev => ({reversed: !prev.reversed}))} left={true}
                               tooltip={"Reverse List"}
