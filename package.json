@@ -21,7 +21,7 @@
 		"eject": "react-scripts eject",
 		"electron": "electron .",
 		"pack-osx": "npm run build && electron-packager . --overwrite --platform=darwin --arch=x64  --icon=./src/res/logo_mac.icns  --prune=true --out=release-builds",
-		"pack-win": "npm run build && electron-packager --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico  --out=release-builds",
+		"pack-win": "npm run build && electron-packager . --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico  --out=release-builds",
 		"run-build": "electron ./build"
 	},
 	"browserslist": [

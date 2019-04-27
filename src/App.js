@@ -506,7 +506,7 @@ export default class App extends Component {
     }
 
      async CheckForUpdate(displayFailPrompt) {
-         const url = "https://raw.githubusercontent.com/jbis9051/quick_download/master/version";
+         const url = "https://raw.githubusercontent.com/jbis9051/quick_download/master/package.json";
          const q = url_lib.parse(url);
          const currentVersion = await new Promise((resolve,reject) => {
              let data = "";
@@ -523,7 +523,7 @@ export default class App extends Component {
                      resolve(false);
                  });
                  res.on('end', () => {
-                     resolve(data);
+                     resolve(JSON.parse(data).version);
                  });
              });
              request.on('error', (e) => {

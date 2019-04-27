@@ -80,7 +80,6 @@ export default class DownloadCarrier extends events.EventEmitter {
 	async startDownload() {
 		await this.download.beginDownload();
 	}
-
 	prettyProps(filter) {
 		const props = {
 			percentage: Number(parseFloat(this.stats.percentage || 0).toFixed(7)),
