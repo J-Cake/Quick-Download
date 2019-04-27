@@ -43,6 +43,7 @@ export default class Download extends events.EventEmitter {
      */
 
     async init(url, name, save_location, parts, custom_headers, proxyOptions) {
+        this.emit("init");
         if (!validFilename(name)) {
             this.error("Invalid File Name");
             return this;
@@ -88,7 +89,7 @@ export default class Download extends events.EventEmitter {
             this.protocol = https;
             this.port = "443";
         }
-
+        this.emit("init-complete");
         return this;
     }
 
@@ -300,7 +301,7 @@ export default class Download extends events.EventEmitter {
             percentage: ((this.progress / this.total_length) * 100) || 0,
             progress: this.progress,
             speed: this.speed,
-            chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i),
+            chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i,0),
             done: done || false,
            elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
         });

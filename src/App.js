@@ -117,7 +117,7 @@ export default class App extends Component {
         window.localStorage.proxySettings = window.localStorage.getItem("proxySettings") || "none";
         window.localStorage.proxyRequiresCredentials = window.localStorage.getItem("proxyRequiresCredentials") || false;
         window.localStorage.partsToCreate = Number(window.localStorage.getItem("partsToCreate")) || 10;
-        window.localStorage.preferredUnit = window.localStorage.getItem("preferredUnit") || "bin";
+        window.localStorage.preferredUnit = window.localStorage.getItem("preferredUnit") || (platform === "darwin" ? "dec" : "bin");
         window.localStorage.allowNotifications = window.localStorage.getItem("allowNotifications") || "true";
         window.localStorage.autoHideMenuBar = window.localStorage.getItem("autoHideMenuBar") || "false";
         window.localStorage.showAdvancedDetails = window.localStorage.getItem("showAdvancedDetails") || "true";
@@ -420,8 +420,8 @@ export default class App extends Component {
         }
         const download = new DownloadCarrier(url, newName, headers);
 
-        download.download.on("init", function () {
-            download.status = 4;
+        download.download.on("init-complete", function () {
+            download.status = 3;
             this.forceUpdate();
         });
         download.download.on("download_all", () => {

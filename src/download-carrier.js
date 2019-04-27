@@ -21,7 +21,7 @@ export default class DownloadCarrier extends events.EventEmitter {
 		}
 		this.headersExpanded = false;
 
-		this.status = 3;
+		this.status = 4;
 
 		this.done = false;
 
