@@ -135,6 +135,7 @@ export default class App extends Component {
     closeDownloadPrompt() {
         this.setState({promptShowing: false});
     }
+
     clearDownloadPrompt() {
         this.setState({downloadName: "", downloadURL: ""});
     }
@@ -540,63 +541,66 @@ export default class App extends Component {
                                    header={"Update Check Failed"}>
                      <div>
                         An Error occurred while checking for an update.
-                     </div>
-                 </Alert>);
-             }
-             return false;
-         }
-         console.log("Current Version: " + currentVersion);
-         console.log("This Version: " + version);
-         if(version !== currentVersion){
-                 let box;
-                 this.alert(<Alert noClose={true}
-                                   ref={dialog => box = dialog}
-                                   key={new Date().getTime().toLocaleString()}
-                                   header={"Update Available"}>
-                     <div>
-                         An update is available. You are currently on version {version}. The current version is {currentVersion}. Would you like to update?
-                         <div className={"right"}>
-                             <button onClick={() => {
-                                 this.setState({showing: false});
-                                 box.setState({
-                                     showing: false,
-                                 });
-                             }
-                             }>No
-                             </button>
+                    </div>
+                </Alert>);
+            }
+            return false;
+        }
+        console.log("Current Version: " + currentVersion);
+        console.log("This Version: " + version);
+        if (version !== currentVersion) {
+            let box;
+            this.alert(<Alert noClose={true}
+                              ref={dialog => box = dialog}
+                              key={new Date().getTime().toLocaleString()}
+                              header={"Update Available"}>
+                <div>
+                    An update is available. You are currently on version {version}. The current version
+                    is {currentVersion}. Would you like to update?
+                    <div className={"right"}>
+                        <button onClick={() => {
+                            this.setState({showing: false});
+                            box.setState({
+                                showing: false,
+                            });
+                        }
+                        }>No
+                        </button>
 
-                             <button onClick={() => {
-                                 window.localStorage.downloadHistory = "[]";
-                                 this.setState({showing: false});
-                                 box.setState({
-                                     showing: false,
-                                 });
-                                 _electron.ipcRenderer.send('openURL', 'https://jbis9051.github.io/quick_download/');
-                             }}>Yes
-                             </button>
+                        <button onClick={() => {
+                            window.localStorage.downloadHistory = "[]";
+                            this.setState({showing: false});
+                            box.setState({
+                                showing: false,
+                            });
+                            _electron.ipcRenderer.send('openURL', 'https://jbis9051.github.io/quick_download/');
+                        }}>Yes
+                        </button>
 
-                         </div>
-                     </div>
-                 </Alert>);
-         } else {
-             if(displayFailPrompt){
-                 let box;
-                 this.alert(<Alert noClose={false}
-                                   ref={dialog => box = dialog}
-                                   key={new Date().getTime().toLocaleString()}
-                                   header={"Current Version"}>
-                     <div>
-                         You have the current version, {version}.
-                     </div>
-                 </Alert>);
-             }
-         }
-         return true;
-     }
+                    </div>
+                </div>
+            </Alert>);
+        } else {
+            if (displayFailPrompt) {
+                let box;
+                this.alert(<Alert noClose={false}
+                                  ref={dialog => box = dialog}
+                                  key={new Date().getTime().toLocaleString()}
+                                  header={"Current Version"}>
+                    <div>
+                        You have the current version, {version}.
+                    </div>
+                </Alert>);
+            }
+        }
+        return true;
+    }
+
     render() {
         return (
             <div className="wrapper">
-                <WindowFrame contact={e => this.contact()} update={e => this.CheckForUpdate(true)} about={e => this.about()} download={e => this.showDownloadPrompt()}/>
+                <WindowFrame contact={e => this.contact()} update={e => this.CheckForUpdate(true)}
+                             about={e => this.about()} download={e => this.showDownloadPrompt()}/>
                 <div className={"menu_buttons_container"}>
                     <div className={"menu_buttons_wrapper"}>
                         <Tool tooltip={"New download"} className="icon_button" shortcut="+"
@@ -788,7 +792,7 @@ export default class App extends Component {
                                                       let shouldContinue = true;
                                                       if (!DownloadCarrier.JSONparse(this.state.customHeaders)) {
                                                           this.closeDownloadPrompt();
-                                                           shouldContinue = await new Promise(resolve => {
+                                                          shouldContinue = await new Promise(resolve => {
                                                               let box;
                                                               this.alert(<Alert noClose={true}
                                                                                 ref={dialog => box = dialog}
@@ -829,10 +833,10 @@ export default class App extends Component {
                                                           });
 
                                                       }
-                                                      if(shouldContinue){
+                                                      if (shouldContinue) {
                                                           await this.addToDownloadHistory();
                                                           const download = await this.createDownload(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
-                                                          if(download){
+                                                          if (download) {
                                                               this.addDownload(download);
                                                               await download.initiateDownload();
                                                               this.next();

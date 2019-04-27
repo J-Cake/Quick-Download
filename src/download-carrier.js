@@ -1,5 +1,5 @@
 import Download from './Download';
-import DownloadDisplayComp from './components/downloadCompDisplay';
+import DownloadDisplayComp, {status} from './components/downloadCompDisplay';
 import React from "react";
 
 const events = window.require('events');
@@ -71,8 +71,9 @@ export default class DownloadCarrier extends events.EventEmitter {
 	retry(){
 		this.emit('retry');
 	}
-	async initiateDownload(){
+	async initiateDownload() {
 		this.emit("init");
+		this.status = 4;
 		this.download.on('update', info => this.update(info));
 		this.download.on('error', err => this.error(err));
 		await this.download.init(this.url, this.name, window.localStorage.saveLocation, Number(window.localStorage.partsToCreate), this.customHeaders, this.proxyOptions || false);
@@ -80,6 +81,7 @@ export default class DownloadCarrier extends events.EventEmitter {
 	async startDownload() {
 		await this.download.beginDownload();
 	}
+
 	prettyProps(filter) {
 		const props = {
 			percentage: Number(parseFloat(this.stats.percentage || 0).toFixed(7)),

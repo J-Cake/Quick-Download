@@ -73,6 +73,7 @@ export default props => {
             </div>
         </div>
         {window.localStorage.getItem('showAdvancedDetails') === 'true' ? <div className="download-details">
+            {format("Status", statusName(props.status))}
             {format("Source", props.content.url)}
             {format("Final File", props.content.path)}
             {format("Headers", formatHeaders(props.content.headers), props.content.headersExpanded, () => props.functions.toggleHeaders())}
@@ -85,8 +86,10 @@ export default props => {
             {format("Progress", `${props.content.progress} (${props.content.percentage}%)`)}
         </div> : null}
 
-        {props.status === 0  ?
+        {props.status === 0 ?
             <Progress className={props.status === 1 ? "failed" : props.status === 2 ? "done" : ""}
                       value={props.content.percentage}/> : null}
     </div>
 }
+
+export const status = statusName;
