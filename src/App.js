@@ -97,7 +97,7 @@ export default class App extends Component {
             downloadURL: "",
             boxes: [],
             settingsVisible: false,
-            currentSelection: 0,
+            currentSelection: -1,
             latestDownloadProgress: 0,
             pastDownloadsVisible: false,
             customHeaders: "",
@@ -278,9 +278,9 @@ export default class App extends Component {
 
             Mousetrap.bind('up', () => this.changeSelection(-1) || false);
             Mousetrap.bind('down', () => this.changeSelection(1) || false);
-            Mousetrap.bind('enter', () => {
-                if (this.state.promptShowing) this.acceptSuggestion(this.state.currentSelection)
-            });
+            // Mousetrap.bind('enter', () => {
+            //     if (this.state.promptShowing) this.acceptSuggestion(this.state.currentSelection)
+            // });
 
             Mousetrap.bind("ctrl+tab", () => {
                 this.setState(prev => ({
@@ -323,7 +323,7 @@ export default class App extends Component {
         $('.suggestions').style.display = "none";
 
         this.setState({
-            currentSelection: 0,
+            currentSelection: -1,
             focused: null
         })
     }
@@ -506,40 +506,40 @@ export default class App extends Component {
         this.forceUpdate();
     }
 
-     async CheckForUpdate(displayFailPrompt) {
-         const url = "https://raw.githubusercontent.com/jbis9051/quick_download/master/package.json";
-         const q = url_lib.parse(url);
-         const currentVersion = await new Promise((resolve,reject) => {
-             let data = "";
-             const request = https.get({
-                 path: q.path,
-                 host: q.hostname,
-                 port: 443,
-             }, res => {
-                 res.on("data", (chunk) => {
-                     data += chunk;
-                 });
-                 res.on('error',(e) => {
-                     console.error(e);
-                     resolve(false);
-                 });
-                 res.on('end', () => {
-                     resolve(JSON.parse(data).version);
-                 });
-             });
-             request.on('error', (e) => {
-                 console.error(e);
-                 resolve(false);
-             });
-         });
-         if(!currentVersion){
-             if(displayFailPrompt){
-                 let box;
-                 this.alert(<Alert noClose={false}
-                                   ref={dialog => box = dialog}
-                                   key={new Date().getTime().toLocaleString()}
-                                   header={"Update Check Failed"}>
-                     <div>
+    async CheckForUpdate(displayFailPrompt) {
+        const url = "https://raw.githubusercontent.com/jbis9051/quick_download/master/package.json";
+        const q = url_lib.parse(url);
+        const currentVersion = await new Promise((resolve, reject) => {
+            let data = "";
+            const request = https.get({
+                path: q.path,
+                host: q.hostname,
+                port: 443,
+            }, res => {
+                res.on("data", (chunk) => {
+                    data += chunk;
+                });
+                res.on('error', (e) => {
+                    console.error(e);
+                    resolve(false);
+                });
+                res.on('end', () => {
+                    resolve(JSON.parse(data).version);
+                });
+            });
+            request.on('error', (e) => {
+                console.error(e);
+                resolve(false);
+            });
+        });
+        if (!currentVersion) {
+            if (displayFailPrompt) {
+                let box;
+                this.alert(<Alert noClose={false}
+                                  ref={dialog => box = dialog}
+                                  key={new Date().getTime().toLocaleString()}
+                                  header={"Update Check Failed"}>
+                    <div>
                         An Error occurred while checking for an update.
                     </div>
                 </Alert>);
@@ -769,18 +769,16 @@ export default class App extends Component {
                                                   placeholder={'Download Headers (JSON)'}
                                         />
                                         <div className={"suggestions"}>
-                                            {
-                                                this.getDownloads().map((i, a, x) => {
-                                                    if (i && i.headers.length > 1 && this.filterSuggestion(i)) {
-                                                        return (<div key={a}
-                                                                     onClick={() => this.acceptSuggestion(a)}
-                                                                     className={"suggestion"}>
-                                                            <span>{i.headers}</span>
-                                                            <br/>
-                                                        </div>);
-                                                    }
-                                                })
-                                            }
+                                            {this.getDownloads().map((i, a, x) => {
+                                                if (i && i.headers.length > 1 && this.filterSuggestion(i)) {
+                                                    return (<div key={a}
+                                                                 onClick={() => this.acceptSuggestion(a)}
+                                                                 className={"suggestion"}>
+                                                        <span>{i.headers}</span>
+                                                        <br/>
+                                                    </div>);
+                                                }
+                                            })}
                                         </div>
                                     </div>
 

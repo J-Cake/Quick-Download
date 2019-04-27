@@ -39,8 +39,8 @@ b {
     background: #b81d27;
 }
 .download.stopped {
-    background: #fff643;
-    color: #3c434b;
+    background: #4f5660;
+    color: #b4c9e0;
 }
 /*
 .download.done *, .download.awaiting * {

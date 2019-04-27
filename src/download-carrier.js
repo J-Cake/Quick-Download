@@ -73,7 +73,6 @@ export default class DownloadCarrier extends events.EventEmitter {
 	}
 	async initiateDownload() {
 		this.emit("init");
-		this.status = 4;
 		this.download.on('update', info => this.update(info));
 		this.download.on('error', err => this.error(err));
 		await this.download.init(this.url, this.name, window.localStorage.saveLocation, Number(window.localStorage.partsToCreate), this.customHeaders, this.proxyOptions || false);

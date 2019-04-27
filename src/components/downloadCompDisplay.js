@@ -28,7 +28,7 @@ const formatHeaders = obj => JSON.stringify(obj, null, 2);
  * finishing - the download has completed however more actions are needed (moving to final file, etc.), but the next download in the queue can be started
  */
 
-const statusName = status => ["active", "failed", "done", "pending", "awaiting","stopped","finishing"][status];
+const statusName = status => ["active", "failed", "done", "pending", "awaiting", "stopped", "finishing"][status];
 
 const getTools = props => {
     switch (props.status) {
@@ -58,7 +58,9 @@ const getTools = props => {
                                  onClick={() => props.functions.cancel()}/>];
     }
 };
-
+function capitalise(str) {
+    return str[0].toUpperCase() + str.substring(1);
+}
 export default props => {
     return <div
         className={`download ${statusName(props.status)}`}>
@@ -73,7 +75,7 @@ export default props => {
             </div>
         </div>
         {window.localStorage.getItem('showAdvancedDetails') === 'true' ? <div className="download-details">
-            {format("Status", statusName(props.status))}
+            {format("Status", capitalise(statusName(props.status)))}
             {format("Source", props.content.url)}
             {format("Final File", props.content.path)}
             {format("Headers", formatHeaders(props.content.headers), props.content.headersExpanded, () => props.functions.toggleHeaders())}
