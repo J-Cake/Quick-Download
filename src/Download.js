@@ -7,7 +7,7 @@ const events = window.require('events');
 const http = window.require('http');
 const https = window.require('https');
 const fs = window.require('fs');
-const validFilename = window.require('valid-filename');
+const validFilename = window.validFilename;
 
 export default class Download extends events.EventEmitter {
     constructor() {

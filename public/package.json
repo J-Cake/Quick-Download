@@ -1,27 +1,28 @@
 {
 	"name": "quick_downloader",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
 		"abort-controller": "^2.0.2",
 		"bad-words": "^3.0.1",
 		"electron": "latest",
 		"mousetrap": "^1.6.3",
+		"node": "^11.13.0",
+		"pac-resolver": "git+https://git@github.com/J-Cake/Node-PAC",
 		"react": "^16.7.0",
 		"react-dom": "^16.7.0",
-		"react-scripts": "^2.1.8"
+		"react-scripts": "^2.1.8",
+		"valid-filename": "^3.1.0"
 	},
 	"scripts": {
 		"start": "react-scripts start",
-		"build": "react-scripts build",
+		"build": "node pre-build.js && react-scripts build && node post-build.js",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
 		"electron": "electron .",
-		"pack-osx": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=darwin --arch=x64 --icon=./build/favicon.ico --asar",
-		"pack-win": "npm run build && electron-packager ./build/ \"Quick Downloader\" --platform=win32 --arch=x64 --overwrite --icon=./build/favicon.ico --asar"
-	},
-	"eslintConfig": {
-		"extends": "react-app"
+		"pack-osx": "npm run build && electron-packager ./build --overwrite --platform=darwin --arch=x64 --icon=./src/res/logo_mac.icns --name=\"Quick Downloader\" --prune=true --out=release-builds",
+		"pack-win": "npm run build && electron-packager ./build --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico --name=\"Quick Downloader\" --out=release-builds && node winstaller",
+		"run-build": "electron ./build"
 	},
 	"browserslist": [
 		">0.2%",
@@ -30,9 +31,11 @@
 		"not op_mini all"
 	],
 	"description": "We Download Things Quickly!",
-	"main": "../main.js",
+	"main": "./main.js",
 	"devDependencies": {
-		"electron-packager": "latest"
+		"electron": "latest",
+		"electron-packager": "latest",
+		"electron-winstaller": "^3.0.4"
 	},
 	"productName": "Quick Downloader",
 	"repository": {
@@ -55,8 +58,16 @@
 			"build/**/*",
 			"node_modules/**/*"
 		],
-		"directories":{
+		"directories": {
 			"buildResources": "assets"
+		}
+	},
+	"eslintConfig": {
+		"extends": "react-app",
+		"env": {
+			"es6": true,
+			"browser": true,
+			"node": true
 		}
 	}
 }

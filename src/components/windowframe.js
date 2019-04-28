@@ -9,7 +9,7 @@ const _electron = window.require('electron');
 const remote = _electron.remote;
 const _window = remote.getCurrentWindow();
 
-const Mousetrap = window.require('mousetrap');
+const Mousetrap = window.Mousetrap;
 
 window.localStorage.hasRelaunched = window.localStorage.hasRelaunched || "false";
 window.localStorage.withFrame = window.localStorage.withFrame || 'true';

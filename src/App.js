@@ -45,8 +45,7 @@ const os = window.require('os');
 const fs = window.require('fs');
 const https = window.require('https');
 
-
-const Mousetrap = window.require('mousetrap');
+const Mousetrap = window.Mousetrap;
 
 const _electron = window.require('electron');
 const version = _electron.ipcRenderer.sendSync('version');
