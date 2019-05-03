@@ -1,0 +1,1 @@
+getModule = function (modulename) {return require(modulename)}

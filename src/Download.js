@@ -3,11 +3,22 @@ import * as path from 'path';
 import './Part';
 import Part from "./Part";
 
-const events = window.require('events');
-const http = window.require('http');
-const https = window.require('https');
-const fs = window.require('fs');
-const validFilename = window.validFilename;
+const events = window.getModule('events');
+const http = window.getModule('http');
+const https = window.getModule('https');
+const fs = window.getModule('fs');
+
+const filenameReservedRegex = () => (/[<>:"\/\\|?*\x00-\x1F]/g);
+filenameReservedRegex.windowsNames = () => (/^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i);
+
+const validFilename = string => {
+    if (!string || string.length > 255) return false;
+    if (filenameReservedRegex().test(string) || filenameReservedRegex.windowsNames().test(string))
+        return false;
+    if (/^\.\.?$/.test(string))
+        return false;
+    return true;
+};
 
 export default class Download extends events.EventEmitter {
     constructor() {
@@ -42,16 +53,18 @@ export default class Download extends events.EventEmitter {
      * @returns {Promise<Download>}
      */
 
-    async init(url, name, save_location, parts, custom_headers, proxyOptions) {
+    init(url, name, save_location, parts, custom_headers, proxyOptions) {
+        return new Promise(async resolve => {
         this.emit("init");
-        if (!validFilename(name)) {
-            this.error("Invalid File Name");
-            return this;
-        }
+        // if (validFilename(name)) {
+        //     this.error("Invalid File Name");
+        //     resolve(this);
+        // }
         this.save_location = save_location;
         this.proxyOptions = (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
         this.custom_headers = custom_headers || {};
         this.final_file = Download.getFileName(name, save_location, url).replace(/\\/g, '/');
+        console.log(this.final_file);
         this.onUpdate({
             path: this.final_file,
         });
@@ -64,13 +77,13 @@ export default class Download extends events.EventEmitter {
             .catch(
                 err => {
                     this.error(err.toString());
-                    return this;
+                    resolve(this);
                 }
             )
         ) {
             this.bytes_request_supported = false;
             this.error("Byte Requests are not supported.");
-            return this;
+            resolve(this);
         }
         this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(err => this.error(err));
         this.onUpdate({
@@ -90,7 +103,8 @@ export default class Download extends events.EventEmitter {
             this.port = "443";
         }
         this.emit("init-complete");
-        return this;
+        resolve(this);
+        });
     }
 
     onUpdate(e) {

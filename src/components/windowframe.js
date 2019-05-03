@@ -5,11 +5,9 @@ import '../css/nav_bar.css';
 
 import {$} from './utils';
 
-const _electron = window.require('electron');
+const _electron = window.getModule('electron');
 const remote = _electron.remote;
 const _window = remote.getCurrentWindow();
-
-const Mousetrap = window.Mousetrap;
 
 window.localStorage.hasRelaunched = window.localStorage.hasRelaunched || "false";
 window.localStorage.withFrame = window.localStorage.withFrame || 'true';
@@ -48,8 +46,6 @@ export default class WindowFrame extends React.Component {
     }
 
     componentDidMount() {
-        Mousetrap.bind('alt', () => this.setState(prev => ({showMenu: !prev.showMenu})));
-
         if ($(".titlebar")) {
             $(".min-btn").on("click", e => {
                 _window.minimize();

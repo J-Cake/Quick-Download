@@ -34,7 +34,7 @@
 	"devDependencies": {
 		"electron": "latest",
 		"electron-packager": "latest",
-		"electron-winstaller": "^3.0.4"
+		"electron-wix-msi": "^2.1.1"
 	},
 	"productName": "Quick Downloader",
 	"repository": {

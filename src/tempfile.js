@@ -2,12 +2,12 @@
 // import * as os from 'os';
 // import * as path from 'path';
 
-const electron = window.require('electron');
+const electron = window.getModule('electron');
 const remote = electron.remote;
 
-const fs = remote.require('fs');
-const os = remote.require('os');
-const path = remote.require('path');
+const fs = window.getModule('fs');
+const os = window.getModule('os');
+const path = window.getModule('path');
 
 class TmpFile {
 	constructor(name, parentPath) {

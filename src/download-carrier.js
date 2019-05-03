@@ -2,7 +2,7 @@ import Download from './Download';
 import DownloadDisplayComp, {status} from './components/downloadCompDisplay';
 import React from "react";
 
-const events = window.require('events');
+const events = window.getModule('events');
 
 Date.prototype.print = function() {
 	return `${this.getUTCHours() || 0}h:${this.getUTCMinutes() || 0}m:${this.getUTCSeconds() || 0}s`;

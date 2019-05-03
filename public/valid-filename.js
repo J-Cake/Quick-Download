@@ -1,5 +1,6 @@
 'use strict';
-const filenameReservedRegex = require('filename-reserved-regex');
+const filenameReservedRegex = () => (/[<>:"\/\\|?*\x00-\x1F]/g);
+filenameReservedRegex.windowsNames = () => (/^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i);
 
 const validFilename = string => {
 	if (!string || string.length > 255) {
@@ -16,7 +17,3 @@ const validFilename = string => {
 
 	return true;
 };
-
-module.exports = validFilename;
-// TODO: Remove this for the next major release
-module.exports.default = validFilename;

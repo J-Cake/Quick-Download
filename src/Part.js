@@ -2,8 +2,8 @@ import * as TempFile from "./tempfile";
 import * as url_lib from "url";
 import Download from "./Download";
 
-const http = window.require('http');
-const https = window.require('https');
+const http = window.getModule('http');
+const https = window.getModule('https');
 
 export default class Part {
     constructor(url, from_byte, to_byte, parent) {
