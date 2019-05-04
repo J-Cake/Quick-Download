@@ -18,6 +18,25 @@ https://jbis9051.github.io/quick_download/
 5. Eject DMG (optional, but suggested)
 6. Open the application by using Launchpad, Spotlight search, or Finder
 
+**Note:** If you receive the following message, try the steps below
+![Unknown Developer Error](_layouts/apple_is_annoying.png)
+
+1. System Preferences (Apple Logo > System Preferences)
+2. Click "Security & Privacy"
+3. In the "General" tab, click "Open Anyway"
+![Fix Unknown Developer Error](_layouts/fix_apple_is_annoying.png)
+(You should only have to do this once)
+4. Click "Open" on the prompt
+
+alternatively...
+
+1. Open `/Applicaitons` in Finder
+2. Scroll until you find the `Quick Downloader.app` application (possibly without the `.app` extention)
+3. Secondary click (right click) on the application and click "Open"
+4. Click "Open" on the prompt
+
+**You should only have to do this the first time you open the application**
+
 ### Windows
 
 Coming soon...
