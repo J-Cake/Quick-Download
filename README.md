@@ -9,7 +9,18 @@ https://jbis9051.github.io/quick_download/
 
 ## Installation
 
-Coming soon! Once quick downloader is ready for use, installable binaries will be released.
+### macOS
+
+1. Click "Releases" tab (or "Download Binary" on the website)
+2. Go to the latest release and click to download `Quick.Downloader.macOS.X.Y.Z.dmg`
+3. Open the DMG file
+4. Drag the Quick Downloader application icon to the Applications folder icon (shown by an arrow)
+5. Eject DMG (optional, but suggested)
+6. Open the application by using Launchpad, Spotlight search, or Finder
+
+### Windows
+
+Coming soon...
 
 ### Development Installation
 
