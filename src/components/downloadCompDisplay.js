@@ -2,9 +2,11 @@ import React from 'react';
 import Progress from "./progress";
 import Tool from "./tool";
 
-const {shell} = window.require('electron');
+const _electron = window.require('electron');
 
-const open = path => shell.showItemInFolder(path);
+const open = path => {
+    _electron.ipcRenderer.send('show-file',path);
+};
 
 const format = (property, value, noWrap, onClick) => {
     return <div className={"download-detail"}>

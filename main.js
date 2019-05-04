@@ -1,5 +1,7 @@
 const os = require('os');
 const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron');
+const {shell} = require('electron');
+
 let mainWindow;
 
 const mainFile = require('./index_file.js');
@@ -254,4 +256,7 @@ ipcMain.on('confirmClear', e => {
 		// [{"url":"https://www.sample-videos.com/video123/mp4/720/big_buck_bunny_720p_30mb.mp4","name":"Sample Video (Big Buck Bunny)"},{"url":"https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt","name":"Word List"},{"url":"https://brownserver.ddns.net/HighSierra.iso","name":"Mac OS High Sierra"}]
 		value => e.returnValue = !value
 	);
+});
+ipcMain.on('show-file', (e,path) =>{
+	shell.showItemInFolder(path);
 });
