@@ -19,12 +19,12 @@ https://jbis9051.github.io/quick_download/
 6. Open the application by using Launchpad, Spotlight search, or Finder
 
 **Note:** If you receive the following message, try the steps below
-![Unknown Developer Error](_layouts/apple_is_annoying.png)
+![Unknown Developer Error](https://github.com/jbis9051/quick_download/raw/master/_layouts/apple_is_annoying.png)
 
 1. System Preferences (Apple Logo > System Preferences)
 2. Click "Security & Privacy"
 3. In the "General" tab, click "Open Anyway"
-![Fix Unknown Developer Error](_layouts/fix_apple_is_annoying.png)
+![Fix Unknown Developer Error](https://github.com/jbis9051/quick_download/raw/master/_layouts/fix_apple_is_annoying.png)
 (You should only have to do this once)
 4. Click "Open" on the prompt
 
