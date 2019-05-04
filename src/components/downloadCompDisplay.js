@@ -2,7 +2,7 @@ import React from 'react';
 import Progress from "./progress";
 import Tool from "./tool";
 
-const {shell} = window.getModule('electron');
+const {shell} = window.require('electron');
 
 const open = path => shell.showItemInFolder(path);
 

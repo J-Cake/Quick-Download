@@ -3,22 +3,11 @@ import * as path from 'path';
 import './Part';
 import Part from "./Part";
 
-const events = window.getModule('events');
-const http = window.getModule('http');
-const https = window.getModule('https');
-const fs = window.getModule('fs');
-
-const filenameReservedRegex = () => (/[<>:"\/\\|?*\x00-\x1F]/g);
-filenameReservedRegex.windowsNames = () => (/^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i);
-
-const validFilename = string => {
-    if (!string || string.length > 255) return false;
-    if (filenameReservedRegex().test(string) || filenameReservedRegex.windowsNames().test(string))
-        return false;
-    if (/^\.\.?$/.test(string))
-        return false;
-    return true;
-};
+const events = window.require('events');
+const http = window.require('http');
+const https = window.require('https');
+const fs = window.require('fs');
+const validFilename = window.require('valid-filename');
 
 export default class Download extends events.EventEmitter {
     constructor() {
@@ -55,55 +44,54 @@ export default class Download extends events.EventEmitter {
 
     init(url, name, save_location, parts, custom_headers, proxyOptions) {
         return new Promise(async resolve => {
-        this.emit("init");
-        // if (validFilename(name)) {
-        //     this.error("Invalid File Name");
-        //     resolve(this);
-        // }
-        this.save_location = save_location;
-        this.proxyOptions = (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
-        this.custom_headers = custom_headers || {};
-        this.final_file = Download.getFileName(name, save_location, url).replace(/\\/g, '/');
-        console.log(this.final_file);
-        this.onUpdate({
-            path: this.final_file,
-        });
-        fs.closeSync(fs.openSync(this.final_file, 'w')); /* touches the file to alert everyone that this is my final and no one should touch it */
-        this.url = url;
-        this.full_fail = false;
-        this.speed = 0;
-        this.bytes_request_supported = true;
-        if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)
-            .catch(
-                err => {
-                    this.error(err.toString());
-                    resolve(this);
-                }
-            )
-        ) {
-            this.bytes_request_supported = false;
-            this.error("Byte Requests are not supported.");
-            resolve(this);
-        }
-        this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(err => this.error(err));
-        this.onUpdate({
-            size: this.total_length,
-        });
-        this.name = name;
-        this.numOfParts = parts || 10;
-        this.onUpdate({
-            total_chunks: this.numOfParts,
-        });
-        this.startTime = Date.now();
-        if (url_lib.parse(url).protocol === "http:") {
-            this.protocol = http;
-            this.port = "80";
-        } else {
-            this.protocol = https;
-            this.port = "443";
-        }
-        this.emit("init-complete");
-        resolve(this);
+            this.emit("init");
+            if (!validFilename(name)) {
+                this.error("Invalid File Name");
+              return  resolve(this);
+            }
+            this.save_location = save_location;
+            this.proxyOptions = (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
+            this.custom_headers = custom_headers || {};
+            this.final_file = Download.getFileName(name, save_location, url).replace(/\\/g, '/');
+            this.onUpdate({
+                path: this.final_file,
+            });
+            fs.closeSync(fs.openSync(this.final_file, 'w')); /* touches the file to alert everyone that this is my final and no one should touch it */
+            this.url = url;
+            this.full_fail = false;
+            this.speed = 0;
+            this.bytes_request_supported = true;
+            if (!await Download.byte_request_supported(url, this.custom_headers, this.proxyOptions)
+                .catch(
+                    err => {
+                        this.error(err.toString());
+                        return resolve(this);
+                    }
+                )
+            ) {
+                this.bytes_request_supported = false;
+                this.error("Byte Requests are not supported.");
+                return resolve(this);
+            }
+            this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(err => this.error(err));
+            this.onUpdate({
+                size: this.total_length,
+            });
+            this.name = name;
+            this.numOfParts = parts || 10;
+            this.onUpdate({
+                total_chunks: this.numOfParts,
+            });
+            this.startTime = Date.now();
+            if (url_lib.parse(url).protocol === "http:") {
+                this.protocol = http;
+                this.port = "80";
+            } else {
+                this.protocol = https;
+                this.port = "443";
+            }
+            this.emit("init-complete");
+            return resolve(this);
         });
     }
 
@@ -315,9 +303,9 @@ export default class Download extends events.EventEmitter {
             percentage: ((this.progress / this.total_length) * 100) || 0,
             progress: this.progress,
             speed: this.speed,
-            chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i,0),
+            chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i, 0),
             done: done || false,
-           elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
+            elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
         });
         if (Date.now() - this.last_update > 800 || done || forceUpdate) {
             this.last_update = Date.now();
@@ -415,9 +403,9 @@ export default class Download extends events.EventEmitter {
 
             await this.createParts();
             await this.forceUpdate();
-            const updateInterval = setInterval(()=>{
-                this.madeProgress(0,false,true);
-            },800);
+            const updateInterval = setInterval(() => {
+                this.madeProgress(0, false, true);
+            }, 800);
             await this.download_all();
             clearInterval(updateInterval);
             await this.forceUpdate();

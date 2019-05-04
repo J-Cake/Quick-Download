@@ -40,17 +40,17 @@ Array.prototype.except = function (excluder) {
     return this.filter(i => i !== excluder);
 };
 
-const path = window.getModule('path');
-const os = window.getModule('os');
-const fs = window.getModule('fs');
-const https = window.getModule('https');
+const path = window.require('path');
+const os = window.require('os');
+const fs = window.require('fs');
+const https = window.require('https');
 
 const Mousetrap = window.Mousetrap;
 
-const _electron = window.getModule('electron');
+const _electron = window.require('electron');
 const version = _electron.ipcRenderer.sendSync('version');
 const remote = _electron.remote;
-const {ipcRenderer} = window.getModule('electron');
+const {ipcRenderer} = window.require('electron');
 
 const currentWindow = remote.getCurrentWindow();
 

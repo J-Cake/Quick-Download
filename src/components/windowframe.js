@@ -5,7 +5,7 @@ import '../css/nav_bar.css';
 
 import {$} from './utils';
 
-const _electron = window.getModule('electron');
+const _electron = window.require('electron');
 const remote = _electron.remote;
 const _window = remote.getCurrentWindow();
 
