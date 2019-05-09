@@ -229,12 +229,13 @@ ipcMain.on('minimise', e => {
 });
 
 ipcMain.on('pickDir', e => {
-	e.returnValue = dialog.showOpenDialog(mainWindow, {
+	let returnVal = dialog.showOpenDialog(mainWindow, {
 		properties: ['openDirectory']
 	});
-	if (e.returnValue) {
-		e.returnValue = e.returnValue[0];
+	if (returnVal) {
+		returnVal = returnVal[0];
 	}
+	e.returnValue = returnVal;
 });
 
 ipcMain.on('openURL', (e,url) => {
@@ -258,4 +259,22 @@ ipcMain.on('confirmClear', e => {
 });
 ipcMain.on('show-file', (e,path) =>{
 	shell.showItemInFolder(path);
+});
+ipcMain.on('get-browser-cookies', async (e,url) => {
+	e.returnValue =  await new Promise(resolve => {
+		let browserWindow = new BrowserWindow({
+			minWidth: 720,
+			minHeight: 360,
+			width: 720,
+			height: 720,
+			titleBarStyle: "default",
+			icon: "./build/favicon.ico",
+		});
+		browserWindow.loadURL(url);
+		browserWindow.on('close', ()=>{
+		  browserWindow.webContents.session.cookies.get({url:url},((error, cookies) => {
+		        resolve(cookies);
+            }));
+        });
+	});
 });

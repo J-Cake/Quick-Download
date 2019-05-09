@@ -2,16 +2,17 @@ import React, {Component} from 'react';
 
 import './css/App.css';
 import './css/box.css';
-import './css/settings.css';
+import './components/SettingsMenu/SettingsMenu.css';
 import './css/pastDownloads.css';
-import './css/standard_prompt.css';
+import './components/Shared/StandardMenu/standard_prompt.css';
 import './css/tooltip.css';
 import './css/downloads.css';
 
-import Tool from './components/tool';
-import Checkbox from './components/checkbox';
+import Tool from './components/Shared/tool';
+import SettingsMenu from './components/SettingsMenu/SettingsMenu.js';
+import Checkbox from './components/Shared/checkbox';
 import WindowFrame from './components/windowframe';
-import Alert from './components/alert';
+import Alert from './components/Shared/alert';
 import {$} from './components/utils';
 
 import DownloadCarrier from './download-carrier';
@@ -85,16 +86,16 @@ export default class App extends Component {
     constructor(...args) {
         super(...args);
         document.title = "Quick Downloader";
+        this.alert = this.alert.bind(this);
 
-        // this.me = React.createRef();
-
+        this.updateCookies = this.updateCookies.bind(this);
         this.state = {
             downloadNums: 0,
             downloads: [],
             promptShowing: false,
             downloadName: "",
             downloadURL: "",
-            boxes: [],
+            box: null,
             settingsVisible: false,
             currentSelection: -1,
             latestDownloadProgress: 0,
@@ -104,26 +105,19 @@ export default class App extends Component {
             filters: {name: true},
             showError: false,
             filterValue: "",
-            sortBy: "stats.eta"
+            sortBy: "stats.eta",
+            cookieURL: "",
         };
-        this.CheckForUpdate(false);
-        App.loadSettings();
-    }
 
-    static loadSettings() {
-        window.localStorage.theme = window.localStorage.getItem("theme") || "dark";
-        window.localStorage.saveLocation = window.localStorage.getItem("saveLocation") || path.join(os.homedir(), 'Downloads');
-        window.localStorage.proxySettings = window.localStorage.getItem("proxySettings") || "none";
-        window.localStorage.proxyRequiresCredentials = window.localStorage.getItem("proxyRequiresCredentials") || false;
-        window.localStorage.partsToCreate = Number(window.localStorage.getItem("partsToCreate")) || 10;
-        window.localStorage.preferredUnit = window.localStorage.getItem("preferredUnit") || (platform === "darwin" ? "dec" : "bin");
-        window.localStorage.allowNotifications = window.localStorage.getItem("allowNotifications") || "true";
-        window.localStorage.autoHideMenuBar = window.localStorage.getItem("autoHideMenuBar") || "false";
-        window.localStorage.showAdvancedDetails = window.localStorage.getItem("showAdvancedDetails") || "true";
+        /* Create Prompt Refs */
+        this.settingsPrompt = React.createRef();
+
+
+        this.CheckForUpdate(false);
     }
 
     alert(box) {
-        this.setState(prev => ({boxes: [...prev.boxes, box]}));
+        this.setState(prev => ({box: box}));
     }
 
     showDownloadPrompt() {
@@ -309,7 +303,7 @@ export default class App extends Component {
             close: () => App.confirmExit(),
             toggleFullScreen: () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()),
             about: () => this.about(),
-            showSettings: () => this.showSettings(),
+            showSettings: () => this.settingsPrompt.current.menu.current.show(),
             alert: (box) => this.alert(box),
             contact: () => this.contact(),
             CheckForUpdate: (displayFailPrompt) => this.CheckForUpdate(displayFailPrompt)
@@ -337,10 +331,6 @@ export default class App extends Component {
             currentSelection: -1,
             focused: null
         })
-    }
-
-    showSettings() {
-        this.setState(prev => ({settingsVisible: !prev.settingsVisible}));
     }
 
     static confirmExit() {
@@ -516,7 +506,11 @@ export default class App extends Component {
 
         this.forceUpdate();
     }
-
+    updateCookies(e){
+            this.setState({cookieURL: e.target.value});
+           console.log(this.state.cookieURL);
+           this.forceUpdate();
+    }
     async CheckForUpdate(displayFailPrompt) {
         const url = "https://raw.githubusercontent.com/jbis9051/quick_download/master/package.json";
         const q = url_lib.parse(url);
@@ -608,6 +602,7 @@ export default class App extends Component {
     }
 
     render() {
+        var box;
         return (
             <div className="wrapper">
                 <WindowFrame contact={e => this.contact()} update={e => this.CheckForUpdate(true)}
@@ -619,7 +614,7 @@ export default class App extends Component {
                               icon={"fas fa-plus"}/>
                         <Tool tooltip={"Settings"} className="icon_button"
                               shortcut="*"
-                              onClick={() => this.setState(prev => ({settingsVisible: !prev.settingsVisible}))}
+                              onClick={() => this.settingsPrompt.current.menu.current.show()}
                               icon={"fas fa-cog"}/>
                         <Tool tooltip={"Show download history"}
                               className="icon_button"
@@ -662,14 +657,22 @@ export default class App extends Component {
                                           statusName: !prev.filters.statusName
                                       }
                                   }))
-                              }} getActive={() => ({Name: this.state.filters.name, URL: this.state.filters.url, Status: this.state.filters.statusName})}/>
+                              }} getActive={() => ({
+                            Name: this.state.filters.name,
+                            URL: this.state.filters.url,
+                            Status: this.state.filters.statusName
+                        })}/>
 
                         <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
                               menu={{
                                   "Name": () => this.setState({sortBy: "name"}),
                                   "URL": () => this.setState({sortBy: "url"}),
                                   "Completion Time": () => this.setState({sortBy: "stats.eta"})
-                              }} getActive={() => ({"Name": this.state.sortBy === "name", "URL": this.state.sortBy === "url", "Completion Time": this.state.sortBy === "stats.eta"})}/>
+                              }} getActive={() => ({
+                            "Name": this.state.sortBy === "name",
+                            "URL": this.state.sortBy === "url",
+                            "Completion Time": this.state.sortBy === "stats.eta"
+                        })}/>
 
                         <Tool onClick={() => this.setState(prev => ({reversed: !prev.reversed}))} left={true}
                               tooltip={"Reverse List"}
@@ -694,7 +697,11 @@ export default class App extends Component {
                                         <h1>New Download</h1>
                                         <div className={"prompt_close_button"}>
                                             <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
-                                                  onClick={e => this.closeDownloadPrompt() && this.clearDownloadPrompt()}/>
+                                                  onClick={e => {
+                                                      this.closeDownloadPrompt();
+                                                      this.clearDownloadPrompt();
+                                                  }}
+                                            />
 
                                         </div>
                                     </header>
@@ -790,7 +797,55 @@ export default class App extends Component {
                                             })}
                                         </div>
                                     </div>
+                                    <button className={"confirm-btn"}
+                                            onClick={async () => {
+                                                let url = await new Promise(resolve => {
+                                                    this.closeDownloadPrompt();
+                                                    let box;
+                                                    this.alert(<Alert noClose={true}
+                                                                      ref={dialog => box = dialog}
+                                                                      key={"fuck"}
+                                                                      header={"Enter A URL"}>
+                                                        <div>
+                                                            <input
+                                                                value={this.state.cookieURL}
+                                                                onChange={this.updateCookies}
+                                                                className={"input_standard dl-url mousetrap url"}
+                                                                placeholder={"Browse URL"}/>
+                                                            <div className={"right"}>
+                                                                <button onClick={() => {
+                                                                    this.setState({
+                                                                        showing: false
+                                                                    });
+                                                                    resolve(this.state.cookieURL);
+                                                                    box.setState({
+                                                                        showing: false,
+                                                                    });
+                                                                }
+                                                                }>Ok
+                                                                </button>
 
+                                                                <button onClick={() => {
+                                                                    this.setState({showing: false});
+                                                                    resolve(false);
+                                                                    box.setState({
+                                                                        showing: false,
+                                                                    });
+                                                                }}>Cancel
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </Alert>);
+                                                });
+                                                this.showDownloadPrompt();
+                                                if (url) {
+                                                    let cookies = ipcRenderer.sendSync('get-browser-cookies', url);
+                                                    this.setState({
+                                                        customHeaders: `{'Cookie': '${cookies.map(el => `${el.name}=${el.value}`).join(';')}'}`,
+                                                    });
+                                                }
+                                            }}>Get Cookies
+                                    </button>
                                     <div className={"right-align"}>
                                         <Tool left={true} tooltip={"Begin download"} className={"confirm-btn"}
                                               icon={"fas fa-check"}
@@ -858,238 +913,7 @@ export default class App extends Component {
                         : undefined
                     }
                     {/*------------------------------------------------------------------------------------------------Settings Prompt------------------------------------------------------------------------------------------------*/}
-                    {this.state.settingsVisible ?
-                        <div className={"prompt_wrapper"}>
-                            <div className={"prompt_content_container"}>
-                                <div className={"prompt_content_wrapper"}>
-                                    <header className={"settings_header prompt_header"}>
-                                        <h1>Settings</h1>
-                                        <div className={"prompt_close_button"}>
-                                            <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
-                                                  onClick={e => this.setState({settingsVisible: false})}/>
-
-                                        </div>
-                                    </header>
-
-                                    <h2>Appearance</h2>
-                                    <div className={"settings-group"}>
-                                        <div className={"setting"}>
-                                            <label htmlFor="dark">Dark Theme</label>
-                                            <input
-                                                onChange={field => {
-                                                    if (field.target.value === "on")
-                                                        window.localStorage.theme = "dark";
-                                                    this.forceUpdate();
-                                                }}
-                                                className={"standard_radio right_aligned"}
-                                                name={"theme"}
-                                                id={"dark"}
-                                                type={"radio"}
-                                                checked={window.localStorage.getItem('theme') === 'dark'}/>
-                                        </div>
-                                        <div className={"setting"}>
-                                            <label htmlFor="light">Light Theme</label>
-                                            <input
-                                                onChange={field => {
-                                                    if (field.target.value === "on")
-                                                        window.localStorage.theme = "dark";
-                                                    this.forceUpdate();
-                                                }}
-                                                className={"standard_radio right_aligned"}
-                                                name={"theme"}
-                                                id={"light"}
-                                                type={"radio"}
-                                                checked={window.localStorage.getItem('theme') === 'light'}/>
-                                        </div>
-                                    </div>
-
-                                    <Checkbox checked={window.localStorage.getItem('showAdvancedDetails') === "true"}
-                                              onChange={value => void window.localStorage.setItem('showAdvancedDetails', value) || this.forceUpdate()}
-                                              text={"Show Advanced Download Details"}/>
-
-                                    <br/>
-
-                                    <h2>General</h2>
-                                    <div className={"settingsGroup"}>
-
-                                        {/*<div className={"setting"}>*/}
-                                        <label htmlFor={"save-location"}>Save Location</label>
-                                        <label onClick={() => this.changePath()} htmlFor="save-location"
-                                               className={"standard_path_input"}>{window.localStorage.saveLocation}</label>
-
-                                        <label htmlFor={"numOfParts"}>How many parts to use during download</label>
-                                        <br/>
-                                        <input id={"numOfParts"}
-                                               placeholder={"Number of parts to use during download"}
-                                               type={"number"}
-                                               min={0}
-                                               max={50}
-                                               className={"inline_input"}
-                                               value={window.localStorage.getItem("partsToCreate")}
-                                               onChange={field => void (window.localStorage.partsToCreate = (Number(field.target.value))) || this.forceUpdate()}
-                                        />
-                                        {/* //TODO: Add reference to docs explaining how to find the optimum part number */}
-
-                                        {/*{platform === "win32" ? <div><br/><Checkbox*/}
-                                        {/*	checked={window.localStorage.getItem('autoHideMenuBar') === true}*/}
-                                        {/*	text={`Auto-hide the menu bar (reveal by pressing Alt`}*/}
-                                        {/*	onChange={value => void window.localStorage.setItem('autoHideMenuBar', value) || this.forceUpdate()}/>*/}
-                                        {/*</div> : null}*/}
-
-                                        <br/>
-                                        <br/>
-                                        <h3>Units</h3>
-
-                                        <hr/>
-
-                                        <div className={"setting"}>
-                                            <input type={"radio"} className={"standard_radio right_aligned"}
-                                                   name={"unit"}
-                                                   onChange={field => {
-                                                       if (field.target.value === "on") window.localStorage.preferredUnit = "bin";
-                                                       this.forceUpdate();
-                                                   }} id={"bin"}
-                                                   checked={window.localStorage.getItem('preferredUnit') === "bin"}/>
-                                            <label htmlFor={"bin"}>Binary Units (MiB = 1024 KiB)</label>
-                                        </div>
-
-                                        <div className={"setting"}>
-                                            <input type={"radio"} className={"standard_radio right_aligned"}
-                                                   name={"unit"}
-                                                   onChange={field => {
-                                                       if (field.target.value === "on") window.localStorage.preferredUnit = "dec";
-                                                       this.forceUpdate();
-                                                   }} id={"dec"}
-                                                   checked={window.localStorage.getItem('preferredUnit') === "dec"}/>
-                                            <label htmlFor={"dec"}>Decimal Units (MB = 1000 KB)</label>
-                                        </div>
-
-                                        <hr/>
-                                        <br/>
-
-                                        <Checkbox checked={window.localStorage.getItem('allowNotifications') === true}
-                                                  text={"Allow Notifications"}
-                                                  onChange={value => void window.localStorage.setItem('allowNotifications', value) || this.forceUpdate()}/>
-
-                                        <br/>
-                                        <hr/>
-
-                                        <input type={"button"} className={"standard_full_button"} onClick={() => {
-                                            if (_electron.ipcRenderer.sendSync('confirmClear'))
-                                                window.localStorage.clear();
-
-                                            App.loadSettings();
-                                            this.forceUpdate();
-                                        }} value={"Reset to default settings"}/>
-                                    </div>
-
-                                    <br/>
-
-                                    <h2>Network</h2>
-
-                                    <div className={"setting"}>
-                                        <label htmlFor={"none"}>None</label>
-                                        <input className={"standard_radio right_aligned"} type={"radio"}
-                                               name={"proxy-auth-type"}
-                                               checked={window.localStorage.getItem('proxySettings') === 'none'}
-                                               id={"none"}
-                                               onChange={field => {
-                                                   if (field.target.value === "on") {
-                                                       window.localStorage.setItem('proxySettings', 'none');
-                                                   }
-                                                   this.forceUpdate();
-                                               }}/>
-                                    </div>
-                                    {(() => false)() ? (
-                                            <div className={"setting"}>
-                                                <label htmlFor={"none"}>Pac Script</label>
-                                                <input className={"standard_radio right_aligned"} type={"radio"}
-                                                       name={"proxy-auth-type"}
-                                                       checked={window.localStorage.getItem('proxySettings') === 'pac'}
-                                                       id={"pac"}
-                                                       onChange={field => {
-                                                           if (field.target.value === "on") {
-                                                               window.localStorage.setItem('proxySettings', 'pac');
-                                                           }
-                                                           this.forceUpdate();
-                                                       }}/>
-                                            </div>)
-                                        : null} {/* <-- won't render anything */}
-
-                                    <div className={"setting"}>
-                                        <label htmlFor={"none"}>HTTPS Proxy</label>
-                                        <input className={"standard_radio right_aligned"}
-                                               type={"radio"}
-                                               name={"proxy-auth-type"}
-                                               checked={window.localStorage.getItem('proxySettings') === 'auth'}
-                                               id={"auth"}
-                                               onChange={field => {
-                                                   if (field.target.value === "on") {
-                                                       window.localStorage.setItem('proxySettings', 'auth');
-                                                   }
-                                                   this.forceUpdate();
-                                               }}/>
-                                    </div>
-
-                                    {
-                                        window.localStorage.getItem('proxySettings') === "pac" ?
-                                            <div>
-                                                <input placeholder={"https://example.com/proxy/proxy.pac"}
-                                                       className={"input_standard"}
-                                                       value={window.localStorage.getItem('pacFile') || ""}
-                                                       onChange={field => void window.localStorage.setItem('pacFile', field.target.value) || this.forceUpdate()}
-                                                       id={"pac-location"}/>
-
-                                                <label htmlFor={"pac-location"}>Pac Script Location</label></div> :
-                                            (window.localStorage.getItem('proxySettings') === "auth" ? (
-                                                <div>
-                                                    <label htmlFor={"proxy-host"}>Proxy Host</label>
-                                                    <input placeholder={"proxy.example.com"}
-                                                           className={"input_standard"}
-                                                           value={window.localStorage.getItem('proxyHost') || ""}
-                                                           onChange={field => void window.localStorage.setItem('proxyHost', field.target.value) || this.forceUpdate()}
-                                                           id={"proxy-host"}/>
-
-                                                    <label htmlFor={"proxy-port"}>Proxy Port</label>
-                                                    <br/>
-                                                    <input placeholder={8080}
-                                                           className={"inline_input"}
-                                                           type={"number"}
-                                                           value={window.localStorage.getItem('proxyPort') || ""}
-                                                           onChange={field => void window.localStorage.setItem('proxyPort', field.target.value) || this.forceUpdate()}
-                                                           id={"proxy-port"}/>
-                                                    <br/>
-                                                    <br/>
-
-                                                    <Checkbox
-                                                        checked={window.localStorage.proxyRequiresCredentials === "true"}
-                                                        onChange={value => (void window.localStorage.setItem("proxyRequiresCredentials", value)) || this.forceUpdate()}
-                                                        text={"Proxy Requires Credentials"}/>
-
-                                                    {(window.localStorage.proxyRequiresCredentials === "true" ?
-                                                        <div>
-                                                            <input placeholder={"Proxy Username"}
-                                                                   type={"text"}
-                                                                   className={"input_standard"}
-                                                                   onChange={field => void (window.localStorage.proxyUsername = field.target.value) || this.forceUpdate()}
-                                                                   value={window.localStorage.proxyUsername || ""}
-                                                                   id={"proxy-username"}/>
-                                                            <input placeholder={"Proxy Password"}
-                                                                   type={"password"}
-                                                                   className={"input_standard"}
-                                                                   onChange={field => void (window.localStorage.proxyPassword = field.target.value) || this.forceUpdate()}
-                                                                   value={window.localStorage.proxyPassword || ""}
-                                                                   id={"proxy-password"}/>
-                                                        </div> : null)}
-
-                                                </div>
-                                            ) : null)
-                                    }
-
-                                </div>
-                            </div>
-                        </div>
-                        : null}
+                    <SettingsMenu ref={this.settingsPrompt} settings={{}} />
                     {/*------------------------------------------------------------------------------------------------Past Downloads------------------------------------------------------------------------------------------------*/}
                     {this.state.pastDownloadsVisible ?
                         <div className={"prompt_wrapper"}>
@@ -1177,7 +1001,7 @@ export default class App extends Component {
                 </div>
 
                 <div className={"box-display-area"}>
-                    {this.state.boxes}
+                    {this.state.box}
                 </div>
             </div>
         );

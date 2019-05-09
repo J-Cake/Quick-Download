@@ -1,6 +1,6 @@
 import React from 'react';
 import Progress from "./progress";
-import Tool from "./tool";
+import Tool from "./Shared/tool";
 
 const _electron = window.require('electron');
 

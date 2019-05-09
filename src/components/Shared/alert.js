@@ -2,12 +2,7 @@ import React from 'react';
 import Tool from "./tool";
 
 export default class Alert extends React.Component {
-	state = {
-		showing: true
-	};
-
 	render() {
-		if (this.state.showing)
 			return (
 				<div className={"prompt_wrapper"}>
 					<div className={"prompt_content_container"}>
@@ -26,7 +21,5 @@ export default class Alert extends React.Component {
 					</div>
 				</div>
 			);
-		else
-			return null;
 	}
 }
