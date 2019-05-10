@@ -49,11 +49,10 @@ export default class SettingsMenu extends React.Component {
     }
 
     changePath() {
-        let fuck = _electron.ipcRenderer.sendSync('pickDir');
-        console.log("fuck " + fuck);
+        let dir = _electron.ipcRenderer.sendSync('pickDir');
         this.setState(prev => ({
             settings: Object.assign({}, prev.settings, {
-                saveLocation: fuck || prev.settings.saveLocation
+                saveLocation: dir || prev.settings.saveLocation
             })
         }));
     }
