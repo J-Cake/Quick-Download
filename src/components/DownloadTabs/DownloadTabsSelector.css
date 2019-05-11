@@ -1,0 +1,36 @@
+.download-tabs {
+    width: 100%;
+    /* border: 1px solid #b4c9e0; */
+    border-bottom: 1px solid #24282c;
+    /* z-index: 150; */
+    color: #b4c9e0;
+    box-shadow: 0 0 1px 0 #24282c;
+    position: relative;
+    /* top: 1px; */
+    display: flex;
+    -webkit-justify-content: center;
+    justify-content: center;
+    /* border-top-left-radius: 10px; */
+    /* border-top-right-radius: 10px; */
+    /* border-top-right-radius: 10px; */
+    background: #4f5660;
+}
+
+.download-tabs .tab {
+    width: 100%;
+    transition: 0.125s;
+    cursor: pointer;
+    padding: 5px;
+    text-align: center;
+}
+
+.download-tabs .tab.active {
+    background: #24282c;
+}
+
+
+.download-tabs .tab:hover {
+    width: 100%;
+    background: #3c434b;
+}
+

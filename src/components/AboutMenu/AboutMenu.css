@@ -1,0 +1,19 @@
+.about-details {
+    margin: 0;
+    padding: 0;
+}
+
+.about-details li {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #3c434b;
+    padding: 5px 0;
+}
+
+.about-details li span, .about-details li b {
+    width: 100%;
+}
+
+.about-details li span {
+    text-align: right;
+}

@@ -45,6 +45,7 @@ export default class StandardMenu extends React.Component {
                     <div className={"prompt_content_wrapper"}>
                         <header className={"prompt_header"}>
                             <h1>{this.props.title}</h1>
+                            {this.props.header}
                             <div className={"prompt_close_button"}>
                                 <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
                                       onClick={this._handleCloseClick}

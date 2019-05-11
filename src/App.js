@@ -3,14 +3,24 @@ import React, {Component} from 'react';
 import './css/App.css';
 import './css/box.css';
 import './components/SettingsMenu/SettingsMenu.css';
-import './css/pastDownloads.css';
+import './components/HistoryMenu/HistoryMenu.css';
 import './components/Shared/StandardMenu/standard_prompt.css';
 import './css/tooltip.css';
-import './css/downloads.css';
+import './components/DownloadMenu/DownloadMenu.css';
+
+import IconMenu from "./components/IconMenu/IconMenu";
+
+import AboutMenu from "./components/AboutMenu/AboutMenu";
+
+import DownloadTabsSelector from "./components/DownloadTabs/DownloadTabsSelector";
+import DownloadTabsContent from "./components/DownloadTabs/DownloadTabsContent";
+
+import SettingsMenu from './components/SettingsMenu/SettingsMenu.js';
+import HistoryMenu from './components/HistoryMenu/HistoryMenu.js';
+import DownloadMenu from './components/DownloadMenu/DownloadMenu.js';
 
 import Tool from './components/Shared/tool';
-import SettingsMenu from './components/SettingsMenu/SettingsMenu.js';
-import Checkbox from './components/Shared/checkbox';
+
 import WindowFrame from './components/windowframe';
 import Alert from './components/Shared/alert';
 import {$} from './components/utils';
@@ -18,6 +28,7 @@ import {$} from './components/utils';
 import DownloadCarrier from './download-carrier';
 import Download from "./Download";
 import * as url_lib from "url";
+
 
 Array.prototype.switch = function (condition, goto, fallback) {
     // a ternary operator for arrays.
@@ -91,17 +102,12 @@ export default class App extends Component {
         this.updateCookies = this.updateCookies.bind(this);
         this.state = {
             downloadNums: 0,
-            downloads: [],
             promptShowing: false,
-            downloadName: "",
-            downloadURL: "",
             box: null,
             settingsVisible: false,
             currentSelection: -1,
             latestDownloadProgress: 0,
             pastDownloadsVisible: false,
-            customHeaders: "",
-            showActive: true,
             filters: {name: true},
             showError: false,
             filterValue: "",
@@ -111,6 +117,10 @@ export default class App extends Component {
 
         /* Create Prompt Refs */
         this.settingsPrompt = React.createRef();
+        this.historyPrompt = React.createRef();
+        this.downloadPrompt = React.createRef();
+        this.tabsContent = React.createRef();
+        this.aboutPrompt = React.createRef();
 
 
         this.CheckForUpdate(false);
@@ -186,30 +196,6 @@ export default class App extends Component {
         });
     }
 
-    filter(downloads) { // challenge, turn this into a one-liner
-        const filtered = [];
-        for (let i of downloads) {
-            let matchesCriteria = false;
-            for (let j in this.state.filters) {
-                if (this.state.filters[j]) {
-                    if (!matchesCriteria)
-                        matchesCriteria = i[j].toLowerCase().indexOf(this.state.filterValue.toLowerCase()) > -1;
-                }
-            }
-            if (matchesCriteria)
-                filtered.push(i);
-        }
-
-        return filtered.sort((downloadA, downloadB) => {
-            if (downloadA[this.state.sortBy] > downloadB[this.state.sortBy])
-                return 1;
-            else if (downloadA[this.state.sortBy] < downloadB[this.state.sortBy])
-                return -1;
-            else
-                return 0;
-        });
-    }
-
     changeSelection(dir) {
         if (this.state.focused) {
             if (this.state.focused.classList.contains('dl-name'))
@@ -228,36 +214,6 @@ export default class App extends Component {
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
         }
-    }
-
-    async addToDownloadHistory(url = this.state.downloadURL, name = this.state.downloadName, headers = this.state.customHeaders) {
-        const _downloadHistory = JSON.parse(window.localStorage.downloadHistory || "[]");
-        _downloadHistory.unshift({url, name, headers});
-
-        window.localStorage.downloadHistory = JSON.stringify(_downloadHistory);
-    }
-
-    getDownloads() {
-        const downloads = JSON.parse(window.localStorage.downloadHistory || "[]");
-        return downloads.map((i, a) => downloads.slice(0, a).findIndex(j => j.url === downloads[a].url && j.name === downloads[a].name && j.headers === downloads[a].headers) === -1 ? downloads[a] : null);
-    }
-
-    getDownloadNames() {
-        return this.getDownloads().map(i => i ? i.name || "" : i);
-    }
-
-    getDownloadUrls() {
-        return this.getDownloads().map(i => i ? i.url || "" : i);
-    }
-
-    getDownloadHeaders() {
-        return this.getDownloads().map(i => i ? i.headers || "" : i);
-    }
-
-    filterSuggestion(i) {
-        return (i.name || "").toLowerCase().indexOf((this.state.downloadName || "").toLowerCase()) >= 0
-            && (i.url || "").toLowerCase().indexOf((this.state.downloadURL || "").toLowerCase()) >= 0
-            && (i.headers || "").toLowerCase().indexOf((this.state.customHeaders || "").toLowerCase()) >= 0
     }
 
     componentDidMount() {
@@ -365,34 +321,7 @@ export default class App extends Component {
     }
 
     about() {
-        this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={<div>
-            <ul className={"about-details"}>
-                <li>
-                    <b>Quick Downloader Version: </b>
-                    <span>{version}</span>
-                </li>
-                <li>
-                    <b>Node Version: </b>
-                    <span>{window.process.versions.node}</span>
-                </li>
-                <li>
-                    <b>Electron Version: </b>
-                    <span>{window.process.versions.electron}</span>
-                </li>
-                <li>
-                    <b>Chromium Version: </b>
-                    <span>{window.process.versions.chrome}</span>
-                </li>
-                <li>
-                    <b>V8 Version: </b>
-                    <span>{window.process.versions.v8}</span>
-                </li>
-                <li>
-                    <b>React Version: </b>
-                    <span>{React.version}</span>
-                </li>
-            </ul>
-        </div>}/>)
+       this.aboutPrompt.current.menu.current.show();
     }
 
     async createDownload(url, name, headers) {
@@ -458,53 +387,6 @@ export default class App extends Component {
             }
         });
         return download;
-    }
-
-    addDownload(download) {
-        if (download) {
-            this.setState({
-                downloads: [
-                    ...this.state.downloads,
-                    download
-                ]
-            });
-        }
-    }
-
-    getDisplayDownloads() {
-        return this.filter(this.state.downloads.filter(i => !i.done));
-    }
-
-    getAllDownloads() {
-        return this.filter(this.state.downloads);
-    }
-
-    getActive() {
-        return this.filter(this.state.downloads.filter(i =>
-            i.status === 0
-        ));
-    }
-
-    getReady() {
-        return this.filter(this.state.downloads.filter(i =>
-            i.status === 3
-        ));
-    }
-
-    getInactive() {
-        return this.filter(this.state.downloads.filter(i => i.done));
-    }
-
-    next() {
-        const downloads = this.getReady();
-        if (downloads[0] && this.getActive().length === 0) {
-            const download = downloads[0];
-            download.startDownload().catch(err => {
-                console.error(err);
-            });
-        }
-
-        this.forceUpdate();
     }
     updateCookies(e){
             this.setState({cookieURL: e.target.value});
@@ -607,30 +489,17 @@ export default class App extends Component {
             <div className="wrapper">
                 <WindowFrame contact={e => this.contact()} update={e => this.CheckForUpdate(true)}
                              about={e => this.about()} download={e => this.showDownloadPrompt()}/>
-                <div className={"menu_buttons_container"}>
-                    <div className={"menu_buttons_wrapper"}>
-                        <Tool tooltip={"New download"} className="icon_button" shortcut="+"
-                              onClick={e => this.showDownloadPrompt()}
-                              icon={"fas fa-plus"}/>
-                        <Tool tooltip={"Settings"} className="icon_button"
-                              shortcut="*"
-                              onClick={() => this.settingsPrompt.current.menu.current.show()}
-                              icon={"fas fa-cog"}/>
-                        <Tool tooltip={"Show download history"}
-                              className="icon_button"
-                              onClick={() => this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}))}
-                              icon={"fas fa-history"}/>
-                    </div>
-                </div>
+                 <IconMenu
+                    downloadPrompt={this.downloadPrompt}
+                    settingsPrompt={this.settingsPrompt}
+                    historyPrompt={this.historyPrompt}
+                 />
                 <div className="App">
-                    <div className={"download-tabs"}>
-							<span onClick={() => {
-                                this.setState({showActive: true});
-                            }} className={"tab"}
-                                  id={this.state.showActive ? "active" : ""}>Queue</span>
-                        <span onClick={() => this.setState({showActive: false})} className={"tab"}
-                              id={!this.state.showActive ? "active" : ""}>Complete</span>
-                    </div>
+                   <DownloadTabsSelector
+                       displayTab={(showActive) => {this.tabsContent.current.displayTab(showActive)}}
+                       getActiveTab={() => { return this.tabsContent.current.getActiveTab()}}
+                       /* this.tabsContent.current.displayTab(false) */
+                   />
 
                     <div className={"downloads-display-options"}>
                         <input value={this.state.filterValue}
@@ -679,325 +548,15 @@ export default class App extends Component {
                               icon={!this.state.reversed ? "fas fa-chevron-down" : "fas fa-chevron-up"}/>
                     </div>
 
-                    <div className={"download-tabs-content"}>
-                        <div className={"downloads active"} id={this.state.showActive ? "active" : ""}>
-                            {this.getDisplayDownloads().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Press the + button to start a download")}
-                        </div>
-                        <div className={"downloads inactive"} id={!this.state.showActive ? "active" : ""}>
-                            {this.getInactive().switch(i => i.length > 0, i => i.map((i, a) => i.render(`download${a}`)), "Wait until a download completes to see it here")}
-                        </div>
-                    </div>
-
+                    <DownloadTabsContent ref={this.tabsContent}/>
+                    {/*------------------------------------------------------------------------------------------------Past Downloads------------------------------------------------------------------------------------------------*/}
+                    <HistoryMenu ref={this.historyPrompt}/>
                     {/* ------------------------------------------------------------------------------------------------New Download Prompt------------------------------------------------------------------------------------------------ */}
-                    {this.state.promptShowing ?
-                        <div className={"prompt_wrapper"}>
-                            <div className={"prompt_content_container"}>
-                                <div className={"prompt_content_wrapper"}>
-                                    <header className={"prompt_header"}>
-                                        <h1>New Download</h1>
-                                        <div className={"prompt_close_button"}>
-                                            <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
-                                                  onClick={e => {
-                                                      this.closeDownloadPrompt();
-                                                      this.clearDownloadPrompt();
-                                                  }}
-                                            />
-
-                                        </div>
-                                    </header>
-
-                                    <div className={"formItem"}>
-                                        <label htmlFor={"dl-name"}>The file name of the download</label>
-                                        <input autoFocus={true}
-                                               onFocus={field => this.setState({focused: field.target})}
-                                               onBlur={() => this.setState({focused: null})}
-                                               value={this.state.downloadName || ""}
-                                               onChange={e => void ((() => {
-                                                   if (this.state.stopSave)
-                                                       this.setState({
-                                                           stopSave: false
-                                                       });
-                                               })()) || this.setState({downloadName: e.target.value})}
-                                               className={"mousetrap dl-name input_standard"}
-                                               id={"dl-name"}
-                                               placeholder={"Download Name"}/>
-                                        <div className={"suggestions"}>
-                                            {
-                                                this.getDownloads().map((i, a, x) => {
-                                                    if (i && i.name.length > 1 && this.filterSuggestion(i)) {
-                                                        return (<div key={a}
-                                                                     onClick={() => this.acceptSuggestion(a)}
-                                                                     className={"suggestion"}>
-                                                            <span>{i.name}</span>
-                                                            <br/>
-                                                        </div>);
-                                                    }
-                                                })
-                                            }
-                                        </div>
-                                    </div>
-
-                                    <div className={"formItem"}>
-                                        <label htmlFor={"dl-url"}>The location of the file to download</label>
-                                        <input onFocus={field => this.setState({focused: field.target})}
-                                               onBlur={() => this.setState({focused: null})}
-                                               value={this.state.downloadURL || ""}
-                                               onChange={e => void ((() => {
-                                                   if (this.state.stopSave)
-                                                       this.setState({
-                                                           stopSave: false
-                                                       });
-                                               })()) || this.setState({downloadURL: e.target.value})}
-                                               className={"input_standard dl-url mousetrap url"}
-                                               id={"dl-url"}
-                                               placeholder={"Download URL"}/>
-                                        <div className={"suggestions"}>
-                                            {
-                                                this.getDownloads().map((i, a, x) => {
-                                                    if (i && i.url.length > 1 && this.filterSuggestion(i)) {
-                                                        return (<div key={a}
-                                                                     onClick={() => this.acceptSuggestion(a)}
-                                                                     className={"suggestion"}>
-                                                            <span>{i.url}</span>
-                                                            <br/>
-                                                        </div>);
-                                                    }
-                                                })
-                                            }
-                                        </div>
-                                    </div>
-                                    <div className={"formItem"}>
-                                        <label htmlFor={"dl-headers"}>Custom Headers (JSON)</label>
-                                        <textarea onFocus={field => this.setState({focused: field.target})}
-                                                  onBlur={() => this.setState({focused: null})}
-                                                  value={this.state.customHeaders}
-                                                  onChange={e => void ((() => {
-
-                                                      if (this.state.stopSave)
-                                                          this.setState({
-                                                              stopSave: false
-                                                          });
-                                                  })()) || this.setState({customHeaders: e.target.value})
-                                                  }
-
-                                                  className={"input_standard dl-headers standard_code mousetrap url"}
-                                                  id={"dl-headers"}
-                                                  placeholder={'Download Headers (JSON)'}
-                                        />
-                                        <div className={"suggestions"}>
-                                            {this.getDownloads().map((i, a, x) => {
-                                                if (i && i.headers.length > 1 && this.filterSuggestion(i)) {
-                                                    return (<div key={a}
-                                                                 onClick={() => this.acceptSuggestion(a)}
-                                                                 className={"suggestion"}>
-                                                        <span>{i.headers}</span>
-                                                        <br/>
-                                                    </div>);
-                                                }
-                                            })}
-                                        </div>
-                                    </div>
-                                    <button className={"confirm-btn"}
-                                            onClick={async () => {
-                                                let url = await new Promise(resolve => {
-                                                    this.closeDownloadPrompt();
-                                                    let box;
-                                                    this.alert(<Alert noClose={true}
-                                                                      ref={dialog => box = dialog}
-                                                                      key={"fuck"}
-                                                                      header={"Enter A URL"}>
-                                                        <div>
-                                                            <input
-                                                                value={this.state.cookieURL}
-                                                                onChange={this.updateCookies}
-                                                                className={"input_standard dl-url mousetrap url"}
-                                                                placeholder={"Browse URL"}/>
-                                                            <div className={"right"}>
-                                                                <button onClick={() => {
-                                                                    this.setState({
-                                                                        showing: false
-                                                                    });
-                                                                    resolve(this.state.cookieURL);
-                                                                    box.setState({
-                                                                        showing: false,
-                                                                    });
-                                                                }
-                                                                }>Ok
-                                                                </button>
-
-                                                                <button onClick={() => {
-                                                                    this.setState({showing: false});
-                                                                    resolve(false);
-                                                                    box.setState({
-                                                                        showing: false,
-                                                                    });
-                                                                }}>Cancel
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </Alert>);
-                                                });
-                                                this.showDownloadPrompt();
-                                                if (url) {
-                                                    let cookies = ipcRenderer.sendSync('get-browser-cookies', url);
-                                                    this.setState({
-                                                        customHeaders: `{'Cookie': '${cookies.map(el => `${el.name}=${el.value}`).join(';')}'}`,
-                                                    });
-                                                }
-                                            }}>Get Cookies
-                                    </button>
-                                    <div className={"right-align"}>
-                                        <Tool left={true} tooltip={"Begin download"} className={"confirm-btn"}
-                                              icon={"fas fa-check"}
-                                              onClick={async () => {
-                                                  if (this.state.downloadName && this.state.downloadURL) {
-                                                      let shouldContinue = true;
-                                                      if (!DownloadCarrier.JSONparse(this.state.customHeaders)) {
-                                                          this.closeDownloadPrompt();
-                                                          shouldContinue = await new Promise(resolve => {
-                                                              let box;
-                                                              this.alert(<Alert noClose={true}
-                                                                                ref={dialog => box = dialog}
-                                                                                key={new Date().getTime().toLocaleString()}
-                                                                                header={"Invalid JSON"}>
-                                                                  <div>
-                                                                      The custom headers input is not valid JSON. Would
-                                                                      you like to continue
-                                                                      download <b>without</b> custom headers or cancel?
-                                                                      <div className={"right"}>
-                                                                          <button onClick={() => {
-                                                                              this.setState({
-                                                                                  showing: false
-                                                                              });
-                                                                              this.setState({
-                                                                                  customHeaders: "",
-                                                                              });
-                                                                              resolve(true);
-                                                                              box.setState({
-                                                                                  showing: false,
-                                                                              });
-                                                                          }
-                                                                          }>Clear Custom Headers
-                                                                          </button>
-
-                                                                          <button onClick={() => {
-                                                                              this.setState({showing: false});
-                                                                              this.showDownloadPrompt();
-                                                                              resolve(false);
-                                                                              box.setState({
-                                                                                  showing: false,
-                                                                              });
-                                                                          }}>Cancel
-                                                                          </button>
-                                                                      </div>
-                                                                  </div>
-                                                              </Alert>);
-                                                          });
-
-                                                      }
-                                                      if (shouldContinue) {
-                                                          await this.addToDownloadHistory();
-                                                          const download = await this.createDownload(this.state.downloadURL, this.state.downloadName, this.state.customHeaders);
-                                                          if (download) {
-                                                              this.addDownload(download);
-                                                              await download.initiateDownload();
-                                                              this.next();
-                                                          }
-                                                      }
-                                                  }
-                                              }}/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        : undefined
-                    }
+                    <DownloadMenu ref={this.downloadPrompt} addToDownloadHistory={()=>{this.historyPrompt.current.addToDownloadHistory()}}/>
                     {/*------------------------------------------------------------------------------------------------Settings Prompt------------------------------------------------------------------------------------------------*/}
                     <SettingsMenu ref={this.settingsPrompt} settings={{}} />
-                    {/*------------------------------------------------------------------------------------------------Past Downloads------------------------------------------------------------------------------------------------*/}
-                    {this.state.pastDownloadsVisible ?
-                        <div className={"prompt_wrapper"}>
-                            <div className={"prompt_content_container"}>
-                                <div className={"prompt_content_wrapper"}>
-                                    <header className={"prompt_header"}>
-                                        <h1>History</h1>
-
-                                        <div className={"flex"}>
-                                            {JSON.parse(window.localStorage.downloadHistory).length > 1 ?
-                                                <Tool left={true} tooltip={"Clear all history"} icon={"fas fa-trash"}
-                                                      onClick={async e => {
-                                                          this.setState({pastDownloadsVisible: false});
-                                                          await new Promise(resolve => {
-                                                              let box;
-                                                              this.alert(<Alert noClose={true}
-                                                                                ref={dialog => box = dialog}
-                                                                                key={new Date().getTime().toLocaleString()}
-                                                                                header={"Clear History"}>
-                                                                  <div>
-                                                                      Are you sure you would like to clear all past
-                                                                      downloads from history and suggestions? This
-                                                                      cannot be undone.
-                                                                      <div className={"right"}>
-                                                                          <button onClick={() => {
-                                                                              this.setState({showing: false});
-                                                                              resolve();
-                                                                              box.setState({
-                                                                                  showing: false,
-                                                                              });
-                                                                          }
-                                                                          }>No
-                                                                          </button>
-
-                                                                          <button onClick={() => {
-                                                                              window.localStorage.downloadHistory = "[]";
-                                                                              this.setState({showing: false});
-                                                                              resolve();
-                                                                              box.setState({
-                                                                                  showing: false,
-                                                                              });
-                                                                          }}>Yes
-                                                                          </button>
-
-                                                                      </div>
-                                                                  </div>
-                                                              </Alert>);
-                                                          });
-                                                          this.setState({pastDownloadsVisible: true});
-                                                      }
-                                                      }/> : null}
-                                            {/*<div className={"prompt_close_button"}>*/}
-                                            <Tool left={true} tooltip={"Close the prompt"} icon={"fas fa-times"}
-                                                  onClick={e => this.setState({pastDownloadsVisible: false})}/>
-                                            {/*</div>*/}
-                                        </div>
-                                    </header>
-                                    <div className={"prompt_content"}>
-                                        {JSON.parse(window.localStorage.getItem('downloadHistory')).map((i, a) =>
-                                            <div
-                                                key={a}
-                                                className={"past-download"}>
-                                                <div className={"download-details"}>
-                                                    <div className={"download-name"}>{i.name}:</div>
-                                                    <div className={"download-url"}>{i.url}</div>
-                                                </div>
-
-                                                <div className={"delete"}>
-                                                    <Tool left={true} tooltip={"Remove item from history"}
-                                                          icon={"fas fa-trash"}
-                                                          onClick={() => {
-                                                              const history = JSON.parse(window.localStorage.downloadHistory);
-                                                              history.splice(a, 1);
-
-                                                              window.localStorage.downloadHistory = JSON.stringify(history);
-                                                              this.forceUpdate();
-                                                          }}/>
-                                                </div>
-                                            </div>)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        : null}
+                    {/*------------------------------------------------------------------------------------------------About Prompt------------------------------------------------------------------------------------------------*/}
+                    <AboutMenu ref={this.aboutPrompt} version={version}/>
                 </div>
 
                 <div className={"box-display-area"}>
