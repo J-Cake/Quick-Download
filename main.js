@@ -4,48 +4,29 @@ const {shell} = require('electron');
 
 let mainWindow;
 
-const mainFile = require('./index_file.js');
-
-const disableFramePermanently = false;
-
-let withFrame = false;
 const path = require('path');
 
 async function createWindow() {
-	mainWindow = new BrowserWindow({
-		minWidth: 720,
-		minHeight: 360,
-		width: 720,
-		height: 360,
-		titleBarStyle: "hidden",
-		nodeIntegration: true,
-		frame: os.platform() !== "win32",
-		icon: "./build/favicon.ico",
-		webPreferences: {nodeIntegration: true, webSecurity: false}
-	});
+    mainWindow = new BrowserWindow({
+        minWidth: 720,
+        minHeight: 360,
+        width: 720,
+        height: 360,
+        titleBarStyle: "hidden",
+        nodeIntegration: true,
+        frame: os.platform() !== "win32",
+        icon: "./build/favicon.ico",
+        webPreferences: {nodeIntegration: true, webSecurity: false}
+    });
+    mainWindow.on('closed', function () {
+        mainWindow = null;
+    });
+    mainWindow.setTitle("Quick Downloader");
+    await mainWindow.loadFile(path.join(__dirname, './src/index.html'));
 
-	await mainWindow.loadFile(path.join(__dirname, mainFile));
+    mainWindow.toggleDevTools();
 
-	mainWindow.frame = withFrame;
-	mainWindow.setTitle("Quick Downloader");
-	if (!disableFramePermanently) {
-		ipcMain.on('withFrame', e => {
-			withFrame = true;
-			mainWindow.close();
-			createWindow();
-		});
-		ipcMain.on('noFrame', e => {
-			withFrame = false;
-			mainWindow.close();
-			createWindow();
-		});
-
-		mainWindow.on('closed', function () {
-			mainWindow = null;
-		});
-	}
-
-	createMenu();
+    createMenu();
 }
 
 app.setAppUserModelId(process.execPath);
@@ -53,228 +34,228 @@ app.setAppUserModelId(process.execPath);
 app.on('ready', createWindow);
 
 function createMenu() {
-	 // mainWindow.toggleDevTools();
-	let template = [{
-		label: 'Quick Downloader',
-		submenu: [{
-			label: 'About Quick Downloader',
-			async click() {
-				if (mainWindow === null) {
-					await createWindow();
-				}
-				mainWindow.webContents.send("menu-about");
-			},
-		},
-			{
-				label: 'Check for updates...',
-				async click() {
-					if (mainWindow === null) {
-						await createWindow();
-					}
-					mainWindow.webContents.send("check-update");
-				}
-			},
-			{type: 'separator'},
-			{
-				label: 'Preferences...',
-				async click() {
-					if (mainWindow === null) {
-						await createWindow();
-					}
-					mainWindow.webContents.send("menu-settings");
-				}
-			},
-			{role: 'services'},
-			{type: 'separator'},
-			{role: 'services'},
-			{role: 'hide'},
-			{role: 'hideothers'},
-			{type: 'separator'},
-			{role: 'Quit'}
-		]
-	},
-		{
-			label: 'File',
-			submenu: [{
-				label: 'New Download...',
-				async click() {
-					if (mainWindow === null) {
-						await createWindow();
-					}
-					mainWindow.webContents.send("menu-new_download");
-				}
-			}]
-		},
+    // mainWindow.toggleDevTools();
+    let template = [{
+        label: 'Quick Downloader',
+        submenu: [{
+            label: 'About Quick Downloader',
+            async click() {
+                if (mainWindow === null) {
+                    await createWindow();
+                }
+                mainWindow.webContents.send("menu-about");
+            },
+        },
+            {
+                label: 'Check for updates...',
+                async click() {
+                    if (mainWindow === null) {
+                        await createWindow();
+                    }
+                    mainWindow.webContents.send("check-update");
+                }
+            },
+            {type: 'separator'},
+            {
+                label: 'Preferences...',
+                async click() {
+                    if (mainWindow === null) {
+                        await createWindow();
+                    }
+                    mainWindow.webContents.send("menu-settings");
+                }
+            },
+            {role: 'services'},
+            {type: 'separator'},
+            {role: 'services'},
+            {role: 'hide'},
+            {role: 'hideothers'},
+            {type: 'separator'},
+            {role: 'Quit'}
+        ]
+    },
+        {
+            label: 'File',
+            submenu: [{
+                label: 'New Download...',
+                async click() {
+                    if (mainWindow === null) {
+                        await createWindow();
+                    }
+                    mainWindow.webContents.send("menu-new_download");
+                }
+            }]
+        },
 
-		{
-			label: 'Edit',
-			submenu: [
-				{role: 'undo'},
-				{role: 'redo'},
-				{type: 'separator'},
-				{role: 'cut'},
-				{role: 'copy'},
-				{role: 'paste'},
-				{role: 'delete'},
-				{role: 'selectall'}
-			]
-		},
+        {
+            label: 'Edit',
+            submenu: [
+                {role: 'undo'},
+                {role: 'redo'},
+                {type: 'separator'},
+                {role: 'cut'},
+                {role: 'copy'},
+                {role: 'paste'},
+                {role: 'delete'},
+                {role: 'selectall'}
+            ]
+        },
 
-		{
-			label: 'View',
-			submenu: [{
-				label: "Theme",
-				submenu: [
-					{label: "Dark", type: "radio", checked: true}, {label: "Light", type: "radio", enabled: false}
-				]
-			},
-				{role: 'reload'},
-				{role: 'forcereload'},
-				{role: 'toggledevtools'},
-				{type: 'separator'},
-				{role: 'resetzoom'},
-				{role: 'zoomin'},
-				{role: 'zoomout'},
-				{type: 'separator'},
-				{role: 'togglefullscreen'},
-			]
-		},
-		{
-			role: 'window',
-			submenu: [
-				{role: 'minimize'},
-				{role: 'close'}
-			]
-		},
-		{
-			label: 'Help',
-			submenu: [{
-				label: 'Contact Developers',
-				async click() {
-					if (mainWindow === null) {
-						await createWindow();
-					}
-					mainWindow.webContents.send("menu-contact")
-				}
-			},
-				{
-					label: 'Learn More',
-					click() {
-						require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
-					}
-				},
-				{
-					label: 'Contribute',
-					click() {
-						require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
-					}
-				},
-				{
-					label: "About",
-					async click() {
-						if (mainWindow === null) {
-							await createWindow();
-						}
-						mainWindow.webContents.send("menu-about")
-					}
-				},
-				{
-					label: "Docs",
-					click() {
-						require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
-					}
-				}
-			]
-		}
-	];
-	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-	// mainWindow.setMenu(Menu.buildFromTemplate(template));
+        {
+            label: 'View',
+            submenu: [{
+                label: "Theme",
+                submenu: [
+                    {label: "Dark", type: "radio", checked: true}, {label: "Light", type: "radio", enabled: false}
+                ]
+            },
+                {role: 'reload'},
+                {role: 'forcereload'},
+                {role: 'toggledevtools'},
+                {type: 'separator'},
+                {role: 'resetzoom'},
+                {role: 'zoomin'},
+                {role: 'zoomout'},
+                {type: 'separator'},
+                {role: 'togglefullscreen'},
+            ]
+        },
+        {
+            role: 'window',
+            submenu: [
+                {role: 'minimize'},
+                {role: 'close'}
+            ]
+        },
+        {
+            label: 'Help',
+            submenu: [{
+                label: 'Contact Developers',
+                async click() {
+                    if (mainWindow === null) {
+                        await createWindow();
+                    }
+                    mainWindow.webContents.send("menu-contact")
+                }
+            },
+                {
+                    label: 'Learn More',
+                    click() {
+                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                    }
+                },
+                {
+                    label: 'Contribute',
+                    click() {
+                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                    }
+                },
+                {
+                    label: "About",
+                    async click() {
+                        if (mainWindow === null) {
+                            await createWindow();
+                        }
+                        mainWindow.webContents.send("menu-about")
+                    }
+                },
+                {
+                    label: "Docs",
+                    click() {
+                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                    }
+                }
+            ]
+        }
+    ];
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    // mainWindow.setMenu(Menu.buildFromTemplate(template));
 }
 
 app.on('window-all-closed', function () {
-	if (process.platform !== 'darwin') {
-		app.quit();
-	}
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
 app.on('activate', function () {
-	if (mainWindow === null) {
-		createWindow();
-	}
+    if (mainWindow === null) {
+        createWindow();
+    }
 });
 
 ipcMain.on('minimise', e => {
-	try {
-		mainWindow.minimize()
-	} catch (e) {
-	}
+    try {
+        mainWindow.minimize()
+    } catch (e) {
+    }
 });
 ipcMain.on('minimise', e => {
-	try {
-		mainWindow.maximize()
-	} catch (e) {
-	}
+    try {
+        mainWindow.maximize()
+    } catch (e) {
+    }
 });
 ipcMain.on('minimise', e => {
-	try {
-		mainWindow.restore()
-	} catch (e) {
-	}
+    try {
+        mainWindow.restore()
+    } catch (e) {
+    }
 });
 ipcMain.on('minimise', e => {
-	try {
-		mainWindow.close()
-	} catch (e) {
-	}
+    try {
+        mainWindow.close()
+    } catch (e) {
+    }
 });
 
 ipcMain.on('pickDir', e => {
-	let returnVal = dialog.showOpenDialog(mainWindow, {
-		properties: ['openDirectory']
-	});
-	if (returnVal) {
-		returnVal = returnVal[0];
-	}
-	e.returnValue = returnVal;
+    let returnVal = dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory']
+    });
+    if (returnVal) {
+        returnVal = returnVal[0];
+    }
+    e.returnValue = returnVal;
 });
 
-ipcMain.on('openURL', (e,url) => {
-	require('electron').shell.openExternal(url);
+ipcMain.on('openURL', (e, url) => {
+    require('electron').shell.openExternal(url);
 });
-ipcMain.on('toggledevtools', (e,url) => {
-	 mainWindow.toggleDevTools();
+ipcMain.on('toggledevtools', (e, url) => {
+    mainWindow.toggleDevTools();
 });
 ipcMain.on('version', e => {
-	e.returnValue = app.getVersion();
+    e.returnValue = app.getVersion();
 });
 
 ipcMain.on('confirmClear', e => {
-	dialog.showMessageBox({
-			type: 'info',
-			buttons: ['OK', 'Cancel'],
-			message: "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
-		}, // "Confirm delete", "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
-		value => e.returnValue = !value
-	);
+    dialog.showMessageBox({
+            type: 'info',
+            buttons: ['OK', 'Cancel'],
+            message: "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
+        }, // "Confirm delete", "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
+        value => e.returnValue = !value
+    );
 });
-ipcMain.on('show-file', (e,path) =>{
-	shell.showItemInFolder(path);
+ipcMain.on('show-file', (e, path) => {
+    shell.showItemInFolder(path);
 });
-ipcMain.on('get-browser-cookies', async (e,url) => {
-	e.returnValue =  await new Promise(resolve => {
-		let browserWindow = new BrowserWindow({
-			minWidth: 720,
-			minHeight: 360,
-			width: 720,
-			height: 720,
-			titleBarStyle: "default",
-			icon: "./build/favicon.ico",
-		});
-		browserWindow.loadURL(url);
-		browserWindow.on('close', ()=>{
-		  browserWindow.webContents.session.cookies.get({url:url},((error, cookies) => {
-		        resolve(cookies);
+ipcMain.on('get-browser-cookies', async (e, url) => {
+    e.returnValue = await new Promise(resolve => {
+        let browserWindow = new BrowserWindow({
+            minWidth: 720,
+            minHeight: 360,
+            width: 720,
+            height: 720,
+            titleBarStyle: "default",
+            icon: "./build/favicon.ico",
+        });
+        browserWindow.loadURL(url);
+        browserWindow.on('close', () => {
+            browserWindow.webContents.session.cookies.get({url: url}, ((error, cookies) => {
+                resolve(cookies);
             }));
         });
-	});
+    });
 });

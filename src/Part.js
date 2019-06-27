@@ -63,7 +63,6 @@ export default class Part {
                 })
             } catch (e) {
                 reject(e);
-                reject(e);
             }
         });
     }

@@ -82,7 +82,6 @@ export default class App extends Component {
         super(...args);
 
 
-
         ipcRenderer.on('menu-about', e =>{
             this.changeMenu(Menus.ABOUT);
         });

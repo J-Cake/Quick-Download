@@ -19,6 +19,22 @@ export default class DownloadCarrier extends React.Component {
 
         this.emitter = new events.EventEmitter();
 
+        this.state = {
+            status: DownloadStatus.AWAITING,
+
+            percentage: 0,
+            progress: 0,
+            size: 0,
+            speed: 0,
+            eta: null,
+            elapsedTime: 0,
+            chunks_done: 0,
+            total_chunks: null,
+            path: saveLocation,
+            error: null,
+
+        };
+
         this.url = url;
         this.name = name;
         this.saveLocation = saveLocation;
@@ -59,21 +75,6 @@ export default class DownloadCarrier extends React.Component {
 
         this.done = false;
 
-        this.state = {
-            status: DownloadStatus.AWAITING,
-
-            percentage: 0,
-            progress: 0,
-            size: 0,
-            speed: 0,
-            eta: null,
-            elapsedTime: 0,
-            chunks_done: 0,
-            total_chunks: null,
-            path: saveLocation,
-            error: null,
-
-        };
         this.last_update = 0;
 
         this.functions = {
