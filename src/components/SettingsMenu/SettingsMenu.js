@@ -11,61 +11,24 @@ const _electron = window.require('electron');
 export default class SettingsMenu extends React.Component {
     constructor(props) {
         super(props);
-
-        this.updateSettings = this.updateSettings.bind(this);
-        this.changePath = this.changePath.bind(this);
-        this.resetToDefaults = this.resetToDefaults.bind(this);
-
-        this._defaults = {
-            theme: "dark",
-            saveLocation: path.join(os.homedir(), 'Downloads'),
-            proxySettings: "none",
-            proxyUsername: "",
-            proxyPassword: "",
-            proxyRequiresCredentials: false,
-            partsToCreate: 15,
-            preferredUnit: (os.platform() === "win32" ? "bin" : "dec"),
-            allowNotifications: true,
-            autoHideMenuBar: false,
-            showAdvancedDetails: true
-        };
-
-        this.state = {
-            settings: Object.assign({}, this._defaults, props.settings)
-        };
-
-        this.menu = React.createRef();
-    }
-
-    updateSettings(settingsObj) {
-        this.setState(prev => ({
-            settings: Object.assign({}, prev.settings, settingsObj)
-        }));
-        this.saveSettings();
-    }
-
-    saveSettings() {
-        // TODO: save somehow
     }
 
     changePath() {
         let dir = _electron.ipcRenderer.sendSync('pickDir');
-        this.setState(prev => ({
-            settings: Object.assign({}, prev.settings, {
-                saveLocation: dir || prev.settings.saveLocation
-            })
+        this.props.updateSettings(prev => ({
+            saveLocation: dir || prev.saveLocation
         }));
     }
 
     resetToDefaults(e) {
         if (_electron.ipcRenderer.sendSync('confirmClear')) {
-            this.updateSettings(this._defaults);
+            this.props.updateSettings(this._defaults);
         }
     }
 
     render() {
         return (
-            <StandardMenu title={"Settings"} ref={this.menu}>
+            <StandardMenu title={"Settings"} close={e => this.props.close()}>
                 <h2>Appearance</h2>
                 <div className={"settings-group"}>
                     <div className={"setting"}>
@@ -73,7 +36,7 @@ export default class SettingsMenu extends React.Component {
                         <input
                             onChange={field => {
                                 if (field.target.value === "on") {
-                                    this.updateSettings({
+                                   this.props.updateSettings({
                                         theme: "dark"
                                     });
                                 }
@@ -82,14 +45,14 @@ export default class SettingsMenu extends React.Component {
                             name={"theme"}
                             id={"dark"}
                             type={"radio"}
-                            checked={this.state.settings.theme === 'dark'}/>
+                            checked={this.props.settings.theme === 'dark'}/>
                     </div>
                     <div className={"setting"}>
                         <label htmlFor="light">Light Theme</label>
                         <input
                             onChange={field => {
                                 if (field.target.value === "on") {
-                                    this.updateSettings({
+                                   this.props.updateSettings({
                                         theme: "light"
                                     });
                                 }
@@ -98,12 +61,12 @@ export default class SettingsMenu extends React.Component {
                             name={"theme"}
                             id={"light"}
                             type={"radio"}
-                            checked={this.state.settings.theme === 'light'}/>
+                            checked={this.props.settings.theme === 'light'}/>
                     </div>
                 </div>
 
-                <Checkbox checked={this.state.settings.advanced}
-                          onChange={value => this.updateSettings({
+                <Checkbox checked={this.props.settings.advanced}
+                          onChange={value =>this.props.updateSettings({
                               advanced: value
                           })}
                           text={"Show Advanced Download Details"}/>
@@ -113,8 +76,8 @@ export default class SettingsMenu extends React.Component {
                 <h2>General</h2>
                 <div className={"settingsGroup"}>
                     <label htmlFor={"save-location"}>Save Location</label>
-                    <label onClick={this.changePath} htmlFor="save-location"
-                           className={"standard_path_input"}>{this.state.settings.saveLocation}</label>
+                    <label onClick={e => this.changePath()} htmlFor="save-location"
+                           className={"standard_path_input"}>{this.props.settings.saveLocation}</label>
                     <label htmlFor={"numOfParts"}>How many parts to use during download</label>
                     <br/>
                     <input id={"numOfParts"}
@@ -123,8 +86,8 @@ export default class SettingsMenu extends React.Component {
                            min={0}
                            max={50}
                            className={"inline_input"}
-                           value={this.state.settings.partsToCreate}
-                           onChange={field => this.updateSettings({
+                           value={this.props.settings.partsToCreate}
+                           onChange={field =>this.props.updateSettings({
                                partsToCreate: Number(field.target.value)
                            })}
                     />
@@ -141,12 +104,12 @@ export default class SettingsMenu extends React.Component {
                                name={"unit"}
                                onChange={field => {
                                    if (field.target.value === "on") {
-                                       this.updateSettings({
+                                      this.props.updateSettings({
                                            preferredUnit: "bin"
                                        });
                                    }
                                }} id={"bin"}
-                               checked={this.state.settings.preferredUnit === "bin"}/>
+                               checked={this.props.settings.preferredUnit === "bin"}/>
                         <label htmlFor={"bin"}>Binary Units (MiB = 1024 KiB)</label>
                     </div>
 
@@ -155,21 +118,21 @@ export default class SettingsMenu extends React.Component {
                                name={"unit"}
                                onChange={field => {
                                    if (field.target.value === "on") {
-                                       this.updateSettings({
+                                      this.props.updateSettings({
                                            preferredUnit: "dec"
                                        });
                                    }
                                }} id={"bin"}
-                               checked={this.state.settings.preferredUnit === "dec"}/>
+                               checked={this.props.settings.preferredUnit === "dec"}/>
                         <label htmlFor={"dec"}>Decimal Units (MB = 1000 KB)</label>
                     </div>
 
                     <hr/>
                     <br/>
 
-                    <Checkbox checked={this.state.settings.allowNotifications}
+                    <Checkbox checked={this.props.settings.allowNotifications}
                               text={"Allow Notifications"}
-                              onChange={value => this.updateSettings({
+                              onChange={value =>this.props.updateSettings({
                                   allowNotifications: value
                               })}/>
 
@@ -188,11 +151,11 @@ export default class SettingsMenu extends React.Component {
                     <label htmlFor={"none"}>None</label>
                     <input className={"standard_radio right_aligned"} type={"radio"}
                            name={"proxy-auth-type"}
-                           checked={this.state.settings.proxySettings === 'none'}
+                           checked={this.props.settings.proxySettings === 'none'}
                            id={"none"}
                            onChange={field => {
                                if (field.target.value === "on") {
-                                   this.updateSettings({
+                                  this.props.updateSettings({
                                        proxySettings: 'none'
                                    });
                                }
@@ -218,11 +181,11 @@ export default class SettingsMenu extends React.Component {
                     <input className={"standard_radio right_aligned"}
                            type={"radio"}
                            name={"proxy-auth-type"}
-                           checked={this.state.settings.proxySettings === 'auth'}
+                           checked={this.props.settings.proxySettings === 'auth'}
                            id={"auth"}
                            onChange={field => {
                                if (field.target.value === "on") {
-                                   this.updateSettings({
+                                  this.props.updateSettings({
                                        proxySettings: 'auth'
                                    });
                                }
@@ -230,28 +193,28 @@ export default class SettingsMenu extends React.Component {
                 </div>
 
                 {(() => {
-                    if (this.state.settings.proxySettings === "pac") {
+                    if (this.props.settings.proxySettings === "pac") {
                         return (
                             <div>
                                 <input placeholder={"https://example.com/proxy/proxy.pac"}
                                        className={"input_standard"}
-                                       value={this.state.settings.pacFile}
-                                       onChange={field => this.updateSettings({
+                                       value={this.props.settings.pacFile}
+                                       onChange={field =>this.props.updateSettings({
                                            pacFile: field.target.value
                                        })}
                                        id={"pac-location"}/>
 
                                 <label htmlFor={"pac-location"}>Pac Script Location</label></div>
                         )
-                    } else if (this.state.settings.proxySettings === "auth") {
+                    } else if (this.props.settings.proxySettings === "auth") {
 
                         return (
                             <div>
                                 <label htmlFor={"proxy-host"}>Proxy Host</label>
                                 <input placeholder={"proxy.example.com"}
                                        className={"input_standard"}
-                                       value={this.state.settings.proxyHost}
-                                       onChange={field => this.updateSettings({
+                                       value={this.props.settings.proxyHost}
+                                       onChange={field =>this.props.updateSettings({
                                            proxyHost: field.target.value
                                        })}
                                        id={"proxy-host"}/>
@@ -260,8 +223,8 @@ export default class SettingsMenu extends React.Component {
                                 <input placeholder={8080}
                                        className={"inline_input"}
                                        type={"number"}
-                                       value={this.state.settings.proxyPort}
-                                       onChange={field => this.updateSettings({
+                                       value={this.props.settings.proxyPort}
+                                       onChange={field =>this.props.updateSettings({
                                            proxyPort: field.target.value
                                        })}
                                        id={"proxy-port"}/>
@@ -269,28 +232,28 @@ export default class SettingsMenu extends React.Component {
                                 <br/>
 
                                 <Checkbox
-                                    checked={this.state.settings.proxyRequiresCredentials}
-                                    onChange={value => this.updateSettings({
+                                    checked={this.props.settings.proxyRequiresCredentials}
+                                    onChange={value =>this.props.updateSettings({
                                         proxyRequiresCredentials: value
                                     })}
                                     text={"Proxy Requires Credentials"}/>
-                                {this.state.settings.proxyRequiresCredentials ?
+                                {this.props.settings.proxyRequiresCredentials ?
                                    <div>
                                     <input placeholder={"Proxy Username"}
                                            type={"text"}
                                            className={"input_standard"}
-                                           onChange={field => this.updateSettings({
+                                           onChange={field =>this.props.updateSettings({
                                                proxyUsername: field.target.value
                                            })}
-                                           value={this.state.settings.proxyUsername}
+                                           value={this.props.settings.proxyUsername}
                                            id={"proxy-username"}/>
                                     <input placeholder={"Proxy Password"}
                                     type={"password"}
                                     className={"input_standard"}
-                                    onChange={field => this.updateSettings({
+                                    onChange={field =>this.props.updateSettings({
                                     proxyPassword: field.target.value
                                 })}
-                                    value={this.state.settings.proxyPassword}
+                                    value={this.props.settings.proxyPassword}
                                     id={"proxy-password"}/>
                                    </div>: null
                                 }

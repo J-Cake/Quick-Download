@@ -42,12 +42,11 @@ export default class Download extends events.EventEmitter {
      * @returns {Promise<Download>}
      */
 
-    init(url, name, save_location, parts, custom_headers, proxyOptions) {
-        return new Promise(async resolve => {
+    async init(url, name, save_location, parts, custom_headers, proxyOptions) {
             this.emit("init");
             if (!validFilename(name)) {
                 this.error("Invalid File Name");
-              return  resolve(this);
+                return this;
             }
             this.save_location = save_location;
             this.proxyOptions = (proxyOptions === false || Object.keys(proxyOptions).length === 0) ? false : proxyOptions;
@@ -65,13 +64,13 @@ export default class Download extends events.EventEmitter {
                 .catch(
                     err => {
                         this.error(err.toString());
-                        return resolve(this);
+                        return this;
                     }
                 )
             ) {
                 this.bytes_request_supported = false;
                 this.error("Byte Requests are not supported.");
-                return resolve(this);
+                return this;
             }
             this.total_length = await Download.get_length(url, this.custom_headers, this.proxyOptions).catch(err => this.error(err));
             this.onUpdate({
@@ -91,8 +90,7 @@ export default class Download extends events.EventEmitter {
                 this.port = "443";
             }
             this.emit("init-complete");
-            return resolve(this);
-        });
+            return this;
     }
 
     onUpdate(e) {

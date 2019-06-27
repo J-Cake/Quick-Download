@@ -11,6 +11,8 @@ import './components/DownloadMenu/DownloadMenu.css';
 import IconMenu from "./components/IconMenu/IconMenu";
 
 import AboutMenu from "./components/AboutMenu/AboutMenu";
+import AlertMenu from "./components/AlertMenu/AlertMenu";
+import ContactMenu from "./components/ContactMenu/ContactMenu";
 
 import DownloadTabsSelector from "./components/DownloadTabs/DownloadTabsSelector";
 import DownloadTabsContent from "./components/DownloadTabs/DownloadTabsContent";
@@ -29,6 +31,9 @@ import DownloadCarrier from './download-carrier';
 import Download from "./Download";
 import * as url_lib from "url";
 
+import Enum from './enum.js';
+
+const {Menus, Tabs} = Enum;
 
 Array.prototype.switch = function (condition, goto, fallback) {
     // a ternary operator for arrays.
@@ -72,72 +77,101 @@ if (platform !== "win32" && platform !== "darwin")
     platform = "other";
 
 
-ipcRenderer.on('menu-about', function (event) {
-    window.App.about();
-});
-ipcRenderer.on('menu-settings', function (event) {
-    window.App.showSettings();
-});
-ipcRenderer.on('menu-new_download', function (event) {
-    window.App.show();
-});
-ipcRenderer.on('menu-close', function (event) {
-    window.App.close();
-});
-ipcRenderer.on('menu-contact', function (event) {
-    window.App.contact();
-});
-
-ipcRenderer.on('check-update', function (event) {
-    window.App.CheckForUpdate(true);
-});
-
-
 export default class App extends Component {
     constructor(...args) {
         super(...args);
+
+
+
+        ipcRenderer.on('menu-about', e =>{
+            this.changeMenu(Menus.ABOUT);
+        });
+        ipcRenderer.on('menu-settings', e =>{
+            this.changeMenu(Menus.SETTINGS);
+        });
+        ipcRenderer.on('menu-new_download', e =>{
+            this.changeMenu(Menus.NEW_DOWNLOAD);
+        });
+        ipcRenderer.on('menu-close', e =>{
+            App.confirmExit();
+        });
+        ipcRenderer.on('menu-contact', fe =>{
+            this.changeMenu(Menus.CONTACT);
+        });
+        ipcRenderer.on('check-update', e =>{
+            this.CheckForUpdate(true);
+        });
+
+
+
+
         document.title = "Quick Downloader";
         this.alert = this.alert.bind(this);
 
-        this.updateCookies = this.updateCookies.bind(this);
+        this._defaults = {
+            theme: "dark",
+            saveLocation: path.join(os.homedir(), 'Downloads'),
+            proxySettings: "none",
+            proxyUsername: "",
+            proxyPassword: "",
+            proxyRequiresCredentials: false,
+            partsToCreate: 15,
+            preferredUnit: (os.platform() === "win32" ? "bin" : "dec"),
+            allowNotifications: true,
+            autoHideMenuBar: false,
+            showAdvancedDetails: true
+        };
+
         this.state = {
             downloadNums: 0,
-            promptShowing: false,
-            box: null,
-            settingsVisible: false,
+            customMenu: null,
             currentSelection: -1,
             latestDownloadProgress: 0,
-            pastDownloadsVisible: false,
             filters: {name: true},
             showError: false,
             filterValue: "",
             sortBy: "stats.eta",
-            cookieURL: "",
+            settings: Object.assign({}, this._defaults, App.getSavedSettings()),
+
+
+            downloads: [],
+            pastDownloads: [],
+            viewTab: Tabs.QUEUE,
         };
 
-        /* Create Prompt Refs */
-        this.settingsPrompt = React.createRef();
-        this.historyPrompt = React.createRef();
-        this.downloadPrompt = React.createRef();
-        this.tabsContent = React.createRef();
-        this.aboutPrompt = React.createRef();
-
+        this.changeMenu = this.changeMenu.bind(this);
+        this.closeMenu = this.closeMenu.bind(this);
+        this.updateSettings = this.updateSettings.bind(this);
 
         this.CheckForUpdate(false);
     }
 
-    alert(box) {
-        this.setState(prev => ({box: box}));
-    }
-
-    showDownloadPrompt() {
-        if (!this.state.promptShowing) {
-            this.setState(prevState => ({promptShowing: !prevState.promptShowing}));
+    updateSettings(settingsObj) {
+        if (typeof settingsObj == "object") {
+            this.setState(prev => ({
+                settings: Object.assign({}, prev.settings, settingsObj)
+            }));
+        } else {
+            this.setState(prev => ({
+                settings: Object.assign({}, prev.settings, settingsObj(prev.settings))
+            }));
         }
+        App.saveSettings();
     }
 
-    closeDownloadPrompt() {
-        this.setState({promptShowing: false});
+    static saveSettings() {
+        // TODO: save somehow
+        return {};
+    }
+
+    static getSavedSettings() {
+        // TODO: get somehow
+        return {};
+    }
+
+    alert(menu) {
+        this.setState({customMenu: menu});
+        this.changeMenu(Menus.OTHER);
     }
 
     clearDownloadPrompt() {
@@ -148,9 +182,7 @@ export default class App extends Component {
         const fullLocation = Download.getFileName(name, saveLocation, url);
         return new Promise(resolve => {
             if (fs.existsSync(fullLocation)) {
-                let box;
-                this.alert(<Alert noClose={true} ref={dialog => box = dialog}
-                                  key={new Date().getTime().toLocaleString()}
+                this.alert(<Alert noClose={true}
                                   header={"File already exists"}>
                     <div>
                         The file "{fullLocation.split('/').pop()}" already exists. You can replace it or keep it or
@@ -167,24 +199,22 @@ export default class App extends Component {
                                 while (fs.existsSync(Download.getFileName(name + " " + num, saveLocation, url))) {
                                     num++;
                                 }
-                                this.setState({showing: false});
+                                this.closeMenu();
                                 resolve(name + " " + num);
-                                box.setState({showing: false});
                             }}>Rename
                             </button>
 
                             <button onClick={async () => {
                                 fs.unlinkSync(fullLocation);
                                 resolve(name);
-                                this.setState({showing: false});
-                                box.setState({showing: false});
+                                this.closeMenu();
                             }}>Overwrite
                             </button>
 
                             <button onClick={() => {
                                 resolve(false);
-                                this.setState({showing: false});
-                                box.setState({showing: false});
+                                this.closeMenu();
+                                this.changeMenu(Menus.NEW_DOWNLOAD);
                             }}>Cancel
                             </button>
                         </div>
@@ -200,17 +230,17 @@ export default class App extends Component {
         if (this.state.focused) {
             if (this.state.focused.classList.contains('dl-name'))
                 this.setState(prev => {
-                    const maxSelection = this.getDownloadNames().filter(i => !!i).length;
+                    const maxSelection = this.getDownloadNames().customFilter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
             else if (this.state.focused.classList.contains('dl-url'))
                 this.setState(prev => {
-                    const maxSelection = this.getDownloadUrls().filter(i => !!i).length;
+                    const maxSelection = this.getDownloadUrls().customFilter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
             else if (this.state.focused.classList.contains('dl-headers'))
                 this.setState(prev => {
-                    const maxSelection = this.getDownloadHeaders().filter(i => !!i).length;
+                    const maxSelection = this.getDownloadHeaders().customFilter(i => !!i).length;
                     return {currentSelection: (maxSelection + (prev.currentSelection + dir) % maxSelection) % maxSelection};
                 });
         }
@@ -219,51 +249,25 @@ export default class App extends Component {
     componentDidMount() {
         remote.getCurrentWindow().setProgressBar(-1);
 
-        if (!window.localStorage.downloadHistory)
-            window.localStorage.downloadHistory = JSON.stringify([]);
+        Mousetrap.bind('mod+n', () => this.changeMenu(Menus.NEW_DOWNLOAD));
+        Mousetrap.bind('esc', () => {
+            this.clearDownloadPrompt();
+            this.closeMenu();
+        });
+        Mousetrap.bind('mod+j', () => this.pastDownloads());
+        Mousetrap.bind('f11', () => currentWindow.setFullScreen(!currentWindow.isFullScreen()));
 
-        try {
-            Mousetrap.bind('mod+n', () => this.showDownloadPrompt());
-            Mousetrap.bind('esc', () => {
-                // this.forceUpdate();
-                this.closeDownloadPrompt();
-                this.clearDownloadPrompt();
-                this.setState(prev => ({
-                    settingsVisible: false,
-                    pastDownloadsVisible: false,
-                    boxes: prev.boxes.filter(i => i.props.noClose)
-                }));
-            });
-            Mousetrap.bind('mod+j', () => this.pastDownloads());
-            Mousetrap.bind('f11', () => currentWindow.setFullScreen(!currentWindow.isFullScreen()));
+        Mousetrap.bind('up', () => this.changeSelection(-1) || false);
+        Mousetrap.bind('down', () => this.changeSelection(1) || false);
+        // Mousetrap.bind('enter', () => {
+        //     if (this.state.promptShowing) this.acceptSuggestion(this.state.currentSelection)
+        // });
 
-            Mousetrap.bind('up', () => this.changeSelection(-1) || false);
-            Mousetrap.bind('down', () => this.changeSelection(1) || false);
-            // Mousetrap.bind('enter', () => {
-            //     if (this.state.promptShowing) this.acceptSuggestion(this.state.currentSelection)
-            // });
-
-            Mousetrap.bind("ctrl+tab", () => {
-                this.setState(prev => ({
-                    showActive: !prev.showActive
-                }))
-            })
-        } catch (e) {
-            this.alert(<Alert key={new Date().toLocaleString()} header={"An error has occurred"}
-                              body={"A dependency has failed to load, keyboard shortcuts will be disabled. Otherwise, everything else should work."}/>)
-        }
-
-        window.App = {
-            show: () => this.showDownloadPrompt(),
-            showPastDownloads: () => this.pastDownloads(),
-            close: () => App.confirmExit(),
-            toggleFullScreen: () => remote.getCurrentWindow().setFullScreen(!remote.getCurrentWindow().isFullScreen()),
-            about: () => this.about(),
-            showSettings: () => this.settingsPrompt.current.menu.current.show(),
-            alert: (box) => this.alert(box),
-            contact: () => this.contact(),
-            CheckForUpdate: (displayFailPrompt) => this.CheckForUpdate(displayFailPrompt)
-        };
+        Mousetrap.bind("ctrl+tab", () => {
+            this.setState(prev => ({
+                showActive: !prev.showActive
+            }))
+        });
     }
 
     acceptSuggestion(number) {
@@ -293,106 +297,49 @@ export default class App extends Component {
         window.close();
     }
 
-    pastDownloads() {
-        this.setState(prev => ({pastDownloadsVisible: !prev.pastDownloadsVisible}));
+    next() {
+        const downloads = DownloadTabsContent.getReadyDownloads(this.state.downloads);
+        debugger;
+        if (downloads[0] && DownloadTabsContent.getActive(this.state.downloads).length === 0) {
+            const download = downloads[0];
+            download.startDownload().catch(err => {
+                console.error(err);
+            });
+        }
     }
 
-    changePath() {
-        window.localStorage.saveLocation = _electron.ipcRenderer.sendSync('pickDir') || window.localStorage.saveLocation;
-        this.forceUpdate();
-    }
-
-    contact() {
-        this.alert(<Alert key={new Date().toLocaleString()} header={"About"} body={
-            <ul>
-                <li><a target={"_blank"}
-                       onClick={() => _electron.ipcRenderer.send('openURL', "https://joshbrown.info/#contact")}>Joshua
-                    Brown</a>
-                </li>
-                <li><a target={"_blank"}
-                       onClick={() => _electron.ipcRenderer.send('openURL', "https://www.jacob-schneider.ga/contact.html")}>Jacob
-                    Schneider</a>
-                </li>
-                <br/>
-                <b>Please submit issues to Github.</b>
-            </ul>
-
-        }/>)
-    }
-
-    about() {
-       this.aboutPrompt.current.menu.current.show();
-    }
 
     async createDownload(url, name, headers) {
         url = url || "";
         name = name || "";
         headers = headers || "{}";
 
-        this.closeDownloadPrompt();
+        this.closeMenu();
         this.clearDownloadPrompt();
 
-        const newName = await this.generateUniqueFileName(name, window.localStorage.saveLocation, url);
-        if (!newName) {
+        const uniqueName = await this.generateUniqueFileName(name, this.state.settings.saveLocation, url);
+        if (!uniqueName) {
             return false;
         }
-        const download = new DownloadCarrier(url, newName, headers);
 
-        download.download.on("init-complete", function () {
-            download.status = 3;
-            this.forceUpdate();
-        });
-        download.download.on("download_all", () => {
-            download.status = 0;
-            this.forceUpdate();
-        });
-        download.download.on("downloads_complete", () => {
-            download.status = 6;
-            this.next();
-            this.forceUpdate();
-        });
-        download.download.on("complete", () => {
-            download.done = true;
-            download.status = 2;
-            this.next();
-            this.forceUpdate();
-        });
-        download.on("update", info => {
-            this.forceUpdate();
-        });
-        download.on("error", err => {
-            download.status = 1;
-            this.forceUpdate();
+        const download = new DownloadCarrier(url, uniqueName, headers,this.state.settings.saveLocation);
+
+        download.emitter.on("error", err => {
             console.error(err);
-            download.cancel();
         });
-        download.on("cancel", () => {
-            if (download.status !== 1) {
-                download.status = 5;
-                this.forceUpdate();
-            }
+        download.emitter.on("next", () => {
             this.next();
         });
-        download.on("remove", () => {
+        download.emitter.on("remove", () => {
             this.setState({
                 downloads: [...this.state.downloads.filter(d => d !== download)],
             });
         });
-        download.on("retry", async () => {
-            download.constructor(download.url, download.name, download.customHeaders);
-            download.status = 3;
-            await download.initiateDownload();
-            if (this.getActive().length === 0) {
-                this.next();
-            }
-        });
         return download;
     }
-    updateCookies(e){
-            this.setState({cookieURL: e.target.value});
-           console.log(this.state.cookieURL);
-           this.forceUpdate();
-    }
+
+
+
     async CheckForUpdate(displayFailPrompt) {
         const url = "https://raw.githubusercontent.com/jbis9051/quick_download/master/package.json";
         const q = url_lib.parse(url);
@@ -437,7 +384,9 @@ export default class App extends Component {
         console.log("This Version: " + version);
         if (version !== currentVersion) {
             let box;
-            this.alert(<Alert noClose={true}
+            this.alert(
+                // TODO turn this into a component
+                <Alert noClose={true}
                               ref={dialog => box = dialog}
                               key={new Date().getTime().toLocaleString()}
                               header={"Update Available"}>
@@ -446,122 +395,185 @@ export default class App extends Component {
                     is {currentVersion}. Would you like to update?
                     <div className={"right"}>
                         <button onClick={() => {
-                            this.setState({showing: false});
-                            box.setState({
-                                showing: false,
-                            });
+                            this.changeMenu(Menus.NONE);
                         }
                         }>No
                         </button>
 
                         <button onClick={() => {
-                            window.localStorage.downloadHistory = "[]";
-                            this.setState({showing: false});
-                            box.setState({
-                                showing: false,
-                            });
+                            this.changeMenu(Menus.NONE);
                             _electron.ipcRenderer.send('openURL', 'https://jbis9051.github.io/quick_download/');
                         }}>Yes
                         </button>
 
                     </div>
                 </div>
-            </Alert>);
+            </Alert>
+            );
         } else {
             if (displayFailPrompt) {
                 let box;
-                this.alert(<Alert noClose={false}
+                this.alert(
+                    <Alert noClose={false}
                                   ref={dialog => box = dialog}
                                   key={new Date().getTime().toLocaleString()}
                                   header={"Current Version"}>
                     <div>
                         You have the current version, {version}.
                     </div>
-                </Alert>);
+                </Alert>
+                );
             }
         }
         return true;
     }
 
+    changeMenu(MenuType) {
+        this.setState({
+            currentMenu: MenuType
+        });
+    }
+
+    closeMenu(MenuType) {
+        console.log("Closing menu called: " + !!MenuType);
+        if (MenuType) {
+            if (this.state.currentMenu === MenuType) {
+                this.changeMenu(Menus.NONE);
+            }
+        } else {
+            // TODO handle alerts that shouldn't be closed without being resolved
+            this.changeMenu(Menus.NONE);
+        }
+    }
+
+    changeViewTab(TabType) {
+        this.setState({viewTab: TabType})
+    }
+
+    queueDownload(download) {
+        if (download) {
+            this.setState(prev => ({
+                downloads: [
+                    ...prev.downloads,
+                    download
+                ]
+            }));
+        }
+    }
+
     render() {
-        var box;
         return (
             <div className="wrapper">
-                <WindowFrame contact={e => this.contact()} update={e => this.CheckForUpdate(true)}
-                             about={e => this.about()} download={e => this.showDownloadPrompt()}/>
-                 <IconMenu
-                    downloadPrompt={this.downloadPrompt}
-                    settingsPrompt={this.settingsPrompt}
-                    historyPrompt={this.historyPrompt}
-                 />
+                <WindowFrame select={this.changeMenu} update={e => this.CheckForUpdate(true)}/>
+                <IconMenu
+                    select={this.changeMenu}
+                />
+
                 <div className="App">
-                   <DownloadTabsSelector
-                       displayTab={(showActive) => {this.tabsContent.current.displayTab(showActive)}}
-                       getActiveTab={() => { return this.tabsContent.current.getActiveTab()}}
-                       /* this.tabsContent.current.displayTab(false) */
-                   />
+                    <DownloadTabsSelector
+                        changeTab={(TabType) => {
+                            this.changeViewTab(TabType)
+                        }}
+                        currentTab={this.state.viewTab}
+                    />
+                    {/*
+                                        <div className={"downloads-display-options"}>
+                                            <input value={this.state.filterValue}
+                                                   onChange={async text => (await this.setState({filterValue: text.target.value}) || console.log(this.state.filters, this.state.filterValue))}
+                                                   className={"input_standard"} placeholder={"Filter downloads"}/>
 
-                    <div className={"downloads-display-options"}>
-                        <input value={this.state.filterValue}
-                               onChange={async text => (await this.setState({filterValue: text.target.value}) || console.log(this.state.filters, this.state.filterValue))}
-                               className={"input_standard"} placeholder={"Filter downloads"}/>
+                                            <Tool left={true} tooltip={"Search by"} icon={"fas fa-search"}
+                                                  menu={{
+                                                      "Name": () => this.setState(prev => ({
+                                                          filters: {
+                                                              ...prev.filters,
+                                                              name: !prev.filters.name
+                                                          }
+                                                      })),
+                                                      "URL": () => this.setState(prev => ({
+                                                          filters: {
+                                                              ...prev.filters,
+                                                              url: !prev.filters.url
+                                                          }
+                                                      })),
+                                                      "Status": () => this.setState(prev => ({
+                                                          filters: {
+                                                              ...prev.filters,
+                                                              statusName: !prev.filters.statusName
+                                                          }
+                                                      }))
+                                                  }} getActive={() => ({
+                                                Name: this.state.filters.name,
+                                                URL: this.state.filters.url,
+                                                Status: this.state.filters.statusName
+                                            })}/>
 
-                        <Tool left={true} tooltip={"Search by"} icon={"fas fa-search"}
-                              menu={{
-                                  "Name": () => this.setState(prev => ({
-                                      filters: {
-                                          ...prev.filters,
-                                          name: !prev.filters.name
-                                      }
-                                  })),
-                                  "URL": () => this.setState(prev => ({
-                                      filters: {
-                                          ...prev.filters,
-                                          url: !prev.filters.url
-                                      }
-                                  })),
-                                  "Status": () => this.setState(prev => ({
-                                      filters: {
-                                          ...prev.filters,
-                                          statusName: !prev.filters.statusName
-                                      }
-                                  }))
-                              }} getActive={() => ({
-                            Name: this.state.filters.name,
-                            URL: this.state.filters.url,
-                            Status: this.state.filters.statusName
-                        })}/>
+                                            <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
+                                                  menu={{
+                                                      "Name": () => this.setState({sortBy: "name"}),
+                                                      "URL": () => this.setState({sortBy: "url"}),
+                                                      "Completion Time": () => this.setState({sortBy: "stats.eta"})
+                                                  }} getActive={() => ({
+                                                "Name": this.state.sortBy === "name",
+                                                "URL": this.state.sortBy === "url",
+                                                "Completion Time": this.state.sortBy === "stats.eta"
+                                            })}/>
 
-                        <Tool left={true} tooltip={"Sort By"} icon={"fas fa-sort-amount-down"}
-                              menu={{
-                                  "Name": () => this.setState({sortBy: "name"}),
-                                  "URL": () => this.setState({sortBy: "url"}),
-                                  "Completion Time": () => this.setState({sortBy: "stats.eta"})
-                              }} getActive={() => ({
-                            "Name": this.state.sortBy === "name",
-                            "URL": this.state.sortBy === "url",
-                            "Completion Time": this.state.sortBy === "stats.eta"
-                        })}/>
+                                            <Tool onClick={() => this.setState(prev => ({reversed: !prev.reversed}))} left={true}
+                                                  tooltip={"Reverse List"}
+                                                  icon={!this.state.reversed ? "fas fa-chevron-down" : "fas fa-chevron-up"}/>
+                                        </div>
+                    */}
 
-                        <Tool onClick={() => this.setState(prev => ({reversed: !prev.reversed}))} left={true}
-                              tooltip={"Reverse List"}
-                              icon={!this.state.reversed ? "fas fa-chevron-down" : "fas fa-chevron-up"}/>
-                    </div>
+                    {(() => {
+                        switch (this.state.currentMenu) {
+                            case Menus.NEW_DOWNLOAD: {
+                                return <DownloadMenu
+                                    pastDownloads={this.state.pastDownloads}
+                                    createDownload={(url,name,headers) => this.createDownload(url,name,headers)}
+                                    queueDownload={download => this.queueDownload(download)}
+                                    changeMenu={this.changeMenu}
+                                    close={this.closeMenu}
+                                    alert={this.alert}
+                                />
+                            }
+                            case Menus.SETTINGS: {
+                                return <SettingsMenu updateSettings={this.updateSettings}
+                                                     settings={this.state.settings}
+                                                     close={this.closeMenu}/>
+                            }
+                            case Menus.HISTORY: {
+                                return <HistoryMenu pastDownloads={this.state.pastDownloads} close={this.closeMenu}/>
+                            }
+                            case Menus.ABOUT: {
+                                return <AboutMenu version={version} close={this.closeMenu}/>
+                            }
+                            case Menus.CONTACT: {
+                                return <ContactMenu close={this.closeMenu}/>;
+                            }
+                            case Menus.OTHER: {
+                                return this.state.customMenu;
+                            }
+                            default: {
+                                return null;
+                            }
+                        }
+                    })()}
 
-                    <DownloadTabsContent ref={this.tabsContent}/>
-                    {/*------------------------------------------------------------------------------------------------Past Downloads------------------------------------------------------------------------------------------------*/}
-                    <HistoryMenu ref={this.historyPrompt}/>
-                    {/* ------------------------------------------------------------------------------------------------New Download Prompt------------------------------------------------------------------------------------------------ */}
-                    <DownloadMenu ref={this.downloadPrompt} addToDownloadHistory={()=>{this.historyPrompt.current.addToDownloadHistory()}}/>
-                    {/*------------------------------------------------------------------------------------------------Settings Prompt------------------------------------------------------------------------------------------------*/}
-                    <SettingsMenu ref={this.settingsPrompt} settings={{}} />
-                    {/*------------------------------------------------------------------------------------------------About Prompt------------------------------------------------------------------------------------------------*/}
-                    <AboutMenu ref={this.aboutPrompt} version={version}/>
+                    <DownloadTabsContent
+                        currentTab={this.state.viewTab}
+                        downloads={this.state.downloads}
+                        addDownload={(download) => {
+                            this.queueDownload(download)
+                        }}
+                        customFilter={null /* pass the custom filter function */}
+                    /> {/* this guy needs to display all the shit like current downloads */}
+
                 </div>
-
+                {/* wtf does this do?
                 <div className={"box-display-area"}>
                     {this.state.box}
-                </div>
+                </div>*/}
             </div>
         );
     }

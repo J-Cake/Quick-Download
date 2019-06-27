@@ -1,27 +1,20 @@
 import React from 'react';
+import Enum from '../../enum.js';
+import DownloadItem from "../DownloadItem/DownloadItem";
 
+const {DownloadStatus,Tabs} = Enum;
 
 export default class DownloadTabsContent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            displayDownloads: [],
+            downloads: [],
             showActive: true,
         }
     }
 
-    addDownload(download) {
-        if (download) {
-            this.setState(prev => ({
-                downloads: [
-                    ...prev.displayDownloads,
-                    download
-                ]
-            }));
-        }
-    }
 
-    filter(downloads) {
+    static customFilter(downloads) {
         return downloads;
         /*
         const filtered = [];
@@ -48,82 +41,61 @@ export default class DownloadTabsContent extends React.Component {
          */
     }
 
-    getDisplayDownloads() {
-        return this.filter(this.state.displayDownloads.filter(i => !i.done));
+     static getDisplayDownloads(downloads) {
+        return DownloadTabsContent.customFilter(downloads.filter(i => !i.state.done));
     }
 
-    getAllDownloads() {
-        return this.filter(this.state.displayDownloads);
+     static getAllDownloads(downloads) {
+        return DownloadTabsContent.customFilter(downloads);
     }
 
-    getActive() {
-        return this.filter(this.state.displayDownloads.filter(i =>
-            i.status === 0
-        ));
+     static getActive(downloads) {
+        return DownloadTabsContent.customFilter(downloads.filter(i => i.state.status === DownloadStatus.ACTIVE));
     }
 
-    getReady() {
-        return this.filter(this.state.displayDownloads.filter(i =>
-            i.status === 3
-        ));
+
+     static getReadyDownloads(downloads) {
+        debugger;
+        return DownloadTabsContent.customFilter(downloads.filter(i => i.state.status === DownloadStatus.PENDING));
     }
 
-    getInactive() {
-        return this.filter(this.state.displayDownloads.filter(i => i.done));
+     static getInactive(downloads) {
+        return DownloadTabsContent.customFilter(downloads.filter(i => i.state.done));
     }
 
-    next() {
-        const downloads = this.getReady();
-        if (downloads[0] && this.getActive().length === 0) {
-            const download = downloads[0];
-            download.startDownload().catch(err => {
-                console.error(err);
-            });
-        }
-
-        this.forceUpdate();
-    }
-
-    displayTab(showActive) {
-        this.setState({showActive: showActive})
-    }
-
-    getActiveTab() {
-        return this.state.showActive;
-    }
 
     render() {
+        console.log("Rendering");
         return (
             <div className={"download-tabs-content"}>
                 {(() => {
-                    if (this.getActiveTab()) {
+                    if (this.props.currentTab === Tabs.QUEUE) {
                         return (
-                            <div className={"downloads"}>
+                            <div className={"downloads"} id={"downloadsViewer"}>
                                 {(() => {
-                                    const displayDownloads = this.getDisplayDownloads();
+                                    const displayDownloads = DownloadTabsContent.getDisplayDownloads(this.props.downloads);
                                     if (displayDownloads.length > 0) {
-                                        return displayDownloads.map((download, i) => {
-                                            download.render(`download${i}`)
-                                        })
+                                       return  displayDownloads.map((download, i) =>
+                                           <DownloadItem key={`downloads${i}`} status={download.state.status} functions={download.functions}
+                                                         stats={download.formatProps(download.state)}/>);
                                     }
                                     return "Press the + button to start a download";
                                 })()}
                             </div>
                         )
+                    } else {
+                        return (
+                            <div className={"downloads"}>
+                                {(() => {
+                                    const inactiveDownloads = DownloadTabsContent.getInactive(this.props.downloads);
+                                    if (inactiveDownloads.length > 0) {
+                                        return inactiveDownloads.map((download, i) => download.render(`download${i}`));
+                                    }
+                                    return "Wait until a download completes to see it here";
+                                })()}
+                            </div>
+                        )
                     }
-                    return (
-                        <div className={"downloads"}>
-                            {(() => {
-                                const inactiveDownloads = this.getInactive();
-                                if (inactiveDownloads.length > 0) {
-                                    return inactiveDownloads.map((download, i) => {
-                                        download.render(`download${i}`)
-                                    })
-                                }
-                                return "Wait until a download completes to see it here";
-                            })()}
-                        </div>
-                    )
                 })()}
             </div>
         )

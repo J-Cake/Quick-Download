@@ -6,13 +6,11 @@ import StandardMenu from "../Shared/StandardMenu/StandardMenu";
 export default class DownloadMenu extends React.Component {
     constructor(props) {
         super(props);
-
-        this.menu = React.createRef();
     }
 
     render() {
         return (
-            <StandardMenu title={"New Download"} ref={this.menu}>
+            <StandardMenu title={"New Download"} close={e => this.props.close()} >
                     <ul className={"about-details"}>
                         <li>
                             <b>Quick Downloader Version: </b>

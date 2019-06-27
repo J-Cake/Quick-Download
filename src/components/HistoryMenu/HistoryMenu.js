@@ -77,7 +77,7 @@ export default class HistoryMenu extends React.Component {
 
     render() {
         return (
-            <StandardMenu title={"History"} ref={this.menu}
+            <StandardMenu title={"History"} close={e => this.props.close()}
                           header={
 
                               <div className={"flex"}>

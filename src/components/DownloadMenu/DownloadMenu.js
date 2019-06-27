@@ -5,6 +5,10 @@ import StandardMenu from "../Shared/StandardMenu/StandardMenu";
 import Tool from "../Shared/tool";
 import Alert from "../Shared/alert";
 import DownloadCarrier from "../../download-carrier";
+import Enums from "../../enum";
+
+const {Menus} = Enums;
+
 
 const _electron = window.require('electron');
 
@@ -13,17 +17,16 @@ export default class DownloadMenu extends React.Component {
         super(props);
 
         this.state = {
-            downloads: [],
             name: "",
             url: "",
             headers: "",
+            cookieURL: "",
+            cookies: null,
         };
 
         this.changeName = this.changeName.bind(this);
         this.changeURL = this.changeURL.bind(this);
         this.changeHeaders = this.changeHeaders.bind(this);
-
-        this.menu = React.createRef();
     }
     changeName(e){
         this.setState({
@@ -41,7 +44,7 @@ export default class DownloadMenu extends React.Component {
         })
     }
     getDownloads() {
-        return this.state.downloads;
+        return this.props.pastDownloads;
     }
 
     getDownloadNames() {
@@ -62,9 +65,64 @@ export default class DownloadMenu extends React.Component {
             && (i.headers || "").toLowerCase().indexOf((this.state.customHeaders || "").toLowerCase()) >= 0
     }
 
+    updateCookies(e) {
+        this.setState({cookieURL: e.target.value});
+        console.log(e.target.value);
+    }
+
+    async _handleEnter() {
+        if (this.state.name && this.state.url) {
+            let shouldContinue = true;
+            if (!DownloadCarrier.JSONparse(this.state.customHeaders)) {
+                this.props.close();
+                shouldContinue = await new Promise(resolve => {
+                    let box;
+                    this.alert(
+                        // TODO make into component
+                        <Alert noClose={true}
+                               ref={dialog => box = dialog}
+                               key={new Date().getTime().toLocaleString()}
+                               header={"Invalid JSON"}>
+                            <div>
+                                The custom headers input is not valid JSON. Would
+                                you like to continue
+                                download <b>without</b> custom headers or cancel?
+                                <div className={"right"}>
+                                    <button onClick={() => {
+                                        this.props.close();
+                                        this.setState({
+                                            customHeaders: "",
+                                        });
+                                        resolve(true);
+                                    }
+                                    }>Clear Custom Headers
+                                    </button>
+
+                                    <button onClick={() => {
+                                        this.close();
+                                        this.props.changeMenu(Menus.NEW_DOWNLOAD);
+                                        resolve(false);
+                                    }}>Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </Alert>);
+                });
+
+            }
+            if (shouldContinue) {
+                const download = await this.props.createDownload(this.state.url, this.state.name, this.state.customHeaders);
+                if (download) {
+                    this.props.queueDownload(download);
+                    await download.initiateDownload();
+                }
+            }
+        }
+    }
+
     render() {
         return (
-            <StandardMenu title={"New Download"} ref={this.menu}>
+            <StandardMenu title={"New Download"} close={e => this.props.close()}>
                 <div className={"formItem"}>
                     <label htmlFor={"dl-name"}>The file name of the download</label>
                     <input autoFocus={true}
@@ -141,44 +199,33 @@ export default class DownloadMenu extends React.Component {
                 <button className={"confirm-btn"}
                         onClick={async () => {
                             let url = await new Promise(resolve => {
-                                this.closeDownloadPrompt();
-                                let box;
-                                this.alert(<Alert noClose={true}
-                                                  ref={dialog => box = dialog}
-                                                  key={"sometin"}
+                                this.props.close();
+                                this.props.alert(
+                                    <Alert noClose={true}
                                                   header={"Enter A URL"}>
                                     <div>
                                         <input
                                             value={this.state.cookieURL}
-                                            onChange={this.updateCookies}
+                                            onChange={e => this.updateCookies(e)}
                                             className={"input_standard dl-url mousetrap url"}
                                             placeholder={"Browse URL"}/>
                                         <div className={"right"}>
                                             <button onClick={() => {
-                                                this.setState({
-                                                    showing: false
-                                                });
+                                                this.props.close();
                                                 resolve(this.state.cookieURL);
-                                                box.setState({
-                                                    showing: false,
-                                                });
                                             }
                                             }>Ok
                                             </button>
 
                                             <button onClick={() => {
-                                                this.setState({showing: false});
                                                 resolve(false);
-                                                box.setState({
-                                                    showing: false,
-                                                });
                                             }}>Cancel
                                             </button>
                                         </div>
                                     </div>
                                 </Alert>);
                             });
-                            this.showDownloadPrompt();
+                            this.props.changeMenu(Menus.NEW_DOWNLOAD);
                             if (url) {
                                 let cookies = _electron.ipcRenderer.sendSync('get-browser-cookies', url);
                                 this.setState({
@@ -190,63 +237,7 @@ export default class DownloadMenu extends React.Component {
                 <div className={"right-align"}>
                     <Tool left={true} tooltip={"Begin download"} className={"confirm-btn"}
                           icon={"fas fa-check"}
-                          onClick={async () => {
-                              if (this.state.name && this.state.url) {
-                                  let shouldContinue = true;
-                                  if (!DownloadCarrier.JSONparse(this.state.customHeaders)) {
-                                      this.closeDownloadPrompt();
-                                      shouldContinue = await new Promise(resolve => {
-                                          let box;
-                                          this.alert(<Alert noClose={true}
-                                                            ref={dialog => box = dialog}
-                                                            key={new Date().getTime().toLocaleString()}
-                                                            header={"Invalid JSON"}>
-                                              <div>
-                                                  The custom headers input is not valid JSON. Would
-                                                  you like to continue
-                                                  download <b>without</b> custom headers or cancel?
-                                                  <div className={"right"}>
-                                                      <button onClick={() => {
-                                                          this.setState({
-                                                              showing: false
-                                                          });
-                                                          this.setState({
-                                                              customHeaders: "",
-                                                          });
-                                                          resolve(true);
-                                                          box.setState({
-                                                              showing: false,
-                                                          });
-                                                      }
-                                                      }>Clear Custom Headers
-                                                      </button>
-
-                                                      <button onClick={() => {
-                                                          this.setState({showing: false});
-                                                          this.showDownloadPrompt();
-                                                          resolve(false);
-                                                          box.setState({
-                                                              showing: false,
-                                                          });
-                                                      }}>Cancel
-                                                      </button>
-                                                  </div>
-                                              </div>
-                                          </Alert>);
-                                      });
-
-                                  }
-                                  if (shouldContinue) {
-                                      await this.props.addToDownloadHistory(this.state.url, this.state.name, this.state.customHeaders);
-                                      const download = await this.createDownload(this.state.url, this.state.name, this.state.customHeaders);
-                                      if (download) {
-                                          this.addDownload(download);
-                                          await download.initiateDownload();
-                                          this.next();
-                                      }
-                                  }
-                              }
-                          }}/>
+                          onClick={async () => await this._handleEnter()}/>
                 </div>
             </StandardMenu>
         )

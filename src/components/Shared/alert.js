@@ -11,12 +11,12 @@ export default class Alert extends React.Component {
 								<h1>{this.props.header || "About"}</h1>
 								{!this.props.noClose ? <div className={"prompt_close_button"}>
 									<Tool icon={"fas fa-times"}
-										  onClick={e => this.setState({showing: false})}/>
+										  onClick={e => this.props.close()}/>
 
 								</div> : null}
 							</header>
 							<br />
-							{this.props.children || this.props.body}
+							{this.props.children}
 						</div>
 					</div>
 				</div>
