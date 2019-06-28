@@ -3,7 +3,6 @@
     /*box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);*/
     border-radius: 10px;
     /*background: rgba(36, 40, 44, 0.9);*/
-    font-weight: 300;
     position: relative;
     transition: 0.45s ease;
     margin: 2px 0 5px;
@@ -17,9 +16,24 @@
     color: white;
 }
 
-b {
+.download-detail .name {
     font-weight: 900;
 }
+.download-detail .value {
+    font-size: 14px;
+    font-family: monospace;
+}
+
+.download .progress{
+    margin: 0 25px;
+    min-width: 5em;
+    overflow: hidden;
+    display: inline;
+}
+.download .name {
+    display: inline;
+}
+
 
 .download.done {
     background: #00ca56;
@@ -69,11 +83,4 @@ b {
     float: right;
     display: flex;
 
-}
-
-.download .header h2 {
-    float: left;
-    display: block;
-    margin-block-start: 0;
-    margin-block-end: 0;
 }

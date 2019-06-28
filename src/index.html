@@ -3,8 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <title>Quick Downloader</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/menu_buttons.css">
+    <link rel="stylesheet" href="./css/tooltip.css">
+    <link rel="stylesheet" href="./css/DownloadTabsSelector.css">
+    <link rel="stylesheet" href="./css/DownloadTabsContent.css">
+    <link rel="stylesheet" href="./css/DownloadItem.css">
+    <link rel="stylesheet" href="./css/standard_prompt.css">
+    <link rel="stylesheet" href="./css/forms.css">
+    <link rel="stylesheet" href="./css/SettingsMenu.css">
+
+
+    <link rel="stylesheet" href="./assets/fonts/fa.css">
+    <link rel="stylesheet" href="./assets/fonts/cutive.css">
 </head>
 <body>
-<h1>Hello World!</h1>
+<header>
+    <div class="drag-region">
+        <div class="window-title">
+            <img src="./assets/images/favicon.ico" class="icon" alt="Quick Downloader Icon"/>
+            <span>Quick Downloader</span>
+        </div>
+    </div>
+    <div class="menu_buttons_container">
+        <div class="menu_buttons_wrapper">
+            <button class="tool icon_button">
+                <i class="fas fa-plus"></i>
+                <span class="tool-tip">New download</span>
+            </button>
+            <button class="tool icon_button">
+                <i class="fas fa-cog"></i>
+                <span class="tool-tip">Settings</span>
+            </button>
+            <button class="tool icon_button">
+                <i class="fas fa-history"></i>
+                <span class="tool-tip">Show download history</span>
+            </button>
+        </div>
+    </div>
+</header>
+<div class="main-content-wrapper">
+    <div class="download-tabs-selector">
+        <span class="tab" data-active>Queue</span>
+        <span class="tab">Complete</span>
+    </div>
+    <div class="download-tabs-content">
+        <div id="queue-downloads" class="downloads" data-active>
+
+
+            <div class="download failed">
+                <div class="header">
+                    <div>
+                        <span class="progress">0%</span>
+                        <h2 class="name">dsfsadf</h2>
+                    </div>
+                    <div>
+                        <button class="tool"><i class="fas fa-redo"></i><span
+                                class="tool-tip left">Retry Download</span></button>
+                        <button class="tool"><i class="fas fa-trash"></i><span class="tool-tip left">Remove Download From List</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="download-details">
+                    <div class="download-detail"><b class="name">Status: </b><span class="value">Failed</span></div>
+                    <div class="download-detail"><b class="name">Source: </b><span class="value">sadfsadf</span></div>
+                    <div class="download-detail"><b class="name">Final File: </b><span class="value">/Users/joshuabrown3/Downloads/dsfsadf</span>
+                    </div>
+                    <div class="download-detail"><b class="name">Headers: </b><span class="value">{}</span></div>
+                    <div class="download-detail"><b class="name">Error: </b><span
+                            class="value">Byte Requests are not supported.</span>
+                    </div>
+                    <div class="download-detail"><b class="name">Size: </b><span class="value">0.00 B</span></div>
+                    <div class="download-detail"><b class="name">Elapsed Time: </b><span class="value">0</span></div>
+                    <div class="download-detail"><b class="name">Estimated Time Of Completion: </b><span class="value">6/28/2019, 2:56:21 PM (0h:0m:0s)</span>
+                    </div>
+                    <div class="download-detail"><b class="name">Speed: </b><span class="value">0.00 B/s</span></div>
+                    <div class="download-detail"><b class="name">Parts Done: </b><span class="value">0 / 0</span></div>
+                    <div class="download-detail"><b class="name">Progress: </b><span
+                            class="value">0.00 B / 0.00 B (0%)</span></div>
+                </div>
+            </div>
+
+        </div>
+        <div id="complete-downloads" class="downloads"></div>
+    </div>
+    <!--MENUS-->
+    <!----------------------------------- NEW DOWNLOAD MENU ------------------------------>
+    <div class="prompt_wrapper">
+        <div class="prompt_content_container">
+            <div class="prompt_content_wrapper">
+                <header class="prompt_header">
+                    <h1>New Download</h1>
+                    <div class="prompt_close_button">
+                        <button class="tool"><i class="fas fa-times"></i>
+                            <span class="tool-tip left">Close the prompt</span>
+                        </button>
+                    </div>
+                </header>
+                <div class="formItem"><label for="dl-name">The file name of the download</label>
+                    <input class="mousetrap dl-name input_standard" id="dl-name" placeholder="Download Name" value="">
+                    <div class="suggestions"></div>
+                </div>
+                <div class="formItem"><label for="dl-url">The location of the file to download</label><input
+                        class="input_standard dl-url mousetrap url" id="dl-url" placeholder="Download URL" value="">
+                    <div class="suggestions"></div>
+                </div>
+                <div class="formItem"><label for="dl-headers">Custom Headers (JSON)</label>
+                    <textarea class="input_standard dl-headers standard_code mousetrap url" id="dl-headers"
+                              placeholder="Download Headers (JSON)"></textarea>
+                    <div class="suggestions"></div>
+                </div>
+                <div class="right-align">
+                    <button class="tool confirm-btn"><i class="fas fa-check"></i><span class="tool-tip left">Begin download</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!----------------------------------- SETTINGS MENU ------------------------------>
+    <div class="prompt_wrapper" data-active="">
+        <div class="prompt_content_container">
+            <div class="prompt_content_wrapper">
+                <header class="settings_header prompt_header">
+                    <h1>Settings</h1>
+                    <div class="prompt_close_button">
+                        <button class="tool"><i class="fas fa-times"></i>
+                            <span class="tool-tip left">Revert Settings</span>
+                        </button>
+                    </div>
+                </header>
+                <h2>Appearance</h2>
+                <div class="settings-group">
+                    <div class="setting-item">
+                        <label for="dark">Dark Theme</label>
+                        <input class="standard_radio right_element" name="theme" id="dark" type="radio" checked="">
+                    </div>
+                    <div class="setting-item">
+                        <label for="light">Light Theme</label>
+                        <input class="standard_radio right_element" name="theme" id="light" type="radio">
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <span class="label">Show Advanced Download Details</span>
+                    <span class="check-box checked right_element"></span>
+                </div>
+                <br>
+                <h2>General</h2>
+                <div class="settingsGroup">
+                    <label>Save Location</label>
+                    <label class="standard_path_input">/Users/joshuabrown3/Downloads</label>
+                    <label for="numOfParts">How many parts to use during download</label>
+                    <br>
+                    <input id="numOfParts"
+                           placeholder="Number of parts to use during download"
+                           type="number"
+                           min="0"
+                           max="50"
+                           class="inline_input"
+                           value="10">
+                    <br><br>
+                    <h3>Units</h3>
+                    <hr>
+                    <div class="setting-item">
+                        <input type="radio" class="standard_radio right_element" name="unit" id="bin">
+                        <label for="bin">Binary Units (MiB = 1024 KiB)</label>
+                    </div>
+                    <div class="setting-item">
+                        <input type="radio" class="standard_radio right_element" name="unit" id="dec" checked="">
+                        <label for="dec">Decimal Units (MB = 1000 KB)</label>
+                    </div>
+                    <hr>
+                    <br>
+                    <div class="setting-item">
+                        <span class="label">Allow Notifications</span>
+                        <span class="right_element check-box"></span>
+                    </div>
+                    <br>
+                    <hr>
+                    <input type="button" class="standard_full_button" value="Reset to default settings"></div>
+                <br>
+                <h2>Network</h2>
+                <div class="setting-item">
+                    <label for="none">None</label>
+                    <input class="standard_radio right_element" type="radio" name="proxy-auth-type" id="none"
+                           checked="">
+                </div>
+                <div class="setting-item"><label for="none">HTTPS Proxy</label>
+                    <input class="standard_radio right_element" type="radio" name="proxy-auth-type" id="auth">
+                </div>
+                <div class="right-align">
+                    <button class="tool confirm-btn"><i class="fas fa-check"></i><span class="tool-tip left">Save Settings</span>
+                    </button>
+                </div>
+                <div class="proxy-settings" data-disabled>
+                    <label for="proxy-host">Proxy Host</label>
+                    <input placeholder="proxy.example.com"
+                           class="input_standard" id="proxy-host"
+                           value="">
+                    <label for="proxy-port">Proxy Port</label>
+                    <br>
+                    <input placeholder="8080" class="inline_input" type="number" id="proxy-port" value="">
+                    <br><br>
+                    <div class="setting-item">
+                        <span class="label">Proxy Requires Credentials</span>
+                        <span class="check-box right_element"></span>
+                    </div>
+                    <div class="auth-settings" data-disabled>
+                        <input placeholder="Proxy Username" type="text" class="input_standard" id="proxy-username"
+                                value="">
+                        <input placeholder="Proxy Password" type="password" class="input_standard"
+                                                id="proxy-password" value="">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!----------------------------------- HISTORY MENU ------------------------------>
+    </div>
+</div>
 </body>
 </html>

@@ -13,6 +13,7 @@ async function createWindow() {
         width: 720,
         height: 360,
         titleBarStyle: "hidden",
+        backgroundColor: '#3e444b',
         nodeIntegration: true,
         frame: os.platform() !== "win32",
         icon: "./build/favicon.ico",

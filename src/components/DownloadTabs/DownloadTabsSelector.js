@@ -1,4 +1,4 @@
-import './DownloadTabsSelector.css';
+import '../../css/DownloadTabsSelector.css';
 import React from 'react';
 
 import Enum from '../../enum.js';

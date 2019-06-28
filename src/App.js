@@ -2,11 +2,11 @@ import React, {Component} from 'react';
 
 import './css/App.css';
 import './css/box.css';
-import './components/SettingsMenu/SettingsMenu.css';
+import './css/SettingsMenu.css';
 import './components/HistoryMenu/HistoryMenu.css';
-import './components/Shared/StandardMenu/standard_prompt.css';
+import './css/standard_prompt.css';
 import './css/tooltip.css';
-import './components/DownloadMenu/DownloadMenu.css';
+import './css/DownloadItem.css';
 
 import IconMenu from "./components/IconMenu/IconMenu";
 

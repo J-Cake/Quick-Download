@@ -171,7 +171,7 @@ textarea {
     min-height: 2rem;
 }
 
-.monospace {
+.value {
     font-family: "Cutive Mono", monospace;
     font-size: 1.1em;
 }

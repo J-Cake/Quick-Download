@@ -5536,7 +5536,7 @@
     font-family: "Font Awesome 5 Free";
     font-style: normal;
     font-weight: 900;
-    src: url(./fa.otf) format('opentype');
+    src: url(fa.otf) format('opentype');
 }
 
 .fa, .far, .fas {

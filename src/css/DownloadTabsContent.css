@@ -1,0 +1,21 @@
+.download-tabs-content {
+    overflow: auto;
+    /* height: 100%; */
+    flex: 1;
+}
+.downloads {
+    display: none;
+    overflow: auto;
+    padding: 0 10px 10px;
+    height: 100%;
+    box-sizing: border-box;
+}
+.downloads[data-active]{
+    display: block;
+}
+#queue-downloads:empty:before {
+    content: 'Press the + button to start a download';
+}
+#complete-downloads:empty:before {
+    content: 'Wait until a download completes to see it here';
+}

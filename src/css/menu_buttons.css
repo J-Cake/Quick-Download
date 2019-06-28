@@ -1,0 +1,12 @@
+.menu_buttons_container {
+    background: #202225;
+    padding-bottom: 3px;
+}
+.menu_buttons_wrapper {
+    margin-left: 3px;
+}
+
+.icon_button {
+    display: inline-block;
+    margin: 0;
+}

@@ -1,4 +1,4 @@
-import './DownloadMenu.css';
+import '../../css/DownloadItem.css';
 
 import React from 'react';
 import StandardMenu from "../Shared/StandardMenu/StandardMenu";

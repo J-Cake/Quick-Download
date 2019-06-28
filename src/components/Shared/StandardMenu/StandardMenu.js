@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './standard_prompt.css';
+import '../../../css/standard_prompt.css';
 import Tool from '../tool';
 
 export default class StandardMenu extends React.Component {

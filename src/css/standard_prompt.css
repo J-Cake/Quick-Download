@@ -1,3 +1,6 @@
+.prompt_wrapper:not([data-active]){
+    display: none;
+}
 .prompt_wrapper {
     position: fixed;
     width: 100%;

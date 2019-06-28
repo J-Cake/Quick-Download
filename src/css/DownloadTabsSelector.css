@@ -1,0 +1,28 @@
+.download-tabs-selector {
+    width: 100%;
+    color: #a3bad6;
+    position: relative;
+    display: flex;
+    -webkit-justify-content: center;
+    justify-content: center;
+    background: #4f5660;
+}
+
+.download-tabs-selector .tab {
+    width: 100%;
+    transition: 0.125s;
+    cursor: pointer;
+    padding: 5px;
+    text-align: center;
+}
+
+.download-tabs-selector .tab[data-active] {
+    background: #24282c;
+}
+
+
+.download-tabs-selector .tab:not([data-active]):hover {
+    width: 100%;
+    background: #3c434b;
+}
+

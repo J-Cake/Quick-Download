@@ -1,0 +1,71 @@
+input, textarea {
+    /*box-shadow: rgba(0.1, 0.1, 0.1, 0.2) 0 5px 30px;*/
+    /* border: 2px solid #4f5660; */
+    background: #3c434b;
+    color: #eee;
+    border-radius: 6px;
+    font-size: 11pt;
+}
+
+.formItem input, .formItem textarea {
+    border-radius: 8px 8px 0 0;
+    /*border-bottom-right-radius: 0;*/
+    /*border-bottom-left-radius: 0;*/
+}
+
+.formItem .suggestions {
+    width: 100%;
+    color: #eee;
+    background: #3e444b;
+    z-index: 10;
+    /*border: 2px solid #4f5660;*/
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    position: relative;
+    top: 100%;
+    bottom: 5px;
+    max-height: 130px;
+    overflow: auto;
+
+}
+
+.suggestion {
+    padding: 4px 8px;
+    color: #eee;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.suggestion:hover {
+    background: rgba(24, 27, 31, 0.64);
+}
+
+.formItem {
+    position: relative;
+    border-radius: 10px;
+}
+
+.formItem .suggestions:focus {
+    display: none;
+}
+.suggestion.focused {
+    background: #4f5660;
+}
+
+textarea {
+    height: auto;
+    min-height: 2rem;
+}
+
+.right-align {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}/*
+.right_aligned, .checkbox .indicator {
+    position: absolute;
+    right: 0;
+}*/

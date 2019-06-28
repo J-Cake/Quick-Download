@@ -107,7 +107,7 @@ export default class DownloadCarrier extends React.Component {
     }
 
     async startDownload() {
-        await this.download.beginDownload();
+        await this.download.download();
     }
 
     toggleHeaders() {

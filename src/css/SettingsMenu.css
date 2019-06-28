@@ -4,18 +4,13 @@
     margin: 0 0 30px;
     background: transparent;
 }
-.checkbox,.setting {
-    display: flex;
-    width: 100%;
-    position: relative;
-}
 .close_button {
     position: absolute;
     top: 0;
     right:0;
     margin: 10px;
 }
-.checkbox .indicator {
+.setting-item .check-box {
     display: block;
     box-sizing: border-box;
     width: 20px;
@@ -26,16 +21,16 @@
     transition: 0.125s;
 }
 
-.checkbox .indicator.checked {
+.setting-item .check-box.checked {
     background: #b4c9e0;
 }
 
 .settings header {
     box-shadow: none;
-    height: auto !important;
+    height: auto;
 }
 
-.setting {
+.setting-item {
     margin: 12px 0;
 }
 .reset_button {
@@ -48,7 +43,7 @@
     background: rgba(102, 112, 123, 1);
 }
 
-label.saveLocation {
+.setting-item .saveLocation {
     display: block;
     padding: 9px;
     /* border: 2px solid #4f5660; */
@@ -65,33 +60,9 @@ label.saveLocation {
     background: rgba(36, 40, 44, 0.9);
 }
 
-/*input[type="file"]:focus ~ label.saveLocation, label.saveLocation:focus, input[type="file"]:active ~ label.saveLocation, label.saveLocation:active {*/
-    /*border-color: #b4c9e0;*/
-/*}*/
-/*
-input[type="file"] + label {
-    border: none;
-    background: transparent;
-    color: #b4c9e0;
+.right_element {
+    float: right;
 }
-
-input[type="radio"] {
-    -webkit-appearance: none;
-    border-radius: 30px;
-    width: 10px !important;
-    height: 10px;
-    transition: 0.125s;
-
-}
-input[type="radio"]:checked {
-    background: #b4c9e0;
-}
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    display: none !important;
-}*/
-.right_aligned, .checkbox .indicator {
-    position: absolute;
-    right: 0;
+.proxy-settings[data-disabled],.auth-settings[data-disabled]{
+    display: none;
 }
