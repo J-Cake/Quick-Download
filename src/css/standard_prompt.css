@@ -57,10 +57,12 @@
     height: 10px;
 }
 
-.prompt_header * {
-    margin: 0;
-    position: relative;
-    /*display: block;*/
+.prompt_header h1 {
+    margin: 0 5px;
+}
+
+.prompt_header button {
+    display: inline;
 }
 
 .prompt_header {
@@ -176,7 +178,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .input_standard:focus, button:focus, textarea:focus, .inline_input:focus, .input_standard:focus  {
-    background: #334c79 !important;
+    background: #334c79;
     outline: none;
 }
 

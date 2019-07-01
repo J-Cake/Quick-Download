@@ -8,7 +8,8 @@ const request = require('request');
 const Part = require("./Part");
 const path = require('path');
 const rimraf = require("rimraf");
-module.exports = class Download extends EventEmitter {
+
+class Download extends EventEmitter {
     /**
      * @param url
      * @param parts
@@ -28,9 +29,6 @@ module.exports = class Download extends EventEmitter {
         this.numParts = parts;
         this.customHeaders = customHeaders;
         this.proxyOptions = proxyOptions;
-        this.downloaded_bytes = 0;
-        this.parts_done = 0;
-        this.parts = [];
         /* don'tcha just love using libraries that support proxies? */
         if (proxyOptions) {
             if (proxyOptions.auth) {
@@ -41,37 +39,44 @@ module.exports = class Download extends EventEmitter {
         } else {
             this.request = request;
         }
-        /* this.average_percentage = 0;
-         this.average_index = 0;
-         this.last_print = 0;
-         this.parts = [];
-         this.parts_done = 0;
-         this.progress = 0;
-         this.stats = [];
-         this.last_update = 0;
-         this.last_speed_update_time = 0;
-         this.last_speed_progress = 0;
-         this.cancelled = false;*/
     }
 
     async init(file_name, save_location) {
         this.emit("init");
+        this.downloaded_bytes = 0;
+        this.parts_done = 0;
+        this.parts = [];
+        this.full_fail = false;
         if (!validFilename(file_name)) {
             this.error("Invalid File Name");
             return false;
         }
-        this.final_file = Download.getFileName(file_name, save_location, this.url).replace(/\\/g, '/');
+        this.final_file = Download.getFileName(file_name, save_location, this.url);
         this.packageLocation = this.final_file + ".quickdownload";
-        fs.mkdir(this.packageLocation);
-        this.bytes_request_supported = await this.byte_request_supported().catch(err => this.warn(err.toString()));
+        if (fs.existsSync(this.packageLocation)) {
+            let num = 1;
+            while (fs.existsSync(this.final_file + " " + num + ".quickdownload")) {
+                num++;
+            }
+            this.packageLocation = this.final_file + " " + num + ".quickdownload";
+        }
+        fs.mkdirSync(this.packageLocation);
+        this.bytes_request_supported = await this.byte_request_supported().catch(err => this.error(err.toString()));
+        if (this.full_fail) {
+            return false;
+        }
         this.total_length = await this.get_length().catch(err => this.error(err));
+        if (this.full_fail) {
+            return false;
+        }
+        await this.createParts();
         this.emit("init-complete", {
-            final_final: this.final_file,
+            final_file: this.final_file,
             packageLocation: this.packageLocation,
             bytes_request_supported: this.bytes_request_supported,
             size: this.total_length,
         });
-        return this.full_fail;
+        return !this.full_fail;
     }
 
     onUpdate(e) {
@@ -83,6 +88,7 @@ module.exports = class Download extends EventEmitter {
     }
 
     error(e) {
+        console.error(e);
         this.full_fail = true;
         this.emit('error', e);
     }
@@ -131,6 +137,7 @@ module.exports = class Download extends EventEmitter {
                 url: this.url,
             })
                 .on('response', response => {
+                    console.log(response);
                     resolve(response.statusCode === 206);
                     r.abort();
                 })
@@ -145,7 +152,7 @@ module.exports = class Download extends EventEmitter {
         let last_int = -1;
         for (let i = 0; i < this.numParts; i++) {
             let to_byte = Math.floor((this.total_length / this.numParts) * (i + 1));
-            const part = new Part(this.url, last_int + 1, to_byte, this.packageLocation + `/${i}.part`, request);
+            const part = new Part(this.url, last_int + 1, to_byte, this.packageLocation + `/${i}.part`, request, this.customHeaders);
             part
                 .on("update", e => {
                     this.downloaded_bytes += e.newBytes;
@@ -171,47 +178,6 @@ module.exports = class Download extends EventEmitter {
         return this;
     }
 
-    /*
-        async madeProgress(amount, done, forceUpdate) {
-            if (this.full_fail) {
-                return;
-            }
-            this.progress += amount;
-
-            const now = Date.now();
-            const time = new Date(now - this.startTime);
-            this.onUpdate({
-                percentage: ((this.progress / this.total_length) * 100) || 0,
-                progress: this.progress,
-                speed: this.speed,
-                chunks_done: this.parts.map(i => Number(i.done)).reduce((a, i) => a + i, 0),
-                done: done || false,
-                elapsedTime: `${String(time.getUTCHours()).padStart(2)}h ${String(time.getUTCMinutes()).padStart(2)}m ${String(time.getUTCSeconds()).padStart(2)}s`
-            });
-        }
-
-        get ETA() {
-            const elapsedTime = (Date.now() - this.last_speed_update_time);
-            const speed = (this.progress - this.last_speed_progress) / elapsedTime;
-            const remainingTime = ((this.total_length - this.last_speed_progress) / speed) - elapsedTime;
-            this.last_speed_update_time = Date.now();
-            this.last_speed_progress = this.progress;
-
-            this.stats.push({
-                time: elapsedTime,
-                progress: this.progress
-            });
-
-            this.speed = Math.floor(speed) * 1000;
-
-            const eta = Date.now() + remainingTime;
-
-            if (eta === Infinity)
-                return 0;
-            else
-                return eta;
-        };
-    */
     async download_all() {
         this.emit("download_all");
         const promises = [];
@@ -258,10 +224,11 @@ module.exports = class Download extends EventEmitter {
     }
 
     async download() {
-        await this.createParts();
         await this.download_all();
         await this.combineParts_move_to_final().catch(err => this.error(err.toString()));
         await this.cleanUp();
     }
 
-};
+}
+
+module.exports = Download;

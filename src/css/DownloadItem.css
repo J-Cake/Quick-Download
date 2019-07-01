@@ -1,3 +1,11 @@
+.download .retry, .download .remove, .download .show-in-folder, .download .cancel {
+    display: none;
+}
+
+.download:not(.active) .progress-bar {
+    display: none;
+}
+
 .download {
     padding: 10px;
     /*box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);*/
@@ -40,27 +48,55 @@
     color: #3c434b;
 }
 
+.download.done .remove, .download.done .show-in-folder {
+    display: inline-block;
+}
+
+.download.done .download-detail[data-type=speed], .download.done .download-detail[data-type=speed] {
+    display: none;
+}
 .download.pending {
     background: #72257c;
 }
 
+.download.pending .cancel {
+    display: inline-block;
+}
 .download.awaiting {
     background: #fff643;
     color: #3c434b;
 }
 
+.download.awaiting .cancel {
+    display: inline-block;
+}
 .download.failed {
     background: #b81d27;
+}
+
+.download.failed .retry, .download.failed .remove {
+    display: inline-block;
 }
 .download.stopped {
     background: #4f5660;
     color: #b4c9e0;
+}
+
+.download.stopped .retry, .download.stopped .remove {
+    display: inline-block;
+}
+
+.download.active .cancel {
+    display: inline-block;
 }
 /*
 .download.done *, .download.awaiting * {
     color: #3c434b;
 }
 */
+.download .download-details:not([data-enabled]) {
+    display: none;
+}
 .download .download-details {
     font-size: small;
     user-select: text;

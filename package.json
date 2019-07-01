@@ -12,7 +12,8 @@
 		"node": "^11.13.0",
 		"pac-resolver": "git+https://git@github.com/J-Cake/Node-PAC",
 		"valid-filename": "^3.1.0",
-		"request": "latest"
+		"request": "latest",
+		"rimraf": "latest"
 	},
 	"devDependencies": {
 		"electron": "latest",

@@ -1,7 +1,7 @@
 const EventEmitter = require('events');
 const fs = require('fs');
 
-module.exports = class Part extends EventEmitter {
+class Part extends EventEmitter {
     constructor(url, from_byte, to_byte, file_path, request, customHeaders) {
         super();
         this.url = url;
@@ -43,6 +43,10 @@ module.exports = class Part extends EventEmitter {
     }
 
     cancel() {
-        this.download.abort();
+        if (this.download) {
+            this.download.abort();
+        }
     }
 }
+
+module.exports = Part;

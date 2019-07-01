@@ -8,9 +8,7 @@ input, textarea {
 }
 
 .formItem input, .formItem textarea {
-    border-radius: 8px 8px 0 0;
-    /*border-bottom-right-radius: 0;*/
-    /*border-bottom-left-radius: 0;*/
+    border-radius: 8px;
 }
 
 .formItem .suggestions {
@@ -64,8 +62,4 @@ textarea {
     width: 100%;
     display: flex;
     justify-content: flex-end;
-}/*
-.right_aligned, .checkbox .indicator {
-    position: absolute;
-    right: 0;
-}*/
+}

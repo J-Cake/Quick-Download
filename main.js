@@ -1,6 +1,5 @@
 const os = require('os');
-const {app, BrowserWindow, ipcMain, dialog, Menu} = require('electron');
-const {shell} = require('electron');
+const {app, BrowserView, BrowserWindow, ipcMain, dialog, Menu, shell} = require('electron');
 
 let mainWindow;
 
@@ -14,11 +13,13 @@ async function createWindow() {
         height: 360,
         titleBarStyle: "hidden",
         backgroundColor: '#3e444b',
-        nodeIntegration: true,
         frame: os.platform() !== "win32",
         icon: "./build/favicon.ico",
-        webPreferences: {nodeIntegration: true, webSecurity: false}
+        webPreferences: {nodeIntegration: true}
     });
+    let view = new BrowserView();
+    view.setBounds({x: 0, y: 0, width: 300, height: 300});
+    view.webContents.loadURL('https://electronjs.org');
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
@@ -83,7 +84,7 @@ function createMenu() {
                     if (mainWindow === null) {
                         await createWindow();
                     }
-                    mainWindow.webContents.send("menu-new_download");
+                    mainWindow.webContents.send("menu-new-download");
                 }
             }]
         },
@@ -142,13 +143,13 @@ function createMenu() {
                 {
                     label: 'Learn More',
                     click() {
-                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                        shell.openExternal('https://github.com/jbis9051/quick_download')
                     }
                 },
                 {
                     label: 'Contribute',
                     click() {
-                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                        shell.openExternal('https://github.com/jbis9051/quick_download')
                     }
                 },
                 {
@@ -163,7 +164,7 @@ function createMenu() {
                 {
                     label: "Docs",
                     click() {
-                        require('electron').shell.openExternal('https://github.com/jbis9051/quick_download')
+                        shell.openExternal('https://github.com/jbis9051/quick_download')
                     }
                 }
             ]
@@ -184,64 +185,10 @@ app.on('activate', function () {
         createWindow();
     }
 });
-
-ipcMain.on('minimise', e => {
-    try {
-        mainWindow.minimize()
-    } catch (e) {
-    }
-});
-ipcMain.on('minimise', e => {
-    try {
-        mainWindow.maximize()
-    } catch (e) {
-    }
-});
-ipcMain.on('minimise', e => {
-    try {
-        mainWindow.restore()
-    } catch (e) {
-    }
-});
-ipcMain.on('minimise', e => {
-    try {
-        mainWindow.close()
-    } catch (e) {
-    }
-});
-
-ipcMain.on('pickDir', e => {
-    let returnVal = dialog.showOpenDialog(mainWindow, {
-        properties: ['openDirectory']
-    });
-    if (returnVal) {
-        returnVal = returnVal[0];
-    }
-    e.returnValue = returnVal;
-});
-
-ipcMain.on('openURL', (e, url) => {
-    require('electron').shell.openExternal(url);
-});
 ipcMain.on('toggledevtools', (e, url) => {
     mainWindow.toggleDevTools();
 });
-ipcMain.on('version', e => {
-    e.returnValue = app.getVersion();
-});
 
-ipcMain.on('confirmClear', e => {
-    dialog.showMessageBox({
-            type: 'info',
-            buttons: ['OK', 'Cancel'],
-            message: "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
-        }, // "Confirm delete", "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
-        value => e.returnValue = !value
-    );
-});
-ipcMain.on('show-file', (e, path) => {
-    shell.showItemInFolder(path);
-});
 ipcMain.on('get-browser-cookies', async (e, url) => {
     e.returnValue = await new Promise(resolve => {
         let browserWindow = new BrowserWindow({
@@ -251,12 +198,15 @@ ipcMain.on('get-browser-cookies', async (e, url) => {
             height: 720,
             titleBarStyle: "default",
             icon: "./build/favicon.ico",
+            webPreferences: {nodeIntegration: false, sandbox: true}
         });
+        console.log(url);
         browserWindow.loadURL(url);
         browserWindow.on('close', () => {
             browserWindow.webContents.session.cookies.get({url: url}, ((error, cookies) => {
                 resolve(cookies);
             }));
+            browserWindow.webContents.session.clearStorageData();
         });
     });
 });

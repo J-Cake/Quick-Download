@@ -1,4 +1,4 @@
-export default  {
+module.exports = {
     Menus: {
         NEW_DOWNLOAD: 0,
         SETTINGS: 1,
@@ -14,21 +14,21 @@ export default  {
     },
 
     /**
-     * active - currently downloading (should only be one at a time)
-     * failed - an error has occurred forcing the download to fail and stop
-     * done - the download has successfully completed
-     * pending - the download is in the queue and is awaiting other downloading to complete before it will start (purple)
      * awaiting - the download has to be initiated and is not ready to enter the queue
-     * stopped - the user has stopped the download and it has been taken out of the queue while it awaits further instruction (either to retry to trash)
+     * pending - the download is in the queue and is awaiting other downloading to complete before it will start (purple)
+     * active - currently downloading (should only be one at a time)
      * finishing - the download has completed however more actions are needed (moving to final file, etc.), but the next download in the queue can be started
+     * COMPLETE - the download has successfully completed
+     * stopped - the user has stopped the download and it has been taken out of the queue while it awaits further instruction (either to retry to trash)
+     * failed - an error has occurred forcing the download to fail and stop
      */
     DownloadStatus:{
         ACTIVE: "Active",
         FAILED: "Failed",
-        DONE: "Done",
+        COMPLETE: "Done",
         PENDING: "Pending",
         AWAITING: "Awaiting",
         STOPPED: "Stopped",
         FINISHING: "finishing",
     }
-}
+};
