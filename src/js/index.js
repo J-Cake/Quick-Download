@@ -214,7 +214,7 @@ document.querySelector('#new-download-button').addEventListener('click', (e) => 
 });
 document.querySelector('#get-cookies-button').addEventListener('click', evt => {
     MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value += JSON.stringify({
-        Cookie: ipcRenderer.sendSync('get-browser-cookies', "https://brownmovies.ddns.net").reduce((accumulator, current) => {
+        Cookie: ipcRenderer.sendSync('get-browser-cookies', "").reduce((accumulator, current) => {
             accumulator += current.name + "=" + current.value + ";";
             return accumulator;
         }, "")

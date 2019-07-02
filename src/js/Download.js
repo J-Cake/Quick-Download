@@ -150,8 +150,8 @@ class Download extends EventEmitter {
     createParts() {
         this.emit("create_parts");
         let last_int = -1;
-        for (let i = 0; i < this.numParts; i++) {
-            let to_byte = Math.floor((this.total_length / this.numParts) * (i + 1));
+        for (let i = 0; i <= this.numParts; i++) {
+            let to_byte = Math.floor((this.total_length / (this.numParts + 1)) * (i + 1));
             const part = new Part(this.url, last_int + 1, to_byte, this.packageLocation + `/${i}.part`, request, this.customHeaders);
             part
                 .on("update", e => {
