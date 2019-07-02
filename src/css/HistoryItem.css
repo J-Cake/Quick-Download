@@ -13,8 +13,7 @@
     box-sizing: border-box;
 }
 .past-download:hover {
-   /* background: #3c434b; */
-    /* Commented out until something happens when the user clicks */
+    background: #3c434b;
 }
 
 .prompt header {

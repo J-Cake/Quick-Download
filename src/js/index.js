@@ -92,6 +92,24 @@ document.querySelector('#chrome-version').innerText = process.versions.chrome;
 document.querySelector('#v8-version').innerText = process.versions.v8;
 
 let downloads = [];
+
+const downloadsHistory = {
+    getSavedDownloadHistorySync: () => {
+        if (fs.existsSync(app.getPath('userData') + "/downloadsHistory.json")) {
+            return JSON.parse(fs.readFileSync(app.getPath('userData') + "/downloadsHistory.json", 'utf8'));
+        }
+        return [];
+    },
+    saveDownloadHistory: (callback) => {
+        if (!callback) {
+            callback = () => {
+            };
+        }
+        fs.writeFile(app.getPath('userData') + "/downloadsHistory.json", JSON.stringify(downloadsHistory.items), 'utf8', callback);
+    },
+    items: [],
+};
+
 const settings = {
     getSavedSettingsSync: () => {
         if (fs.existsSync(app.getPath('userData') + "/settings.json")) {
@@ -128,6 +146,7 @@ const settings = {
     },
     items: {},
 };
+downloadsHistory.items = downloadsHistory.getSavedDownloadHistorySync();
 settings.updateSettings(settings._defaults);
 settings.updateSettings(settings.getSavedSettingsSync());
 
@@ -141,6 +160,15 @@ function addDownload(url, parts, customHeaders, proxyOptions, name) {
         startNextDownload();
     });
     downloads.push(download);
+    downloadsHistory.items.push({
+        url: url,
+        parts: parts,
+        customHeaders: customHeaders,
+        proxyOptions: proxyOptions,
+        name: name,
+        saveLocation: settings.items.saveLocation
+    });
+    downloadsHistory.saveDownloadHistory();
     hideMenus();
 }
 
@@ -261,12 +289,14 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
     }
     const headers = JSON.parse(MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value || "{}");
     addDownload(
-        MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-url').value,
+        url,
         settings.items.partsToCreate,
         headers,
         settings.items.proxySettings,
         name,
     );
+    MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-url').value = "";
+    MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-name').value = "";
 });
 
 function startNextDownload() {
@@ -397,6 +427,56 @@ function updateProxyView() {
     } else {
         document.querySelector('.proxy-settings').setAttribute('data-disabled', '');
     }
+}
+
+/* HISTORY MENU */
+const downloadsHistoryView = MenusViews[Menus.HISTORY].querySelector('.prompt_content');
+document.querySelector('#history-button').addEventListener('click', (e) => {
+    while (downloadsHistoryView.firstChild) {
+        downloadsHistoryView.removeChild(downloadsHistoryView.firstChild);
+    }
+    downloadsHistory.items.forEach((download, index) => {
+        const element = document.createElement('div');
+        element.classList.add('past-download');
+        element.innerHTML = `<div class="download-details">
+    <div class="download-name">${download.name}</div>
+    <div class="download-url">${download.url}</div>
+</div>
+<div class="delete">
+    <button class="tool trash-button">
+        <i class="fas fa-trash"></i>
+        <span class="tool-tip left">Remove item from history</span>
+    </button>
+</div>
+        `;
+        element.addEventListener('click', (e) => {
+            if (element.querySelector('.trash-button').contains(e.target)) {
+                return;
+            }
+            hideMenus();
+            MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-name').value = download.name;
+            MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-url').value = download.url;
+            showMenu(Menus.NEW_DOWNLOAD);
+        });
+        element.querySelector('.trash-button').addEventListener('click', () => {
+            removeDownloadFromHistory(index);
+            element.parentNode.removeChild(element);
+        });
+        downloadsHistoryView.prepend(element);
+    });
+    changeMenu(Menus.HISTORY);
+});
+document.querySelector('#clear-all-saved-downloads').addEventListener('click', () => {
+    downloadsHistory.items = [];
+    downloadsHistory.saveDownloadHistory();
+    while (downloadsHistoryView.firstChild) {
+        downloadsHistoryView.removeChild(downloadsHistoryView.firstChild);
+    }
+});
+
+function removeDownloadFromHistory(index) {
+    downloadsHistory.items.splice(index, 1);
+    downloadsHistory.saveDownloadHistory();
 }
 
 /* ABOUT MENU */

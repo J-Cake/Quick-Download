@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="./css/standard_prompt.css">
     <link rel="stylesheet" href="./css/forms.css">
     <link rel="stylesheet" href="./css/SettingsMenu.css">
-    <link rel="stylesheet" href="./css/HistoryMenu.css">
+    <link rel="stylesheet" href="./css/HistoryItem.css">
     <link rel="stylesheet" href="./css/AboutMenu.css">
 
 
@@ -39,7 +39,7 @@
                 <i class="fas fa-cog"></i>
                 <span class="tool-tip">Settings</span>
             </button>
-            <button class="tool icon_button">
+            <button id="history-button" class="tool icon_button">
                 <i class="fas fa-history"></i>
                 <span class="tool-tip">Show download history</span>
             </button>
@@ -191,25 +191,13 @@
                 <header class="prompt_header">
                     <h1>History</h1>
                     <div>
-                        <button class="tool"><i class="fas fa-trash"></i><span
+                        <button id="clear-all-saved-downloads" class="tool"><i class="fas fa-trash"></i><span
                                 class="tool-tip left">Clear all history</span></button>
                         <button class="tool prompt_close_button"><i class="fas fa-times"></i><span
                                 class="tool-tip left">Close the prompt</span></button>
                     </div>
                 </header>
                 <div class="prompt_content">
-                    <div class="past-download">
-                        <div class="download-details">
-                            <div class="download-name">asdfas:</div>
-                            <div class="download-url">asdfasdfads</div>
-                        </div>
-                        <div class="delete">
-                            <button class="tool">
-                                <i class="fas fa-trash"></i>
-                                <span class="tool-tip left">Remove item from history</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
