@@ -7,6 +7,7 @@ module.exports = {
         CONTACT: 6,
         OTHER: 4,
         NONE: 5,
+        URL_PROMPT: 7,
     },
     Tabs: {
         QUEUE: 0,

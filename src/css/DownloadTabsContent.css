@@ -15,7 +15,11 @@
 }
 #queue-downloads:empty:before {
     content: 'Press the + button to start a download';
+    margin: 10px;
+    display: block;
 }
 #complete-downloads:empty:before {
     content: 'Wait until a download completes to see it here';
+    margin: 10px;
+    display: block;
 }

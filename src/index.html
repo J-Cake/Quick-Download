@@ -113,10 +113,6 @@
                         <input class="standard_radio right_element" name="theme" id="light" type="radio">
                     </div>
                 </div>
-                <div class="setting-item">
-                    <span class="label">Show Advanced Download Details</span>
-                    <span id="advanced-details-toggle" class="check-box checked right_element"></span>
-                </div>
                 <br>
                 <h2>General</h2>
                 <div class="settingsGroup">
@@ -261,6 +257,24 @@
                     <br/>
                     <b>Please submit issues to Github.</b>
                 </ul>
+            </div>
+        </div>
+    </div>
+    <!------ URL PROMPT -->
+    <div id="url-prompt" class="prompt_wrapper">
+        <div class="prompt_content_container">
+            <div class="prompt_content_wrapper">
+                <header class="prompt_header">
+                    <h1>Enter A URL</h1>
+                </header>
+                <p>Enter a URL to get cookies from and click the check mark. Once the web page loads, login or do what
+                    ever you need to do in order to access the download. Once you are done X out the window, the Headers
+                    will autofill into the download prompt. </p>
+                <input id="url-cookie-input" placeholder="https://example.com" class="input_standard formItem">
+                <div class="right_element">
+                    <button id="submit-url-for-cookies" class="tool confirm-btn"><i class="fas fa-check"></i><span
+                            class="tool-tip left">Go</span></button>
+                </div>
             </div>
         </div>
     </div>

@@ -139,7 +139,6 @@ const settings = {
         partsToCreate: 15,
         preferredUnit: (os.platform() === "win32" ? "bin" : "dec"),
         allowNotifications: true,
-        showAdvancedDetails: true // DEBUG only
     },
     updateSettings: (updatedObject) => {
         settings.items = Object.assign({}, settings.items, updatedObject);
@@ -181,6 +180,7 @@ const MenusViews = {
     [Menus.HISTORY]: document.querySelector('#new-history-menu'),
     [Menus.CONTACT]: document.querySelector('#new-contact-menu'),
     [Menus.ABOUT]: document.querySelector('#new-about-menu'),
+    [Menus.URL_PROMPT]: document.querySelector('#url-prompt'),
 };
 
 function hideMenus() {
@@ -241,12 +241,7 @@ document.querySelector('#new-download-button').addEventListener('click', (e) => 
     changeMenu(Menus.NEW_DOWNLOAD);
 });
 document.querySelector('#get-cookies-button').addEventListener('click', evt => {
-    MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value += JSON.stringify({
-        Cookie: ipcRenderer.sendSync('get-browser-cookies', "").reduce((accumulator, current) => {
-            accumulator += current.name + "=" + current.value + ";";
-            return accumulator;
-        }, "")
-    });
+    showMenu(Menus.URL_PROMPT);
 });
 MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener('click', async (e) => {
     if (MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value.length !== 0 && !isJSON(MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value)) {
@@ -382,18 +377,11 @@ function settingsItemsObjectFromSettingsView() {
         partsToCreate: parseInt(document.querySelector('#numOfParts').value),
         preferredUnit: document.querySelector('#bin').checked ? "bin" : "dec",
         allowNotifications: document.querySelector('#notifications-toggle').classList.contains('checked'),
-        showAdvancedDetails: document.querySelector('#advanced-details-toggle').classList.contains('checked'),
     };
 
 }
 
 function updateSettingsView(settings) {
-    document.querySelector('#' + settings.items.theme).checked = true;
-    if (settings.items.showAdvancedDetails) {
-        document.querySelector('#advanced-details-toggle').classList.add('checked');
-    } else {
-        document.querySelector('#advanced-details-toggle').classList.remove('checked');
-    }
     document.querySelector('#' + settings.items.theme).checked = true;
     document.querySelector('#path-chooser').innerText = settings.items.saveLocation;
     document.querySelector('#numOfParts').value = settings.items.partsToCreate;
@@ -478,7 +466,6 @@ function removeDownloadFromHistory(index) {
     downloadsHistory.items.splice(index, 1);
     downloadsHistory.saveDownloadHistory();
 }
-
 /* ABOUT MENU */
 ipcRenderer.on('menu-about', () => {
     changeMenu(Menus.ABOUT);
@@ -486,4 +473,15 @@ ipcRenderer.on('menu-about', () => {
 /* CONTACT */
 ipcRenderer.on('menu-contact', () => {
     changeMenu(Menus.CONTACT);
+});
+/* COOKIE */
+document.querySelector('#submit-url-for-cookies').addEventListener('click', () => {
+    MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value += JSON.stringify({
+        Cookie: ipcRenderer.sendSync('get-browser-cookies', document.querySelector('#url-cookie-input').value).reduce((accumulator, current) => {
+            accumulator += current.name + "=" + current.value + ";";
+            return accumulator;
+        }, "")
+    });
+    document.querySelector('#url-cookie-input').value = "";
+    changeMenu(Menus.NEW_DOWNLOAD);
 });
