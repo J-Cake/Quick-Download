@@ -152,12 +152,20 @@ settings.updateSettings(settings.getSavedSettingsSync());
 
 function addDownload(url, parts, customHeaders, proxyOptions, name) {
     const download = new DownloadWrapper(url, parts, customHeaders, proxyOptions, name, settings.items.saveLocation);
-    download.on('remove', () => {
+    download
+        .on('remove', () => {
         downloads.splice(downloads.indexOf(download), 1);
-    });
-    download.on('startNextDownload', () => {
+        })
+        .on('startNextDownload', () => {
         startNextDownload();
-    });
+        })
+        .on('notify', (title, body) => {
+            if (settings.items.allowNotifications) {
+                new Notification(title, {
+                    body: body,
+                });
+            }
+        });
     downloads.push(download);
     downloadsHistory.items.push({
         url: url,

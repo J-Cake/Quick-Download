@@ -1,4 +1,4 @@
-const {shell} = require('electron');
+const {shell, ipcRenderer} = require('electron');
 const Download = require('./Download.js');
 const EventEmitter = require('events');
 module.exports = class DownloadWrapper extends EventEmitter {
@@ -161,7 +161,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
             const time_left = ((this.download.total_length - update.downloaded_bytes) / speed); // milliseconds
             const eta = Date.now() + time_left; // miliseconds
             const percentProgress = Math.floor((update.downloaded_bytes / this.download.total_length) * 10000) / 100;
-
+            ipcRenderer.send('progress', percentProgress / 100);
             this.element.querySelector('.progress-bar-inner').style.width = percentProgress + "%";
             this.element.querySelector('.progress').innerText = percentProgress + "%";
             this.element.querySelector('.download-detail[data-type=speed] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, Math.floor(speed * 1000)) + " / s"; //convert to per second
@@ -179,9 +179,11 @@ module.exports = class DownloadWrapper extends EventEmitter {
         this.failed = true;
         this.element.querySelector('.download-detail[data-type=error] .value').innerText = error.toString();
         this.download.cancel();
+        this.emit('notify', 'Download Failed', `Your download, ${this.file_name}, has failed!`);
     }
 
     handleDownloadFinishing() {
+        ipcRenderer.send('progress', 2);
         if (this.failed) {
             this.emit('startNextDownload');
             return;
@@ -191,12 +193,13 @@ module.exports = class DownloadWrapper extends EventEmitter {
     }
 
     handleDownloadComplete() {
+        ipcRenderer.send('progress', -1);
         if (this.failed) {
             return;
         }
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.COMPLETE);
-
+        this.emit('notify', 'Download Complete', `Your download, ${this.file_name}, is complete!`)
         this.element.querySelector('.progress').innerText = "100%";
         this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}`;
         this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;

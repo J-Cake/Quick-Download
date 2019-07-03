@@ -22,8 +22,8 @@
 	},
 	"scripts": {
 		"start": "electron .",
-		"pack-osx": "electron-packager ./build --overwrite --platform=darwin --arch=x64 --icon=./src/res/logo_mac.icns --name=\"Quick Downloader\" --prune=true --out=release-builds",
-		"pack-win": "electron-packager ./build --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico --name=\"Quick Downloader\" --out=release-builds && node winstaller"
+		"pack-osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --asar --icon=./src/assets/images/logo_mac.icns --name=\"Quick Downloader\" --prune=true --out=release-builds",
+		"pack-win": "electron-packager . --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico --name=\"Quick Downloader\" --out=release-builds && node winstaller"
 	},
 	"repository": {
 		"type": "git",
