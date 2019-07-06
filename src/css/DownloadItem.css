@@ -24,12 +24,35 @@
     color: white;
 }
 
+table.download-details {
+    width: 100%;
+}
+
+.download-detail {
+    display: table-row !important;
+}
+
+.download-detail:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.download-detail, .download-detail td {
+    border-spacing: 0 !important;
+    border-collapse: collapse;
+}
+
+.download-detail ~ * {
+    resize: horizontal;
+    overflow: auto;
+}
+
 .download-detail .name {
     font-weight: 900;
 }
 .download-detail .value {
     font-size: 14px;
     font-family: monospace;
+    margin-left: -2px;
 }
 
 .download .progress{

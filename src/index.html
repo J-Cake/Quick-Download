@@ -17,16 +17,17 @@
     <link rel="stylesheet" href="./css/HistoryItem.css">
     <link rel="stylesheet" href="./css/AboutMenu.css">
 
-
     <link rel="stylesheet" href="./assets/fonts/fa.css">
     <link rel="stylesheet" href="./assets/fonts/cutive.css">
 </head>
 <body>
 <header>
-    <div class="drag-region">
-        <div class="window-title">
-            <img src="./assets/images/favicon.ico" class="icon" alt="Quick Downloader Icon"/>
-            <span>Quick Downloader</span>
+    <div id="window-titlebar">
+        <div class="drag-region">
+            <div class="window-title">
+                <img src="./assets/images/favicon.ico" class="icon" alt="Quick Downloader Icon"/>
+                <span>Quick Downloader</span>
+            </div>
         </div>
     </div>
     <div class="menu_buttons_container">
@@ -251,7 +252,7 @@
                     <li><a data-href="https://joshbrown.info/#contact"> Joshua
                         Brown</a>
                     </li>
-                    <li><a data-href="https://www.jacob-schneider.ga/contact.html">Jacob
+                    <li><a data-href="https://jschneiderprojects.com.au/contact.html">Jacob
                         Schneider</a>
                     </li>
                     <br/>
@@ -266,10 +267,15 @@
             <div class="prompt_content_wrapper">
                 <header class="prompt_header">
                     <h1>Enter A URL</h1>
+                    <div class="prompt_single_close_button">
+                        <button class="tool"><i class="fas fa-times"></i>
+                            <span class="tool-tip left">Close the prompt</span>
+                        </button>
+                    </div>
                 </header>
-                <p>Enter a URL to get cookies from and click the check mark. Once the web page loads, login or do what
-                    ever you need to do in order to access the download. Once you are done X out the window, the Headers
-                    will autofill into the download prompt. </p>
+                <p>Enter the URL of the file you need to download and select the checkmark. A popup browser window will appear.
+                    Log in or do what you need to, to gain access to the file, then close the window.
+                    All cookies will be autofilled.</p>
                 <input id="url-cookie-input" placeholder="https://example.com" class="input_standard formItem">
                 <div class="right_element">
                     <button id="submit-url-for-cookies" class="tool confirm-btn"><i class="fas fa-check"></i><span
@@ -280,5 +286,5 @@
     </div>
 </div>
 </body>
-<script src="js/index.js"></script>
+<script src="./js/index.js"></script>
 </html>
