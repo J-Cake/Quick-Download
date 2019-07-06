@@ -197,6 +197,15 @@ function hideMenus() {
     Object.values(MenusViews).forEach(e => e.removeAttribute('data-active'));
 }
 
+function closeMenu(btn) {
+    let prompt = btn;
+
+    while (!prompt.classList.contains("prompt_wrapper"))
+        prompt = prompt.parentElement;
+
+    prompt.removeAttribute("data-active");
+}
+
 function showMenu(MenuType) {
     MenusViews[MenuType].setAttribute('data-active', '');
 }
@@ -207,6 +216,7 @@ function changeMenu(MenuType) {
 }
 
 document.querySelectorAll('.prompt_close_button').forEach(close_button => close_button.addEventListener('click', hideMenus));
+document.querySelectorAll(".prompt_single_close_button").forEach(btn => btn.addEventListener("click", () => closeMenu(btn)));
 
 document.querySelectorAll('.check-box').forEach(checkbox => checkbox.addEventListener('click', (e) => {
     if (checkbox.hasAttribute('data-disabled')) {
@@ -252,6 +262,37 @@ document.querySelector('#new-download-button').addEventListener('click', (e) => 
 document.querySelector('#get-cookies-button').addEventListener('click', evt => {
     showMenu(Menus.URL_PROMPT);
 });
+
+function renameFile(name, url, callback) {
+    if (fs.existsSync(Download.getFileName(name, settings.items.saveLocation, url))) {
+        const result = dialog.showMessageBox({
+            type: 'error',
+            title: 'File Exists',
+            buttons: ['Replace File', 'Keep Both', 'Cancel'],
+            defaultId: 2,
+            message: `${name} already exists in this location. Do you want to replace it?`
+        });
+        switch (result) {
+            case 0:
+                fs.unlinkSync(Download.getFileName(name, settings.items.saveLocation, url));
+                callback(name);
+                break;
+            case 1:
+                let num = 1;
+                while (fs.existsSync(Download.getFileName(name + " " + num, settings.items.saveLocation, url))) {
+                    num++;
+                }
+                name = name + " " + num;
+                callback(name);
+                break;
+            case 2:
+                return;
+        }
+    } else {
+        callback(name);
+    }
+}
+
 MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener('click', async (e) => {
     if (MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value.length !== 0 && !isJSON(MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value)) {
         dialog.showMessageBox({
@@ -262,45 +303,22 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
         });
         return;
     }
+
+    const headers = JSON.parse(MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value || "{}");
     let name = MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-name').value;
     const url = MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-url').value;
-    if (fs.existsSync(Download.getFileName(name, settings.items.saveLocation, url))) {
-        const result = await new Promise(resolve => {
-            dialog.showMessageBox({
-                    type: 'error',
-                    title: 'File Exists',
-                    buttons: ['Replace File', 'Keep Both', 'Cancel'],
-                    defaultId: 2,
-                    message: `A file named ${name} already exists in this location. Do you want to replace it??`
-                },
-                resolve,
-            );
-        });
-        switch (result) {
-            case 0:
-                fs.unlinkSync(Download.getFileName(name, settings.items.saveLocation, url));
-                break;
-            case 1:
-                let num = 1;
-                while (fs.existsSync(Download.getFileName(name + " " + num, settings.items.saveLocation, url))) {
-                    num++;
-                }
-                name = name + " " + num;
-                break;
-            case 2:
-                return;
-        }
-    }
-    const headers = JSON.parse(MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value || "{}");
-    addDownload(
-        url,
-        settings.items.partsToCreate,
-        headers,
-        settings.items.proxySettings,
-        name,
-    );
-    MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-url').value = "";
-    MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-name').value = "";
+
+    renameFile(name, url, function (name) {
+        addDownload(
+            url,
+            settings.items.partsToCreate,
+            headers,
+            settings.items.proxySettings,
+            name,
+        );
+        MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-url').value = "";
+        MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-name').value = "";
+    });
 });
 
 function startNextDownload() {
@@ -439,7 +457,7 @@ document.querySelector('#history-button').addEventListener('click', (e) => {
     <div class="download-name">${download.name}</div>
     <div class="download-url">${download.url}</div>
 </div>
-<div class="delete">
+<div class="delete-btn">
     <button class="tool trash-button">
         <i class="fas fa-trash"></i>
         <span class="tool-tip left">Remove item from history</span>
@@ -485,13 +503,39 @@ ipcRenderer.on('menu-contact', () => {
     changeMenu(Menus.CONTACT);
 });
 /* COOKIE */
+
+const catchCookies = function () {
+    const url = document.querySelector('#url-cookie-input').value;
+    if (url_lib.parse(url).hostname) {
+        MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value += JSON.stringify({
+            Cookie: ipcRenderer.sendSync('get-browser-cookies', url).reduce((accumulator, current) => {
+                accumulator += current.name + "=" + current.value + ";";
+                return accumulator;
+            }, "")
+        });
+        document.querySelector('#url-cookie-input').value = "";
+        changeMenu(Menus.NEW_DOWNLOAD);
+    } else {
+        throw new Error("Invalid URL");
+    }
+};
+
+document.querySelector('#url-cookie-input').addEventListener("paste", e => { // autosubmit on paste
+    document.querySelector("#url-cookie-input").value = e.clipboardData.getData('Text');
+    setTimeout(() => {
+        try {
+            catchCookies();
+        } catch (e) {
+            dialog.showErrorBox("Invalid URL", "The URL is invalid.");
+        }
+    }, 1);
+})
+;
+
 document.querySelector('#submit-url-for-cookies').addEventListener('click', () => {
-    MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value += JSON.stringify({
-        Cookie: ipcRenderer.sendSync('get-browser-cookies', document.querySelector('#url-cookie-input').value).reduce((accumulator, current) => {
-            accumulator += current.name + "=" + current.value + ";";
-            return accumulator;
-        }, "")
-    });
-    document.querySelector('#url-cookie-input').value = "";
-    changeMenu(Menus.NEW_DOWNLOAD);
+    try {
+        catchCookies();
+    } catch (e) {
+        dialog.showErrorBox("Invalid URL", "The URL is invalid.");
+    }
 });

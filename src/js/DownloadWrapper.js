@@ -29,19 +29,21 @@ module.exports = class DownloadWrapper extends EventEmitter {
         <button class="tool cancel"><i class="fas fa-times"></i><span class="tool-tip left">Cancel Download</span></button>
     </div>
 </div>
-<div class="download-details" data-enabled>
-    <div class="download-detail" data-type="status"><b class="name">Status: </b><span class="value">Awaiting</span></div>
-    <div class="download-detail" data-type="source"><b class="name">Source: </b><span class="value">${url}</span></div>
-    <div class="download-detail" data-type="final-file"><b class="name">Final File: </b><span class="value"></span></div>
-    <div class="download-detail" data-type="headers"><b class="name">Headers: </b><span class="value">${JSON.stringify(customHeaders)}</span></div>
-    <div class="download-detail" data-type="error"><b class="name">Error: </b><span class="value">None</span></div>
-    <div class="download-detail" data-type="size"><b class="name">Size: </b><span class="value">0.00 B</span></div>
-    <div class="download-detail" data-type="elapsed-time"><b class="name">Elapsed Time: </b><span class="value">0</span></div>
-    <div class="download-detail" data-type="eta"><b class="name">Estimated Time Of Completion: </b><span class="value">Loading...</span></div>
-    <div class="download-detail" data-type="speed"><b class="name">Speed: </b><span class="value">0.00 B/s</span></div>
-    <div class="download-detail" data-type="parts-done"><b class="name">Parts Done: </b><span class="value">0 / 0</span></div>
-    <div class="download-detail" data-type="progress"><b class="name">Progress: </b><span class="value">0.00 B / 0.00 B (0%)</span></div>
-</div>
+<table class="download-details" data-enabled>
+    <tbody>
+        <tr class="download-detail" data-type="status"><td class="name">Status: </td><td class="value">Awaiting</td></tr>
+        <tr class="download-detail" data-type="source"><td class="name">Source: </td><td class="value">${url}</td></tr>
+        <tr class="download-detail" data-type="final-file"><td class="name">Final File: </td><td class="value"></td></tr>
+        <tr class="download-detail" data-type="headers"><td class="name">Headers: </td><td class="value">${JSON.stringify(customHeaders)}</td></tr>
+        <tr class="download-detail" data-type="error"><td class="name">Error: </td><td class="value">None</td></tr>
+        <tr class="download-detail" data-type="size"><td class="name">Size: </td><td class="value">0.00 B</td></tr>
+        <tr class="download-detail" data-type="elapsed-time"><td class="name">Elapsed Time: </td><td class="value">0</td></tr>
+        <tr class="download-detail" data-type="eta"><td class="name">Estimated Time Of Completion: </td><td class="value">Loading...</td></tr>
+        <tr class="download-detail" data-type="speed"><td class="name">Speed: </td><td class="value">0.00 B/s</td></tr>
+        <tr class="download-detail" data-type="parts-done"><td class="name">Parts Done: </td><td class="value">0 / 0</td></tr>
+        <tr class="download-detail" data-type="progress"><td class="name">Progress: </td><td class="value">0.00 B / 0.00 B (0%)</td></tr>
+    </tbody>
+</table>
 <div class="progress-bar">
     <div class="progress-bar-wrapper">
         <div class="progress-bar-inner" style="width: 0"></div>
