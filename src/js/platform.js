@@ -7,6 +7,8 @@ class Win {
     static init() {
         const platform = os.platform();
 
+        _window.setProgressBar(-1);
+
         _window.on("close", function (e) {
             e.preventDefault();
         });

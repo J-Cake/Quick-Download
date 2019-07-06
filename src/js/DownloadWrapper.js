@@ -1,9 +1,13 @@
 const {shell, ipcRenderer} = require('electron');
 const Download = require('./Download.js');
 const EventEmitter = require('events');
+
+const _window = require('electron').remote.getCurrentWindow();
+
 module.exports = class DownloadWrapper extends EventEmitter {
     constructor(url, parts, customHeaders, proxyOptions, file_name, save_location) {
         super();
+
         this.last_update = {
             time: 0,
             bytes_progress: 0,
@@ -18,11 +22,11 @@ module.exports = class DownloadWrapper extends EventEmitter {
         const downloadEl = document.createElement('div');
         downloadEl.classList.add('download', 'awaiting');
         downloadEl.innerHTML = `<div class="header">
-    <div>
+    <div class="titlebar">
+        <h2 class="name">${file_name} (${this.file_name})</h2>
         <span class="progress">0%</span>
-        <h2 class="name">${name}</h2>
     </div>
-    <div>
+    <div class="download-actions">
         <button class="tool retry"><i class="fas fa-redo"></i><span class="tool-tip left">Retry Download</span></button>
         <button class="tool remove"><i class="fas fa-trash"></i><span class="tool-tip left">Remove Download From List</span></button>
         <button class="tool show-in-folder"><i class="fas fa-folder"></i><span class="tool-tip left">Show Download in folder</span></button>
@@ -47,8 +51,19 @@ module.exports = class DownloadWrapper extends EventEmitter {
 <div class="progress-bar">
     <div class="progress-bar-wrapper">
         <div class="progress-bar-inner" style="width: 0"></div>
+        <div class="progress-bar-dividers">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </div>
-</div>  `;
+</div>`;
         document.querySelector('#queue-downloads').append(downloadEl);
         this.element = downloadEl;
         this.element.querySelector('.retry').addEventListener('click', evt => this.retry());
@@ -71,6 +86,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
     }
 
     retry() {
+        _window.setProgressBar(0);
         this.download.cancel();
         this.download.init(this.file_name, this.save_location).then(val => this.emit('startNextDownload'));
     }
@@ -80,6 +96,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
     }
 
     cancel() {
+        _window.setProgressBar(1, {mode: "paused"});
         if (this.elapsed_time_interval) {
             clearInterval(this.elapsed_time_interval);
         }
@@ -88,6 +105,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
     }
 
     start() {
+        _window.setProgressBar(0);
         this.updateStatus(DownloadStatus.ACTIVE);
         this.download.download();
     }
@@ -163,7 +181,9 @@ module.exports = class DownloadWrapper extends EventEmitter {
             const time_left = ((this.download.total_length - update.downloaded_bytes) / speed); // milliseconds
             const eta = Date.now() + time_left; // miliseconds
             const percentProgress = Math.floor((update.downloaded_bytes / this.download.total_length) * 10000) / 100;
-            ipcRenderer.send('progress', percentProgress / 100);
+
+            _window.setProgressBar(percentProgress / 100);
+
             this.element.querySelector('.progress-bar-inner').style.width = percentProgress + "%";
             this.element.querySelector('.progress').innerText = percentProgress + "%";
             this.element.querySelector('.download-detail[data-type=speed] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, Math.floor(speed * 1000)) + " / s"; //convert to per second
@@ -177,6 +197,10 @@ module.exports = class DownloadWrapper extends EventEmitter {
 
     handleDownloadError(error) {
         clearInterval(this.elapsed_time_interval);
+
+        const percentProgress = Math.floor((update.downloaded_bytes / this.download.total_length) * 10000) / 100;
+        _window.setProgressBar(percentProgress, {mode: "error"});
+
         this.updateStatus(DownloadStatus.FAILED);
         this.failed = true;
         this.element.querySelector('.download-detail[data-type=error] .value').innerText = error.toString();
@@ -185,7 +209,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
     }
 
     handleDownloadFinishing() {
-        ipcRenderer.send('progress', 2);
+        _window.setProgressBar(2, {mode: "normal"});
         if (this.failed) {
             this.emit('startNextDownload');
             return;
@@ -195,13 +219,13 @@ module.exports = class DownloadWrapper extends EventEmitter {
     }
 
     handleDownloadComplete() {
-        ipcRenderer.send('progress', -1);
+        _window.setProgressBar(-1, {mode: "normal"});
         if (this.failed) {
             return;
         }
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.COMPLETE);
-        this.emit('notify', 'Download Complete', `Your download, ${this.file_name}, is complete!`)
+        this.emit('notify', 'Download Complete', `Your download, ${this.file_name}, is complete!`);
         this.element.querySelector('.progress').innerText = "100%";
         this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}`;
         this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;

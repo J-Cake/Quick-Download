@@ -7,6 +7,31 @@
     transform: translateX(-50%);
 }
 
+.progress-bar-dividers {
+    display: flex;
+    height: 30px;
+    justify-content: space-evenly;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    z-index: 0;
+}
+
+.progress-bar-dividers span {
+    width: 0;
+    border: 0.5px solid #334c79;
+    display: block;
+    counter-increment: progress 10;
+}
+
+.progress-bar-dividers span:after {
+    color: #66727f;
+    font-size: 8pt;
+    vertical-align: middle;
+    margin-left: 4px;
+    content: counter(progress)"%";
+}
+
 .progress-bar > .progress-visual > span {
     width: 40px;
     height: 40px;
@@ -26,6 +51,7 @@
     margin-top: 5px;
     position: relative;
     height: 12px;
+    counter-reset: progress;
     /*padding: 10px;*/
 }
 
@@ -50,4 +76,5 @@
     position: relative;
     height: 100%;
     transition: 200ms ease;
+    z-index: 1;
 }

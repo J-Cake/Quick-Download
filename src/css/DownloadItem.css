@@ -6,6 +6,43 @@
     display: none;
 }
 
+.download .header {
+    display: flex;
+    align-items: center;
+}
+
+.download-actions {
+    white-space: nowrap;
+    width: min-content;
+}
+
+.download .titlebar h2 {
+    grid-column: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+}
+
+.download .progress {
+    grid-column: 2;
+    width: 7em;
+    text-align: center;
+    margin: auto 0;
+}
+
+.download .titlebar {
+    max-width: 100%;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: grid;
+
+    grid-template-columns: auto minmax(7em, 1fr);
+}
+
 .download {
     padding: 10px;
     /*box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);*/
@@ -30,6 +67,7 @@ table.download-details {
 
 .download-detail {
     display: table-row !important;
+    padding: 3px;
 }
 
 .download-detail:nth-child(odd) {
@@ -55,12 +93,6 @@ table.download-details {
     margin-left: -2px;
 }
 
-.download .progress{
-    margin: 0 25px;
-    min-width: 5em;
-    overflow: hidden;
-    display: inline;
-}
 .download .name {
     display: inline;
 }
