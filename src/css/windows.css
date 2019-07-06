@@ -1,0 +1,35 @@
+.window-btn {
+    font-family: "Segoe MDL2 Assets", sans-serif;
+    width: 46px;
+    height: 36px;
+    font-size: 10px;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    line-height: 36px;
+}
+
+#close:hover {
+    background: #e81123;
+}
+
+.window-btn:hover {
+    background: hsla(0,0%,100%,.2);
+}
+
+.window-buttons {
+    display: flex;
+    margin-left: auto;
+    /*-webkit-app-region: no-drag;*/
+}
+
+#window-titlebar {
+    display: flex;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 11px;
+    justify-content: flex-start;
+}
+.window-title {
+    padding-left: 10px;
+}

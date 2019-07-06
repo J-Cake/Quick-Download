@@ -9,7 +9,10 @@ const {Menus, DownloadStatus, Tabs} = Enum;
 const DownloadWrapper = require('./js/DownloadWrapper.js');
 const Download = require("./js/Download");
 const request = require('request');
+const platform = require('./js/platform');
+const url_lib = require('url');
 
+platform.init();
 
 const headers_el = document.querySelector('#dl-headers');
 headers_el.setAttribute('style', 'overflow-y:hidden;');
@@ -35,7 +38,6 @@ const version = require('../package.json').version;
 console.log('Version: ' + version);
 
 checkUpdate(false);
-
 
 ipcRenderer.on('check-update', () => {
     checkUpdate(true);
@@ -154,10 +156,10 @@ function addDownload(url, parts, customHeaders, proxyOptions, name) {
     const download = new DownloadWrapper(url, parts, customHeaders, proxyOptions, name, settings.items.saveLocation);
     download
         .on('remove', () => {
-        downloads.splice(downloads.indexOf(download), 1);
+            downloads.splice(downloads.indexOf(download), 1);
         })
         .on('startNextDownload', () => {
-        startNextDownload();
+            startNextDownload();
         })
         .on('notify', (title, body) => {
             if (settings.items.allowNotifications) {
@@ -203,7 +205,6 @@ function changeMenu(MenuType) {
     hideMenus();
     showMenu(MenuType);
 }
-
 
 document.querySelectorAll('.prompt_close_button').forEach(close_button => close_button.addEventListener('click', hideMenus));
 
@@ -257,7 +258,7 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
             type: 'error',
             title: 'Error Parsing Headers',
             buttons: ['Ok'],
-            message: "Error parsing custom headers. Please make sure they are valid JSON."
+            message: "Error parsing custom headers. Please ensure JSON is valid."
         });
         return;
     }
@@ -474,6 +475,7 @@ function removeDownloadFromHistory(index) {
     downloadsHistory.items.splice(index, 1);
     downloadsHistory.saveDownloadHistory();
 }
+
 /* ABOUT MENU */
 ipcRenderer.on('menu-about', () => {
     changeMenu(Menus.ABOUT);
