@@ -23,13 +23,7 @@ class Part extends EventEmitter {
                     ...this.customHeaders,
                     'Range': `bytes=${this.from_byte}-${this.to_byte}`
                 }
-            }, () => {
-                this.done = true;
-                this.file.end();
-                this.emit('complete');
-                resolve();
             }).on('data', res => {
-                this.file.write(res);
                 this.current_byte += res.length;
                 this.emit('update', {
                     newBytes: res.length,
@@ -38,7 +32,12 @@ class Part extends EventEmitter {
             }).on('error', e => {
                 this.emit('error', e);
                 reject(e);
-            })
+            }).on('end', () => {
+                this.done = true;
+                this.file.end();
+                this.emit('complete');
+                resolve();
+            }).pipe(this.file);
         });
     }
 

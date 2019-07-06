@@ -189,6 +189,10 @@ ipcMain.on('toggledevtools', (e, url) => {
     mainWindow.toggleDevTools();
 });
 
+ipcMain.on('progress', (e, progress) => {
+    mainWindow.setProgressBar(progress);
+});
+
 ipcMain.on('get-browser-cookies', async (e, url) => {
     e.returnValue = await new Promise(resolve => {
         let browserWindow = new BrowserWindow({
