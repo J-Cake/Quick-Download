@@ -1,4 +1,4 @@
-const {shell, ipcRenderer} = require('electron');
+const {shell} = require('electron');
 const Download = require('./Download.js');
 const EventEmitter = require('events');
 
@@ -21,53 +21,9 @@ module.exports = class DownloadWrapper extends EventEmitter {
         this.status = DownloadStatus.AWAITING;
         const downloadEl = document.createElement('div');
         downloadEl.classList.add('download', 'awaiting');
-        downloadEl.innerHTML = `<div class="header">
-    <div class="titlebar">
-        <h2 class="name">${file_name} (${this.file_name})</h2>
-        <span class="progress">0%</span>
-    </div>
-    <div class="download-actions">
-        <button class="tool retry"><i class="fas fa-redo"></i><span class="tool-tip left">Retry Download</span></button>
-        <button class="tool remove"><i class="fas fa-trash"></i><span class="tool-tip left">Remove Download From List</span></button>
-        <button class="tool show-in-folder"><i class="fas fa-folder"></i><span class="tool-tip left">Show Download in folder</span></button>
-        <button class="tool cancel"><i class="fas fa-times"></i><span class="tool-tip left">Cancel Download</span></button>
-    </div>
-</div>
-${(function () {
-            if (!this.BRR)
-                return `<p class="slow-mode"><i class="fas fa-info-circle"></i>Byte Range Requests aren't supported by this server. Download speed will be reduced.</p>`
-        }).bind(this)()}
-            <table class="download-details" data-enabled>
-            <tbody>
-            <tr class="download-detail" data-type="status"><td class="name">Status: </td><td class="value">Awaiting</td></tr>
-            <tr class="download-detail" data-type="source"><td class="name">Source: </td><td class="value">${url}</td></tr>
-            <tr class="download-detail" data-type="final-file"><td class="name">Final File: </td><td class="value"></td></tr>
-            <tr class="download-detail" data-type="headers"><td class="name">Headers: </td><td class="value">${JSON.stringify(customHeaders)}</td></tr>
-            <tr class="download-detail" data-type="error"><td class="name">Error: </td><td class="value">None</td></tr>
-            <tr class="download-detail" data-type="size"><td class="name">Size: </td><td class="value">0.00 B</td></tr>
-            <tr class="download-detail" data-type="elapsed-time"><td class="name">Elapsed Time: </td><td class="value">0</td></tr>
-            <tr class="download-detail" data-type="eta"><td class="name">Estimated Time Of Completion: </td><td class="value">Calculating...</td></tr>
-            <tr class="download-detail" data-type="speed"><td class="name">Speed: </td><td class="value">0.00 B/s</td></tr>
-            <tr class="download-detail" data-type="parts-done"><td class="name">Parts Done: </td><td class="value">0 / 0</td></tr>
-            <tr class="download-detail" data-type="progress"><td class="name">Progress: </td><td class="value">0.00 B / 0.00 B (0%)</td></tr>
-            </tbody>
-            </table>
-            <div class="progress-bar">
-            <div class="progress-bar-wrapper">
-            <div class="progress-bar-inner" style="width: 0"></div>
-            <div class="progress-bar-dividers">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            </div>
-            </div>
-            </div>`;
+
+        downloadEl.innerHTML = require('./download-template').bind(this)(file_name, customHeaders, url); // keeping it clean.
+
         document.querySelector('#queue-downloads').append(downloadEl);
         this.element = downloadEl;
         this.element.querySelector('.retry').addEventListener('click', evt => this.retry());
@@ -155,20 +111,16 @@ ${(function () {
         return parseFloat(output).toFixed(2) + " " + units[steps];
     }
 
-    static miliToHumanReadable(milliseconds) {
+    static milliToHumanReadable(milliseconds) {
         const date = new Date(milliseconds);
-        return `${date.getUTCHours() || 0}
-    h:${date.getUTCMinutes() || 0}m
-:${date.getUTCSeconds() || 0}
-    s
-`;
+        return `${date.getUTCHours() || 0}h:${date.getUTCMinutes() || 0}m:${date.getUTCSeconds() || 0}s`;
     }
 
     handleDownloadInit(data) {
         this.last_update.time = Date.now();
         this.start_time = Date.now();
         this.elapsed_time_interval = setInterval(() => {
-            this.element.querySelector('.download-detail[data-type=elapsed-time] .value').innerText = DownloadWrapper.miliToHumanReadable((Date.now() - this.start_time));
+            this.element.querySelector('.download-detail[data-type=elapsed-time] .value').innerText = DownloadWrapper.milliToHumanReadable((Date.now() - this.start_time)).trim();
         }, 1000);
         if (this.failed) {
             return;
@@ -177,7 +129,8 @@ ${(function () {
 
         this.updateStatus(DownloadStatus.PENDING);
         this.element.querySelector('.download-detail[data-type=final-file] .value').innerText = data.final_file;
-        this.element.querySelector('.download-detail[data-type=size] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, data.size);
+        this.element.querySelector('.download-detail[data-type=size] .value').innerText =
+            DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, data.size).trim();
     }
 
     handleDownloadUpdate(update) {
@@ -187,7 +140,7 @@ ${(function () {
         if (Date.now() - this.last_update.time > 800) {
             const speed = (update.downloaded_bytes - this.last_update.bytes_progress) / (Date.now() - this.last_update.time); // bytes per millisecond
             const time_left = ((this.download.total_length - update.downloaded_bytes) / speed); // milliseconds
-            const eta = Date.now() + time_left; // miliseconds
+            const eta = Date.now() + time_left; // milliseconds
             const percentProgress = Math.floor((update.downloaded_bytes / this.download.total_length) * 10000) / 100;
 
             _window.setProgressBar(percentProgress / 100);
@@ -195,15 +148,9 @@ ${(function () {
             this.element.querySelector('.progress-bar-inner').style.width = percentProgress + "%";
             this.element.querySelector('.progress').innerText = percentProgress + "%";
             this.element.querySelector('.download-detail[data-type=speed] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, Math.floor(speed * 1000)) + " / s"; //convert to per second
-            this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date(eta).toLocaleString()}
-(${DownloadWrapper.miliToHumanReadable(time_left)}
-)`;
-            this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.downloaded_bytes)}
-/ ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}
-`;
-            this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${update.parts_done}
-/ ${this.download.numParts}
-`;
+            this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date(eta).toLocaleString()}(${DownloadWrapper.milliToHumanReadable(time_left)})`;
+            this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.downloaded_bytes)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
+            this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${update.parts_done} / ${this.download.numParts}`;
             this.last_update.time = Date.now();
             this.last_update.bytes_progress = update.downloaded_bytes;
         }
@@ -218,14 +165,7 @@ ${(function () {
         this.failed = true;
         this.element.querySelector('.download-detail[data-type=error] .value').innerText = error.toString();
         this.download.cancel();
-        this.emit('notify', 'Download Failed', `
-    Your
-    download
-, ${this.file_name}
-,
-    has
-    failed
-!`);
+        this.emit('notify', 'Download Failed', `${this.file_name} has failed!`);
     }
 
     handleDownloadFinishing() {
@@ -245,23 +185,12 @@ ${(function () {
         }
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.COMPLETE);
-        this.emit('notify', 'Download Complete', `
-    Your
-    download
-, ${this.file_name}
-,
-    is
-    complete
-!`);
+        this.emit('notify', 'Download Complete', `${this.file_name} is complete!`);
         this.element.querySelector('.progress').innerText = "100%";
-        this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}
-`;
-        this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}
-/ ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}
-`;
-        this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${this.download.numParts}
-/ ${this.download.numParts}
-`;
+        this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}`;
+        this.element.querySelector('.download-detail[data-type=progress] .value').innerText =
+            `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}/ ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
+        this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${this.download.numParts} / ${this.download.numParts}`;
 
         document.querySelector('#complete-downloads').append(this.element);
     }

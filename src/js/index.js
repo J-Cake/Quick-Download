@@ -516,7 +516,7 @@ function catchCookies() {
         document.querySelector('#url-cookie-input').value = "";
         changeMenu(Menus.NEW_DOWNLOAD);
     } else {
-        throw new Error("Invalid URL");
+        dialog.showErrorBox("Invalid URL", "The URL is invalid.");
     }
 }
 
@@ -532,9 +532,5 @@ function catchCookies() {
 // });
 
 document.querySelector('#submit-url-for-cookies').addEventListener('click', () => {
-    try {
-        catchCookies();
-    } catch (e) {
-        dialog.showErrorBox("Invalid URL", "The URL is invalid.");
-    }
+    catchCookies();
 });

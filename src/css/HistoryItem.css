@@ -27,9 +27,6 @@
     display: flex;
     justify-content: flex-end;
 }
-.download-details {
-    width: 90%;
-}
 .download-name {
     word-wrap: break-word;
 }

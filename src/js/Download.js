@@ -1,7 +1,4 @@
-const url_lib = require('url');
 const EventEmitter = require('events');
-const http = require('http');
-const https = require('https');
 const fs = require('fs');
 const validFilename = require('valid-filename');
 const request = require('request');
@@ -120,7 +117,6 @@ class Download extends EventEmitter {
                 }
             }, (_, response) => {
                 try {
-                    console.log(response.headers);
                     resolve(parseInt(response.headers['content-length']) || false);
                 } catch (err) {
                     reject (err);
