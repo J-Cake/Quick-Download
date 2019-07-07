@@ -43,6 +43,15 @@
     grid-template-columns: auto minmax(7em, 1fr);
 }
 
+.slow-mode {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    padding: 5px;
+}
+.slow-mode i {
+    margin-right: 5px;
+}
+
 .download {
     padding: 10px;
     /*box-shadow: 0 0 3px 0 rgba(24, 26, 29, 0.9);*/
@@ -66,7 +75,7 @@ table.download-details {
 }
 
 .download-detail {
-    display: table-row !important;
+    display: table-row;
     padding: 3px;
 }
 
@@ -75,13 +84,8 @@ table.download-details {
 }
 
 .download-detail, .download-detail td {
-    border-spacing: 0 !important;
+    border-spacing: 0;
     border-collapse: collapse;
-}
-
-.download-detail ~ * {
-    resize: horizontal;
-    overflow: auto;
 }
 
 .download-detail .name {

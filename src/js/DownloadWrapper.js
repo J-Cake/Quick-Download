@@ -33,25 +33,29 @@ module.exports = class DownloadWrapper extends EventEmitter {
         <button class="tool cancel"><i class="fas fa-times"></i><span class="tool-tip left">Cancel Download</span></button>
     </div>
 </div>
-<table class="download-details" data-enabled>
-    <tbody>
-        <tr class="download-detail" data-type="status"><td class="name">Status: </td><td class="value">Awaiting</td></tr>
-        <tr class="download-detail" data-type="source"><td class="name">Source: </td><td class="value">${url}</td></tr>
-        <tr class="download-detail" data-type="final-file"><td class="name">Final File: </td><td class="value"></td></tr>
-        <tr class="download-detail" data-type="headers"><td class="name">Headers: </td><td class="value">${JSON.stringify(customHeaders)}</td></tr>
-        <tr class="download-detail" data-type="error"><td class="name">Error: </td><td class="value">None</td></tr>
-        <tr class="download-detail" data-type="size"><td class="name">Size: </td><td class="value">0.00 B</td></tr>
-        <tr class="download-detail" data-type="elapsed-time"><td class="name">Elapsed Time: </td><td class="value">0</td></tr>
-        <tr class="download-detail" data-type="eta"><td class="name">Estimated Time Of Completion: </td><td class="value">Loading...</td></tr>
-        <tr class="download-detail" data-type="speed"><td class="name">Speed: </td><td class="value">0.00 B/s</td></tr>
-        <tr class="download-detail" data-type="parts-done"><td class="name">Parts Done: </td><td class="value">0 / 0</td></tr>
-        <tr class="download-detail" data-type="progress"><td class="name">Progress: </td><td class="value">0.00 B / 0.00 B (0%)</td></tr>
-    </tbody>
-</table>
-<div class="progress-bar">
-    <div class="progress-bar-wrapper">
-        <div class="progress-bar-inner" style="width: 0"></div>
-        <div class="progress-bar-dividers">
+${(function () {
+            if (!this.BRR)
+                return `<p class="slow-mode"><i class="fas fa-info-circle"></i>Byte Range Requests aren't supported by this server. Download speed will be reduced.</p>`
+        }).bind(this)()}
+            <table class="download-details" data-enabled>
+            <tbody>
+            <tr class="download-detail" data-type="status"><td class="name">Status: </td><td class="value">Awaiting</td></tr>
+            <tr class="download-detail" data-type="source"><td class="name">Source: </td><td class="value">${url}</td></tr>
+            <tr class="download-detail" data-type="final-file"><td class="name">Final File: </td><td class="value"></td></tr>
+            <tr class="download-detail" data-type="headers"><td class="name">Headers: </td><td class="value">${JSON.stringify(customHeaders)}</td></tr>
+            <tr class="download-detail" data-type="error"><td class="name">Error: </td><td class="value">None</td></tr>
+            <tr class="download-detail" data-type="size"><td class="name">Size: </td><td class="value">0.00 B</td></tr>
+            <tr class="download-detail" data-type="elapsed-time"><td class="name">Elapsed Time: </td><td class="value">0</td></tr>
+            <tr class="download-detail" data-type="eta"><td class="name">Estimated Time Of Completion: </td><td class="value">Calculating...</td></tr>
+            <tr class="download-detail" data-type="speed"><td class="name">Speed: </td><td class="value">0.00 B/s</td></tr>
+            <tr class="download-detail" data-type="parts-done"><td class="name">Parts Done: </td><td class="value">0 / 0</td></tr>
+            <tr class="download-detail" data-type="progress"><td class="name">Progress: </td><td class="value">0.00 B / 0.00 B (0%)</td></tr>
+            </tbody>
+            </table>
+            <div class="progress-bar">
+            <div class="progress-bar-wrapper">
+            <div class="progress-bar-inner" style="width: 0"></div>
+            <div class="progress-bar-dividers">
             <span></span>
             <span></span>
             <span></span>
@@ -61,15 +65,16 @@ module.exports = class DownloadWrapper extends EventEmitter {
             <span></span>
             <span></span>
             <span></span>
-        </div>
-    </div>
-</div>`;
+            </div>
+            </div>
+            </div>`;
         document.querySelector('#queue-downloads').append(downloadEl);
         this.element = downloadEl;
         this.element.querySelector('.retry').addEventListener('click', evt => this.retry());
         this.element.querySelector('.remove').addEventListener('click', evt => {
             this.emit('remove');
-            this.element.parentNode.removeChild(this.element)
+            this.element.parentNode.removeChild(this.element);
+            _window.setProgressBar(0);
         });
         this.element.querySelector('.show-in-folder').addEventListener('click', evt => this.showInFolder());
         this.element.querySelector('.cancel').addEventListener('click', evt => this.cancel());
@@ -84,6 +89,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
         download.init(file_name, save_location).then(val => this.emit('startNextDownload'));
 
     }
+
 
     retry() {
         _window.setProgressBar(0);
@@ -151,7 +157,11 @@ module.exports = class DownloadWrapper extends EventEmitter {
 
     static miliToHumanReadable(milliseconds) {
         const date = new Date(milliseconds);
-        return `${date.getUTCHours() || 0}h:${date.getUTCMinutes() || 0}m:${date.getUTCSeconds() || 0}s`;
+        return `${date.getUTCHours() || 0}
+    h:${date.getUTCMinutes() || 0}m
+:${date.getUTCSeconds() || 0}
+    s
+`;
     }
 
     handleDownloadInit(data) {
@@ -163,10 +173,8 @@ module.exports = class DownloadWrapper extends EventEmitter {
         if (this.failed) {
             return;
         }
-        if (!data.bytes_request_supported) {
-            this.handleDownloadError('Error: Byte Requests Not Supported');
-            return;
-        }
+        this.BRR = data.bytes_request_supported;
+
         this.updateStatus(DownloadStatus.PENDING);
         this.element.querySelector('.download-detail[data-type=final-file] .value').innerText = data.final_file;
         this.element.querySelector('.download-detail[data-type=size] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, data.size);
@@ -187,9 +195,15 @@ module.exports = class DownloadWrapper extends EventEmitter {
             this.element.querySelector('.progress-bar-inner').style.width = percentProgress + "%";
             this.element.querySelector('.progress').innerText = percentProgress + "%";
             this.element.querySelector('.download-detail[data-type=speed] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, Math.floor(speed * 1000)) + " / s"; //convert to per second
-            this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date(eta).toLocaleString()} (${DownloadWrapper.miliToHumanReadable(time_left)})`;
-            this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.downloaded_bytes)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
-            this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${update.parts_done} / ${this.download.numParts}`;
+            this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date(eta).toLocaleString()}
+(${DownloadWrapper.miliToHumanReadable(time_left)}
+)`;
+            this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.downloaded_bytes)}
+/ ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}
+`;
+            this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${update.parts_done}
+/ ${this.download.numParts}
+`;
             this.last_update.time = Date.now();
             this.last_update.bytes_progress = update.downloaded_bytes;
         }
@@ -198,14 +212,20 @@ module.exports = class DownloadWrapper extends EventEmitter {
     handleDownloadError(error) {
         clearInterval(this.elapsed_time_interval);
 
-        const percentProgress = Math.floor((update.downloaded_bytes / this.download.total_length) * 10000) / 100;
-        _window.setProgressBar(percentProgress, {mode: "error"});
+        _window.setProgressBar(1, {mode: "error"});
 
         this.updateStatus(DownloadStatus.FAILED);
         this.failed = true;
         this.element.querySelector('.download-detail[data-type=error] .value').innerText = error.toString();
         this.download.cancel();
-        this.emit('notify', 'Download Failed', `Your download, ${this.file_name}, has failed!`);
+        this.emit('notify', 'Download Failed', `
+    Your
+    download
+, ${this.file_name}
+,
+    has
+    failed
+!`);
     }
 
     handleDownloadFinishing() {
@@ -225,11 +245,23 @@ module.exports = class DownloadWrapper extends EventEmitter {
         }
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.COMPLETE);
-        this.emit('notify', 'Download Complete', `Your download, ${this.file_name}, is complete!`);
+        this.emit('notify', 'Download Complete', `
+    Your
+    download
+, ${this.file_name}
+,
+    is
+    complete
+!`);
         this.element.querySelector('.progress').innerText = "100%";
-        this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}`;
-        this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
-        this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${this.download.numParts} / ${this.download.numParts}`;
+        this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}
+`;
+        this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}
+/ ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}
+`;
+        this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${this.download.numParts}
+/ ${this.download.numParts}
+`;
 
         document.querySelector('#complete-downloads').append(this.element);
     }

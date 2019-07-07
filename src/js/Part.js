@@ -12,6 +12,8 @@ class Part extends EventEmitter {
         this.request = request;
         this.customHeaders = customHeaders;
         this.file = fs.createWriteStream(file_path, "utf8");
+
+        console.log("Hello World");
     };
 
     download_bytes() {

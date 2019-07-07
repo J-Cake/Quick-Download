@@ -26,10 +26,11 @@ class Download extends EventEmitter {
     constructor(url, parts, customHeaders, proxyOptions) {
         super();
         this.url = url;
-        this.numParts = parts;
+        this.numParts = Number(parts);
         this.customHeaders = customHeaders;
         this.proxyOptions = proxyOptions;
         /* don'tcha just love using libraries that support proxies? */
+        // that is indeed satisfying.
         if (proxyOptions) {
             if (proxyOptions.auth) {
                 this.request = request.defaults({proxy: `${proxyOptions.protocol}://${proxyOptions.auth.username}:${proxyOptions.auth.password}@${proxyOptions.hostname}:${proxyOptions.port}`});
@@ -62,17 +63,16 @@ class Download extends EventEmitter {
         }
         fs.mkdirSync(this.packageLocation);
         this.bytes_request_supported = await this.byte_request_supported().catch(err => this.error(err.toString()));
-        if (this.full_fail) {
-            return false;
-        }
+        // handle non-BRR.
+
         this.total_length = await this.get_length().catch(err => this.error(err));
         if (this.full_fail) {
             return false;
         }
         await this.createParts();
         this.emit("init-complete", {
-            final_file: this.final_file,
-            packageLocation: this.packageLocation,
+            final_file: this.final_file.trim(),
+            packageLocation: this.packageLocation.trim(),
             bytes_request_supported: this.bytes_request_supported,
             size: this.total_length,
         });
@@ -119,7 +119,12 @@ class Download extends EventEmitter {
                     ...this.customHeaders,
                 }
             }, (_, response) => {
-                resolve(parseInt(response.headers['content-length']) || false);
+                try {
+                    console.log(response.headers);
+                    resolve(parseInt(response.headers['content-length']) || false);
+                } catch (err) {
+                    reject (err);
+                }
             }).on("error", err => {
                 reject(err);
             });
@@ -148,11 +153,14 @@ class Download extends EventEmitter {
     }
 
     createParts() {
+        if (!this.bytes_request_supported)
+            this.numParts = 1; // make one part do all of it.
+
         this.emit("create_parts");
         let last_int = -1;
-        for (let i = 0; i <= this.numParts; i++) {
+        for (let i = 0; i < this.numParts; i++) {
             let to_byte = Math.floor((this.total_length / (this.numParts + 1)) * (i + 1));
-            const part = new Part(this.url, last_int + 1, to_byte, this.packageLocation + `/${i}.part`, request, this.customHeaders);
+            const part = new Part(this.url, last_int + 1, to_byte, this.packageLocation.trim() + `/${i}.part`, request, this.customHeaders);
             part
                 .on("update", e => {
                     this.downloaded_bytes += e.newBytes;

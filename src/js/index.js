@@ -197,7 +197,7 @@ function hideMenus() {
     Object.values(MenusViews).forEach(e => e.removeAttribute('data-active'));
 }
 
-function closeMenu(btn) {
+function closeSingleMenu(btn) {
     let prompt = btn;
 
     while (!prompt.classList.contains("prompt_wrapper"))
@@ -216,7 +216,7 @@ function changeMenu(MenuType) {
 }
 
 document.querySelectorAll('.prompt_close_button').forEach(close_button => close_button.addEventListener('click', hideMenus));
-document.querySelectorAll(".prompt_single_close_button").forEach(btn => btn.addEventListener("click", () => closeMenu(btn)));
+document.querySelectorAll(".prompt_single_close_button").forEach(btn => btn.addEventListener("click", () => closeSingleMenu(btn)));
 
 document.querySelectorAll('.check-box').forEach(checkbox => checkbox.addEventListener('click', (e) => {
     if (checkbox.hasAttribute('data-disabled')) {
@@ -263,7 +263,7 @@ document.querySelector('#get-cookies-button').addEventListener('click', evt => {
     showMenu(Menus.URL_PROMPT);
 });
 
-function renameFile(name, url, callback) {
+function genFileName(name, url, callback) {
     if (fs.existsSync(Download.getFileName(name, settings.items.saveLocation, url))) {
         const result = dialog.showMessageBox({
             type: 'error',
@@ -308,7 +308,7 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
     let name = MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-name').value;
     const url = MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-url').value;
 
-    renameFile(name, url, function (name) {
+    genFileName(name, url, function (name) {
         addDownload(
             url,
             settings.items.partsToCreate,
@@ -457,7 +457,7 @@ document.querySelector('#history-button').addEventListener('click', (e) => {
     <div class="download-name">${download.name}</div>
     <div class="download-url">${download.url}</div>
 </div>
-<div class="delete-btn">
+<div class="trash-btn-wrapper">
     <button class="tool trash-button">
         <i class="fas fa-trash"></i>
         <span class="tool-tip left">Remove item from history</span>
@@ -504,7 +504,7 @@ ipcRenderer.on('menu-contact', () => {
 });
 /* COOKIE */
 
-const catchCookies = function () {
+function catchCookies() {
     const url = document.querySelector('#url-cookie-input').value;
     if (url_lib.parse(url).hostname) {
         MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value += JSON.stringify({
@@ -518,19 +518,18 @@ const catchCookies = function () {
     } else {
         throw new Error("Invalid URL");
     }
-};
+}
 
-document.querySelector('#url-cookie-input').addEventListener("paste", e => { // autosubmit on paste
-    document.querySelector("#url-cookie-input").value = e.clipboardData.getData('Text');
-    setTimeout(() => {
-        try {
-            catchCookies();
-        } catch (e) {
-            dialog.showErrorBox("Invalid URL", "The URL is invalid.");
-        }
-    }, 1);
-})
-;
+// document.querySelector('#url-cookie-input').addEventListener("paste", e => { // autosubmit on paste
+//     document.querySelector("#url-cookie-input").value = e.clipboardData.getData('Text');
+//     setTimeout(() => {
+//         try {
+//             catchCookies();
+//         } catch (e) {
+//             dialog.showErrorBox("Invalid URL", "The URL is invalid.");
+//         }
+//     }, 1);
+// });
 
 document.querySelector('#submit-url-for-cookies').addEventListener('click', () => {
     try {
