@@ -17,8 +17,8 @@
 }
 
 .prompt header {
-    box-shadow: none !important;
-    background: transparent !important;
+    box-shadow: none;
+    background: transparent;
 }
 
 .past-download .delete {

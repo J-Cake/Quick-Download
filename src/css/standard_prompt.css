@@ -174,7 +174,7 @@
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
-    display: none !important;
+    display: none;
 }
 
 .input_standard:focus, button:focus, textarea:focus, .inline_input:focus, .input_standard:focus  {
