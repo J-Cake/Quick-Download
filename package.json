@@ -12,9 +12,9 @@
 		"mousetrap": "^1.6.3",
 		"node": "^11.13.0",
 		"pac-resolver": "git+https://git@github.com/J-Cake/Node-PAC",
-		"valid-filename": "^3.1.0",
 		"request": "latest",
-		"rimraf": "latest"
+      "rimraf": "latest",
+      "valid-filename": "^3.1.0"
 	},
 	"devDependencies": {
 		"electron": "latest",
@@ -23,7 +23,7 @@
 	},
 	"scripts": {
 		"start": "electron .",
-		"pack-osx": "electron-packager . --overwrite --platform=darwin --arch=x64 --asar --icon=./src/assets/images/logo_mac.icns --name=\"Quick Downloader\" --prune=true --out=release-builds",
+      "pack-osx": "node ./src/build/package-mac.js",
 		"pack-win": "electron-packager . --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico --name=\"Quick Downloader\" --out=release-builds && node winstaller"
 	},
 	"repository": {

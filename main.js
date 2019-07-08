@@ -26,8 +26,6 @@ async function createWindow() {
     mainWindow.setTitle("Quick Downloader");
     await mainWindow.loadFile(path.join(__dirname, './src/index.html'));
 
-    mainWindow.toggleDevTools();
-
     createMenu();
 }
 

@@ -199,7 +199,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
         }
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.COMPLETE);
-        this.emit('notify', 'Download Complete', `Your download, ${this.file_name}, is complete!`)
+        this.emit('notify', 'Download Complete', `Your download, ${this.file_name}, is complete!`);
         this.element.querySelector('.progress').innerText = "100%";
         this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}`;
         this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
