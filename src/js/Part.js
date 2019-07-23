@@ -23,21 +23,26 @@ class Part extends EventEmitter {
                     ...this.customHeaders,
                     'Range': `bytes=${this.from_byte}-${this.to_byte}`
                 }
-            }).on('data', res => {
-                this.current_byte += res.length;
-                this.emit('update', {
-                    newBytes: res.length,
-                    currentProgress: this.current_byte,
+            });
+            this.download
+                .on('data', res => {
+                    this.current_byte += res.length;
+                    this.emit('update', {
+                        newBytes: res.length,
+                        currentProgress: this.current_byte,
+                    })
                 })
-            }).on('error', e => {
-                this.emit('error', e);
-                reject(e);
-            }).on('end', () => {
-                this.done = true;
-                this.file.end();
-                this.emit('complete');
-                resolve();
-            }).pipe(this.file);
+                .on('error', e => {
+                    this.emit('error', e);
+                    reject(e);
+                })
+                .on('end', () => {
+                    this.done = true;
+                    this.file.end();
+                    this.emit('complete');
+                    resolve();
+                })
+                .pipe(this.file);
         });
     }
 

@@ -2,8 +2,16 @@
     display: none;
 }
 
-.download:not(.active) .progress-bar {
+.download .progress-bar {
     display: none;
+}
+
+.download.finishing .cancel {
+    display: inline-block;
+}
+
+.download.finishing .progress-bar, .download.active .progress-bar {
+    display: block;
 }
 
 .download {

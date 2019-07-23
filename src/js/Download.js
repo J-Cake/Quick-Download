@@ -188,6 +188,7 @@ class Download extends EventEmitter {
     }
 
     combineParts_move_to_final() {
+        this.combinedBytes = 0;
         this.emit("combine_parts");
         return new Promise((resolve, reject) => {
             let final = fs.createWriteStream(this.final_file, {flags: 'a'});
@@ -195,12 +196,16 @@ class Download extends EventEmitter {
             final.on('open', async () => {
                 for (const part of this.parts) {
                     await new Promise(resolve => {
-                        const r = fs.createReadStream(part.file.path);
-                        r.on('close', resolve);
-                        r.on('error', (err) => {
-                            reject(err);
-                        });
-                        r.pipe(final, {end: false});
+                        const r = fs.createReadStream(part.file.path)
+                            .on('close', resolve)
+                            .on('error', (err) => {
+                                reject(err);
+                            })
+                            .on('data', (data) => {
+                                this.combinedBytes += data.length;
+                                this.emit('combine-update', {transferred_bytes: this.combinedBytes})
+                            })
+                            .pipe(final, {end: false});
                     });
                 }
                 final.end();

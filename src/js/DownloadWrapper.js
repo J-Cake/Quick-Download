@@ -61,6 +61,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
             .on('init-complete', data => this.handleDownloadInit(data))
             .on('update', data => this.handleDownloadUpdate(data))
             .on('parts-done', () => this.handleDownloadFinishing())
+            .on('combine-update', (data) => this.handleFileCombineUpdate(data))
             .on('complete', () => this.handleDownloadComplete())
             .on('error', error => this.handleDownloadError(error))
             .on('warn', warning => console.warn(warning));
@@ -173,6 +174,26 @@ module.exports = class DownloadWrapper extends EventEmitter {
         }
     }
 
+    handleFileCombineUpdate(update) {
+        if (this.failed) {
+            return;
+        }
+        if (Date.now() - this.last_update.time > 800) {
+            const speed = (update.transferred_bytes - this.last_update.bytes_progress) / (Date.now() - this.last_update.time); // bytes per millisecond
+            const time_left = ((this.download.total_length - update.transferred_bytes) / speed); // milliseconds
+            const eta = Date.now() + time_left; // miliseconds
+            const percentProgress = Math.floor((update.transferred_bytes / this.download.total_length) * 10000) / 100;
+            ipcRenderer.send('progress', percentProgress / 100);
+            this.element.querySelector('.progress-bar-inner').style.width = percentProgress + "%";
+            this.element.querySelector('.progress').innerText = percentProgress + "%";
+            this.element.querySelector('.download-detail[data-type=speed] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, Math.floor(speed * 1000)) + " / s"; //convert to per second
+            this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date(eta).toLocaleString()} (${DownloadWrapper.miliToHumanReadable(time_left)})`;
+            this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.transferred_bytes)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
+            this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${update.parts_done} / ${this.download.numParts}`;
+            this.last_update.time = Date.now();
+            this.last_update.bytes_progress = update.transferred_bytes;
+        }
+    }
     handleDownloadError(error) {
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.FAILED);
@@ -183,6 +204,10 @@ module.exports = class DownloadWrapper extends EventEmitter {
     }
 
     handleDownloadFinishing() {
+        this.last_update = {
+            time: 0,
+            bytes_progress: 0,
+        };
         ipcRenderer.send('progress', 2);
         if (this.failed) {
             this.emit('startNextDownload');
