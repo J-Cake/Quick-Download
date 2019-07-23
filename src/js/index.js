@@ -154,10 +154,10 @@ function addDownload(url, parts, customHeaders, proxyOptions, name) {
     const download = new DownloadWrapper(url, parts, customHeaders, proxyOptions, name, settings.items.saveLocation);
     download
         .on('remove', () => {
-        downloads.splice(downloads.indexOf(download), 1);
+            downloads.splice(downloads.indexOf(download), 1);
         })
         .on('startNextDownload', () => {
-        startNextDownload();
+            startNextDownload();
         })
         .on('notify', (title, body) => {
             if (settings.items.allowNotifications) {
@@ -242,8 +242,10 @@ document.querySelector('#complete-tab-button').addEventListener('click', (e) => 
 
 /* DOWNLOAD MENU */
 ipcRenderer.on('menu-new-download', () => {
-    updateSettingsView(settings);
-    changeMenu(Menus.SETTINGS);
+    if (confirmRevertSettingsChanges()) {
+        changeMenu(Menus.NEW_DOWNLOAD);
+    }
+
 });
 document.querySelector('#new-download-button').addEventListener('click', (e) => {
     changeMenu(Menus.NEW_DOWNLOAD);
@@ -314,8 +316,10 @@ function startNextDownload() {
 
 /* SETTINGS MENU */
 ipcRenderer.on('menu-settings', () => {
-    updateSettingsView(settings);
-    changeMenu(Menus.SETTINGS);
+    if (confirmRevertSettingsChanges(false)) {
+        updateSettingsView(settings);
+        changeMenu(Menus.SETTINGS);
+    }
 });
 document.querySelector('#path-chooser').addEventListener('click', (e) => {
     const path = dialog.showOpenDialog(remote.getCurrentWindow(), {properties: ['openDirectory']});
@@ -327,25 +331,34 @@ document.querySelector('#settings-button').addEventListener('click', (e) => {
     updateSettingsView(settings);
     changeMenu(Menus.SETTINGS);
 });
-document.querySelector('#revert-settings-button').addEventListener('click', async (e) => {
-    if (JSON.stringify(settings.items) === JSON.stringify(settingsItemsObjectFromSettingsView())) {
-        hideMenus();
-        return;
-    }
-    const result = await new Promise(resolve => {
-        dialog.showMessageBox({
-                type: 'warning',
-                title: 'Confirm Revert Settings',
-                buttons: ['Ok', 'Cancel'],
-                message: "Are you sure you want to revert your changes?"
-            }, // "Confirm delete", "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
-            value => resolve(value === 0),
-        );
-    });
-    if (result) {
+document.querySelector('#revert-settings-button').addEventListener('click', () => {
+    if (confirmRevertSettingsChanges()) {
         hideMenus();
     }
 });
+
+/**
+ *
+ * @return {boolean} - whether the user is ready to continue
+ */
+function confirmRevertSettingsChanges(prompt = true) {
+    if (!MenusViews[Menus.SETTINGS].hasAttribute('data-active')) {
+        return true;
+    }
+    if (JSON.stringify(settings.items) === JSON.stringify(settingsItemsObjectFromSettingsView())) {
+        return true;
+    }
+    if (!prompt) {
+        return false;
+    }
+    return dialog.showMessageBox({
+        type: 'warning',
+        title: 'Confirm Revert Settings',
+        buttons: ['Ok', 'Cancel'],
+        message: "Are you sure you want to revert your changes?"
+    }) === 0;// "Confirm delete", "Are you sure you want to reset to default settings? Doing this will erase download history. But don't worry, things you have downloaded are safe."
+}
+
 document.querySelector('#save-settings-button').addEventListener('click', async (e) => {
     settings.updateSettings(settingsItemsObjectFromSettingsView());
     settings.saveSettings();
@@ -474,6 +487,7 @@ function removeDownloadFromHistory(index) {
     downloadsHistory.items.splice(index, 1);
     downloadsHistory.saveDownloadHistory();
 }
+
 /* ABOUT MENU */
 ipcRenderer.on('menu-about', () => {
     changeMenu(Menus.ABOUT);

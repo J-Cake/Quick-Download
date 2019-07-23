@@ -63,7 +63,8 @@ function createMenu() {
                         await createWindow();
                     }
                     mainWindow.webContents.send("menu-settings");
-                }
+                },
+                accelerator: 'Cmd+,',
             },
             {role: 'services'},
             {type: 'separator'},
@@ -83,8 +84,9 @@ function createMenu() {
                         await createWindow();
                     }
                     mainWindow.webContents.send("menu-new-download");
-                }
-            }]
+                },
+                accelerator: 'Cmd+N'
+            }],
         },
 
         {
