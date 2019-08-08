@@ -1,43 +1,43 @@
 {
-	"name": "quick_downloader",
-	"version": "1.0.0",
-	"beta-version": "2.0.0",
-	"description": "We Download Things Quickly!",
-	"productName": "Quick Downloader",
-	"private": true,
-	"main": "./main.js",
-	"dependencies": {
-		"abort-controller": "^2.0.2",
-		"electron": "latest",
-		"mousetrap": "^1.6.3",
-		"node": "^11.13.0",
-		"pac-resolver": "git+https://git@github.com/J-Cake/Node-PAC",
-		"request": "latest",
-      "rimraf": "latest",
-      "valid-filename": "^3.1.0"
-	},
-	"devDependencies": {
-		"electron": "latest",
-		"electron-packager": "latest",
-		"electron-wix-msi": "^2.1.1"
-	},
-	"scripts": {
-		"start": "electron .",
-      "pack-osx": "node ./src/build/package-mac.js",
-		"pack-win": "electron-packager . --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico --name=\"Quick Downloader\" --out=release-builds && node winstaller"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/jbis9051/quick_download.git"
-	},
-	"keywords": [
-		"Quick",
-		"Download"
-	],
-	"author": "JBis, J-Cake",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/jbis9051/quick_download/issues"
-	},
-	"homepage": "./"
+  "name": "quick_downloader",
+  "version": "2.0.0",
+  "beta-version": "2.0.0",
+  "description": "We Download Things Quickly!",
+  "productName": "Quick Downloader",
+  "private": true,
+  "main": "./main.js",
+  "dependencies": {
+    "abort-controller": "^2.0.2",
+    "electron": "latest",
+    "mousetrap": "^1.6.3",
+    "node": "^11.13.0",
+    "pac-resolver": "git+https://git@github.com/J-Cake/Node-PAC",
+    "request": "latest",
+    "rimraf": "latest",
+    "valid-filename": "^3.1.0"
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-packager": "latest",
+    "electron-wix-msi": "^2.1.1"
+  },
+  "scripts": {
+    "start": "electron .",
+    "pack-osx": "node ./src/build/package-mac.js",
+    "pack-win": "electron-packager . --platform=win32 --arch=ia32 --overwrite --icon=./build/favicon.ico --name=\"Quick Downloader\" --out=release-builds && node winstaller"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbis9051/quick_download.git"
+  },
+  "keywords": [
+    "Quick",
+    "Download"
+  ],
+  "author": "JBis, J-Cake",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jbis9051/quick_download/issues"
+  },
+  "homepage": "./"
 }
