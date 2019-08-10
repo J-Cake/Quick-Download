@@ -1,0 +1,58 @@
+.window-title {
+    justify-content: flex-start;
+    padding-left: 5px;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+    text-shadow: none;
+    -webkit-font-smoothing: subpixel-antialiased;
+    font-weight: 400;
+}
+
+.window-title img {
+    height: 1.3em;
+}
+
+.window-titlebar {
+    display: flex;
+    width: 100vw;
+    height: fit-content;
+}
+.window-titlebar.hidden {
+    display: none;
+}
+
+.button-container {
+    min-width: calc(3 * 46px);
+    font-family: "Segoe MDL2 Assets";
+}
+.button-container button {
+    min-width: 46px;
+    min-height: 30px;
+    max-width: 46px;
+    max-height: 30px;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe MDL2 Assets";
+    font-size: 10px;
+    line-height: 26px;
+}
+.button-container button:focus {
+    background: initial;
+}
+
+.drag-region {
+    margin: 0;
+}
+
+/* I'm not gonna add the red to the close button cause it already looks nice as-is */
+
+.leave-full-screen-btn {
+    position: fixed !important; /* shhhh */
+    top: 4px;
+    right: 12px;
+}
+
+.leave-full-screen-btn.hidden {
+    display: none;
+}

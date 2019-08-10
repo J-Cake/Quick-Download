@@ -10,6 +10,73 @@ const DownloadWrapper = require('./js/DownloadWrapper.js');
 const Download = require("./js/Download");
 const request = require('request');
 
+const platform = process.platform;
+
+if (platform === "win32") {
+    const link = document.createElement("link");
+    link.setAttribute("rel", "stylesheet");
+    link.setAttribute("href", "./css/windows.css");
+    document.querySelector("head").appendChild(link);
+
+    const titlebar = document.querySelector(".window-titlebar");
+
+    const button1 = document.createElement("button");
+    button1.appendChild(document.createTextNode(""));
+    button1.addEventListener("click", () => remote.getCurrentWindow().minimize());
+
+    const button2 = document.createElement("button");
+    button2.appendChild(document.createTextNode(remote.getCurrentWindow().isMaximized() ? "" : ""));
+    button2.addEventListener("click", () => {
+        button2.classList.toggle("on");
+
+        if (button2.classList.contains("on")) {
+            remote.getCurrentWindow().restore();
+            button2.innerHTML = "";
+        } else {
+            remote.getCurrentWindow().maximize();
+            button2.innerHTML = "";
+        }
+    });
+
+    const lfsbtn = document.createElement('button');
+    lfsbtn.innerHTML = `<i class="fas fa-compress"></i><span class="tool-tip left">Leave Full Screen Mode</span>`;
+    lfsbtn.addEventListener('click', () => remote.getCurrentWindow().setFullScreen(false));
+    lfsbtn.classList.add("leave-full-screen-btn");
+    lfsbtn.classList.add("tool");
+    lfsbtn.classList.add("icon_button");
+    if (!remote.getCurrentWindow().isFullScreen())
+        lfsbtn.classList.add("hidden");
+    else
+        titlebar.classList.add('hidden');
+
+    document.querySelector(".menu_buttons_container").appendChild(lfsbtn);
+
+    const button3 = document.createElement("button"); // 
+    button3.appendChild(document.createTextNode(""));
+    button3.addEventListener("click", () => remote.getCurrentWindow().close());
+
+    const buttonContainer = document.createElement("div");
+    buttonContainer.classList.add("button-container");
+
+    buttonContainer.appendChild(button1);
+    buttonContainer.appendChild(button2);
+    buttonContainer.appendChild(button3);
+
+    titlebar.appendChild(buttonContainer);
+
+    const menu = require('./js/menuMaker')(require('./js/menu'));
+    menu.classList.add("menu-container");
+    document.querySelector(".menu_buttons_wrapper").appendChild(menu);
+
+    remote.getCurrentWindow().on("enter-full-screen", function () {
+        titlebar.classList.add("hidden");
+        lfsbtn.classList.remove("hidden");
+    });
+    remote.getCurrentWindow().on("leave-full-screen", function () {
+        titlebar.classList.remove("hidden");
+        lfsbtn.classList.add("hidden");
+    });
+}
 
 const headers_el = document.querySelector('#dl-headers');
 headers_el.setAttribute('style', 'overflow-y:hidden;');

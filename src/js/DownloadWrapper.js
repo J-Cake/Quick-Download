@@ -20,7 +20,7 @@ module.exports = class DownloadWrapper extends EventEmitter {
         downloadEl.innerHTML = `<div class="header">
     <div>
         <span class="progress">0%</span>
-        <h2 class="name">${name}</h2>
+        <h2 class="name">${this.file_name}</h2>
     </div>
     <div>
         <button class="tool retry"><i class="fas fa-redo"></i><span class="tool-tip left">Retry Download</span></button>

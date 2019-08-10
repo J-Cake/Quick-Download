@@ -15,7 +15,8 @@ async function createWindow() {
         backgroundColor: '#3e444b',
         frame: os.platform() !== "win32",
         icon: "./build/favicon.ico",
-        webPreferences: {nodeIntegration: true}
+        webPreferences: {nodeIntegration: true},
+        // autoHideMenuBar: true
     });
     let view = new BrowserView();
     view.setBounds({x: 0, y: 0, width: 300, height: 300});
@@ -71,7 +72,6 @@ function createMenu() {
             },
             {role: 'services'},
             {type: 'separator'},
-            {role: 'services'},
             {role: 'hide'},
             {role: 'hideothers'},
             {type: 'separator'},
