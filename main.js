@@ -1,5 +1,5 @@
 const os = require('os');
-const {app, BrowserView, BrowserWindow, ipcMain, dialog, Menu, shell} = require('electron');
+const {app, BrowserView, BrowserWindow, ipcMain, Menu, shell} = require('electron');
 
 let mainWindow;
 
@@ -26,7 +26,10 @@ async function createWindow() {
     mainWindow.setTitle("Quick Downloader");
     await mainWindow.loadFile(path.join(__dirname, './src/index.html'));
 
-    createMenu();
+    if (process.platform !== "win32")
+        createMenu();
+    else
+        mainWindow.setMenu(null);
 }
 
 app.setAppUserModelId(process.execPath);
@@ -185,7 +188,7 @@ app.on('activate', function () {
         createWindow();
     }
 });
-ipcMain.on('toggledevtools', (e, url) => {
+ipcMain.on('toggledevtools', () => {
     mainWindow.toggleDevTools();
 });
 
