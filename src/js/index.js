@@ -26,15 +26,23 @@ if (platform === "win32") {
 
     const button2 = document.createElement("button");
     button2.appendChild(document.createTextNode(remote.getCurrentWindow().isMaximized() ? "" : ""));
-    button2.addEventListener("click", () => {
-        button2.classList.toggle("on");
 
-        if (button2.classList.contains("on")) {
-            remote.getCurrentWindow().restore();
-            button2.innerHTML = "";
-        } else {
-            remote.getCurrentWindow().maximize();
+    button2.addEventListener("click", () => {
+        const win = remote.getCurrentWindow();
+
+        if (win.isMaximized())
+            win.restore();
+        else
+            win.maximize();
+    });
+
+    window.addEventListener("resize", function () {
+        if (remote.getCurrentWindow().isMaximized()) {
             button2.innerHTML = "";
+            button2.classList.add('on');
+        } else {
+            button2.innerHTML = "";
+            button2.classList.remove('on');
         }
     });
 
