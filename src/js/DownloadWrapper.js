@@ -144,30 +144,44 @@ module.exports = class DownloadWrapper extends EventEmitter {
         if (this.failed) {
             return;
         }
-        if (!data.bytes_request_supported) {
-            this.handleDownloadError('Error: Byte Requests Not Supported');
-            return;
-        }
+        // if (!data.bytes_request_supported) {
+        //     this.handleDownloadError('Error: Byte Requests Not Supported');
+        //     return;
+        // }
+
         this.updateStatus(DownloadStatus.PENDING);
         this.element.querySelector('.download-detail[data-type=final-file] .value').innerText = data.final_file;
-        this.element.querySelector('.download-detail[data-type=size] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, data.size);
+
+        if (this.download.total_size !== -1) {
+            this.element.querySelector('.download-detail[data-type=size] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, data.size);
+            this.element.querySelector('.progress-bar-wrapper').classList.add("infinite");
+        } else
+            this.element.querySelector('.download-detail[data-type=size] .value').innerText = "Unknown";
     }
 
     handleDownloadUpdate(update) {
-        if (this.failed) {
+        if (this.failed)
             return;
-        }
+
         if (Date.now() - this.last_update.time > 800) {
+
             const speed = (update.downloaded_bytes - this.last_update.bytes_progress) / (Date.now() - this.last_update.time); // bytes per millisecond
             const time_left = ((this.download.total_length - update.downloaded_bytes) / speed); // milliseconds
-            const eta = Date.now() + time_left; // miliseconds
+            const eta = Date.now() + time_left; // milliseconds
             const percentProgress = Math.floor((update.downloaded_bytes / this.download.total_length) * 10000) / 100;
             ipcRenderer.send('progress', percentProgress / 100);
-            this.element.querySelector('.progress-bar-inner').style.width = percentProgress + "%";
-            this.element.querySelector('.progress').innerText = percentProgress + "%";
+
+            if (this.download.total_length === -1) {
+                this.element.querySelector('.progress').innerText = "Unknown";
+                this.element.querySelector('.download-detail[data-type=size] .value').innerText = "Unknown";
+                this.element.querySelector('.download-detail[data-type=progress] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.downloaded_bytes);
+            } else {
+                this.element.querySelector('.progress-bar-inner').style.width = percentProgress + "%";
+                this.element.querySelector('.progress').innerText = percentProgress + "%";
+                this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.downloaded_bytes)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
+            }
             this.element.querySelector('.download-detail[data-type=speed] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, Math.floor(speed * 1000)) + " / s"; //convert to per second
             this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date(eta).toLocaleString()} (${DownloadWrapper.miliToHumanReadable(time_left)})`;
-            this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, update.downloaded_bytes)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;
             this.element.querySelector('.download-detail[data-type=parts-done] .value').innerText = `${update.parts_done} / ${this.download.numParts}`;
             this.last_update.time = Date.now();
             this.last_update.bytes_progress = update.downloaded_bytes;
@@ -194,13 +208,14 @@ module.exports = class DownloadWrapper extends EventEmitter {
             this.last_update.bytes_progress = update.transferred_bytes;
         }
     }
+
     handleDownloadError(error) {
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.FAILED);
         this.failed = true;
         this.element.querySelector('.download-detail[data-type=error] .value').innerText = error.toString();
         this.download.cancel();
-        this.emit('notify', 'Download Failed', `Your download, ${this.file_name}, has failed!`);
+        this.emit('notify', 'Download Failed', `"${this.file_name}" has failed.`);
     }
 
     handleDownloadFinishing() {
@@ -225,6 +240,10 @@ module.exports = class DownloadWrapper extends EventEmitter {
         clearInterval(this.elapsed_time_interval);
         this.updateStatus(DownloadStatus.COMPLETE);
         this.emit('notify', 'Download Complete', `Your download, ${this.file_name}, is complete!`);
+
+        if (this.download.total_length === -1)
+            this.element.querySelector('.download-detail[data-type=size] .value').innerText = DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.downloaded_bytes);
+
         this.element.querySelector('.progress').innerText = "100%";
         this.element.querySelector('.download-detail[data-type=eta] .value').innerText = `${new Date().toLocaleString()}`;
         this.element.querySelector('.download-detail[data-type=progress] .value').innerText = `${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)} / ${DownloadWrapper.bytesToHumanReadable(settings.items.preferredUnit, this.download.total_length)}`;

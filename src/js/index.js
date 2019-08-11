@@ -5,7 +5,7 @@ const {ipcRenderer} = require('electron');
 const fs = require('fs');
 const os = require('os');
 const Enum = require('./js/enum.js');
-const {Menus, DownloadStatus, Tabs} = Enum;
+const {Menus, Tabs} = Enum;
 const DownloadWrapper = require('./js/DownloadWrapper.js');
 const Download = require("./js/Download");
 const request = require('request');
@@ -293,6 +293,10 @@ document.querySelectorAll('.check-box').forEach(checkbox => checkbox.addEventLis
     }
 }));
 
+document.querySelector("#url-close-btn").addEventListener('click', function () {
+    MenusViews[Menus.URL_PROMPT].removeAttribute('data-active');
+});
+
 /* TABS */
 const TabViews = {
     [Tabs.QUEUE]: [document.querySelector('#queue-downloads'), document.querySelector('#queue-tab-button')],
@@ -334,7 +338,7 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
             type: 'error',
             title: 'Error Parsing Headers',
             buttons: ['Ok'],
-            message: "Error parsing custom headers. Please make sure they are valid JSON."
+            message: "Error parsing custom headers. Please ensure they are valid JSON."
         });
         return;
     }
@@ -347,7 +351,7 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
                     title: 'File Exists',
                     buttons: ['Replace File', 'Keep Both', 'Cancel'],
                     defaultId: 2,
-                    message: `A file named ${name} already exists in this location. Do you want to replace it??`
+                    message: `The file ${name} already exists in here. Do you want to replace it?`
                 },
                 resolve,
             );
@@ -515,7 +519,7 @@ function updateProxyView() {
 
 /* HISTORY MENU */
 const downloadsHistoryView = MenusViews[Menus.HISTORY].querySelector('.prompt_content');
-document.querySelector('#history-button').addEventListener('click', (e) => {
+[...document.querySelectorAll('.history-button')].forEach(i => i.addEventListener('click', (e) => {
     while (downloadsHistoryView.firstChild) {
         downloadsHistoryView.removeChild(downloadsHistoryView.firstChild);
     }
@@ -549,7 +553,7 @@ document.querySelector('#history-button').addEventListener('click', (e) => {
         downloadsHistoryView.prepend(element);
     });
     changeMenu(Menus.HISTORY);
-});
+}));
 document.querySelector('#clear-all-saved-downloads').addEventListener('click', () => {
     downloadsHistory.items = [];
     downloadsHistory.saveDownloadHistory();

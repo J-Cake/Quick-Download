@@ -42,7 +42,7 @@
                 <i class="fas fa-cog"></i>
                 <span class="tool-tip">Settings</span>
             </button>
-            <button id="history-button" class="tool icon_button">
+            <button class="history-button tool icon_button" id="history-button">
                 <i class="fas fa-history"></i>
                 <span class="tool-tip">Show download history</span>
             </button>
@@ -65,7 +65,11 @@
             <div class="prompt_content_wrapper">
                 <header class="prompt_header">
                     <h1>New Download</h1>
-                    <div>
+                    <div class="right">
+                        <button class="history-button tool icon_button">
+                            <i class="fas fa-history"></i>
+                            <span class="tool-tip">Show download history</span>
+                        </button>
                         <button class="tool prompt_close_button"><i class="fas fa-times"></i>
                             <span class="tool-tip left">Close the prompt</span>
                         </button>
@@ -269,10 +273,13 @@
             <div class="prompt_content_wrapper">
                 <header class="prompt_header">
                     <h1>Enter A URL</h1>
+                    <button class="tool" id="url-close-btn"><i class="fas fa-times"></i>
+                        <span class="tool-tip left">Cancel</span>
+                    </button>
                 </header>
-                <p>Enter a URL to get cookies from and click the check mark. Once the web page loads, login or do what
-                    ever you need to do in order to access the download. Once you are done X out the window, the Headers
-                    will autofill into the download prompt. </p>
+                <p>Enter a URL below to begin collection. Once you have successfully signed reached your file, you can
+                    close the session.
+                    All headers will be collected and you can continue the download in Quick Downloader</p>
                 <input id="url-cookie-input" placeholder="https://example.com" class="input_standard formItem">
                 <div class="right_element">
                     <button id="submit-url-for-cookies" class="tool confirm-btn"><i class="fas fa-check"></i><span

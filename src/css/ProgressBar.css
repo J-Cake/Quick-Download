@@ -58,3 +58,23 @@
     height: 100%;
     transition: 200ms ease;
 }
+
+.progress-bar-wrapper.infinite .progress-bar-inner {
+    width: 20% !important;
+    position: relative;
+    animation: infiniteIndicator 2s linear;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0), #334c79, #334c79, rgba(0, 0, 0, 0));
+    animation-iteration-count: infinite;
+}
+
+@keyframes infiniteIndicator {
+    0% {
+        left: 0;
+    }
+    50% {
+        left: 80%;
+    }
+    100% {
+        left: 0;
+    }
+}
