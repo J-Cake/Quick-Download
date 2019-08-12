@@ -84,6 +84,8 @@ if (platform === "win32") {
         titlebar.classList.remove("hidden");
         lfsbtn.classList.add("hidden");
     });
+} else if (platform !== "darwin") {
+    document.querySelector(".window-titlebar").outerHTML = "";
 }
 
 const headers_el = document.querySelector('#dl-headers');
