@@ -253,6 +253,9 @@ document.querySelector('#new-download-button').addEventListener('click', (e) => 
 document.querySelector('#get-cookies-button').addEventListener('click', evt => {
     showMenu(Menus.URL_PROMPT);
 });
+document.querySelector('#close-cookie-button').addEventListener('click', evt => {
+    changeMenu(Menus.NEW_DOWNLOAD);
+});
 MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener('click', async (e) => {
     if (MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value.length !== 0 && !isJSON(MenusViews[Menus.NEW_DOWNLOAD].querySelector('#dl-headers').value)) {
         dialog.showMessageBox({
@@ -336,7 +339,7 @@ document.querySelector('#revert-settings-button').addEventListener('click', () =
         hideMenus();
     }
 });
-
+document.querySelectorAll('input[name=proxy-auth-type], #proxy-auth-toggle').forEach(element => element.addEventListener('click', updateProxyView));
 /**
  *
  * @return {boolean} - whether the user is ready to continue
