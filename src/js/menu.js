@@ -34,6 +34,12 @@ module.exports = [{
         content() {
             changeMenu(Menus.SETTINGS);
         }
+    }, {
+        label: "Recent Downloads",
+        content() {
+            changeMenu(Menus.HISTORY);
+        },
+        shortcut: "ctrl+h"
     }]
 }, {
     label: "View",
@@ -41,13 +47,20 @@ module.exports = [{
         label: "Reload",
         content() {
             window.location.reload(true);
-        }
+        },
+        shortcut: ["ctrl+r", "f5"]
     }, {
         label: "Open Developer Tools",
         content() {
             webContents.openDevTools();
         },
-        shortcut: "ctrl+shift+i"
+        shortcut: ["ctrl+shift+i", "f12"]
+    }, {
+        label: "Close all prompts",
+        content() {
+            hideMenus();
+        },
+        shortcut: "esc"
     }]
 }, {
     label: "Window",

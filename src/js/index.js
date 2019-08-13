@@ -5,7 +5,7 @@ const {ipcRenderer} = require('electron');
 const fs = require('fs');
 const os = require('os');
 const Enum = require('./js/enum.js');
-const {Menus, DownloadStatus, Tabs} = Enum;
+const {Menus, Tabs} = Enum;
 const DownloadWrapper = require('./js/DownloadWrapper.js');
 const Download = require("./js/Download");
 const request = require('request');
@@ -13,19 +13,14 @@ const request = require('request');
 const platform = process.platform;
 
 if (platform === "win32") {
-    const link = document.createElement("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("href", "./css/windows.css");
-    document.querySelector("head").appendChild(link);
-
     const titlebar = document.querySelector(".window-titlebar");
 
-    const button1 = document.createElement("button");
-    button1.appendChild(document.createTextNode(""));
+    const button1 = document.querySelector("#minimise-button");
+    // button1.appendChild(document.createTextNode(""));
     button1.addEventListener("click", () => remote.getCurrentWindow().minimize());
 
-    const button2 = document.createElement("button");
-    button2.appendChild(document.createTextNode(remote.getCurrentWindow().isMaximized() ? "" : ""));
+    const button2 = document.querySelector("#maximise-button");
+    // button2.appendChild(document.createTextNode(remote.getCurrentWindow().isMaximized() ? "" : ""));
 
     button2.addEventListener("click", () => {
         const win = remote.getCurrentWindow();
@@ -35,6 +30,9 @@ if (platform === "win32") {
         else
             win.maximize();
     });
+
+    const button3 = document.querySelector("#close-button"); // 
+    button3.addEventListener("click", () => remote.getCurrentWindow().close());
 
     window.addEventListener("resize", function () {
         if (remote.getCurrentWindow().isMaximized()) {
@@ -46,31 +44,12 @@ if (platform === "win32") {
         }
     });
 
-    const lfsbtn = document.createElement('button');
-    lfsbtn.innerHTML = `<i class="fas fa-compress"></i><span class="tool-tip left">Leave Full Screen Mode</span>`;
-    lfsbtn.addEventListener('click', () => remote.getCurrentWindow().setFullScreen(false));
-    lfsbtn.classList.add("leave-full-screen-btn");
-    lfsbtn.classList.add("tool");
-    lfsbtn.classList.add("icon_button");
+    const lfsbtn = document.querySelector('.leave-full-screen-btn');
     if (!remote.getCurrentWindow().isFullScreen())
         lfsbtn.classList.add("hidden");
     else
         titlebar.classList.add('hidden');
-
     document.querySelector(".menu_buttons_container").appendChild(lfsbtn);
-
-    const button3 = document.createElement("button"); // 
-    button3.appendChild(document.createTextNode(""));
-    button3.addEventListener("click", () => remote.getCurrentWindow().close());
-
-    const buttonContainer = document.createElement("div");
-    buttonContainer.classList.add("button-container");
-
-    buttonContainer.appendChild(button1);
-    buttonContainer.appendChild(button2);
-    buttonContainer.appendChild(button3);
-
-    titlebar.appendChild(buttonContainer);
 
     const menu = require('./js/menuMaker')(require('./js/menu'));
     menu.classList.add("menu-container");
@@ -84,6 +63,8 @@ if (platform === "win32") {
         titlebar.classList.remove("hidden");
         lfsbtn.classList.add("hidden");
     });
+} else if (platform !== "darwin") {
+    document.querySelector(".window-titlebar").outerHTML = "";
 }
 
 const headers_el = document.querySelector('#dl-headers');
@@ -109,7 +90,7 @@ const version = require('../package.json').version;
 
 console.log('Version: ' + version);
 
-checkUpdate(false);
+checkUpdate(true);
 
 
 ipcRenderer.on('check-update', () => {
@@ -293,6 +274,10 @@ document.querySelectorAll('.check-box').forEach(checkbox => checkbox.addEventLis
     }
 }));
 
+document.querySelector("#url-close-btn").addEventListener('click', function () {
+    MenusViews[Menus.URL_PROMPT].removeAttribute('data-active');
+});
+
 /* TABS */
 const TabViews = {
     [Tabs.QUEUE]: [document.querySelector('#queue-downloads'), document.querySelector('#queue-tab-button')],
@@ -334,7 +319,7 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
             type: 'error',
             title: 'Error Parsing Headers',
             buttons: ['Ok'],
-            message: "Error parsing custom headers. Please make sure they are valid JSON."
+            message: "Error parsing custom headers. Please ensure they are valid JSON."
         });
         return;
     }
@@ -347,7 +332,7 @@ MenusViews[Menus.NEW_DOWNLOAD].querySelector('#start-download').addEventListener
                     title: 'File Exists',
                     buttons: ['Replace File', 'Keep Both', 'Cancel'],
                     defaultId: 2,
-                    message: `A file named ${name} already exists in this location. Do you want to replace it??`
+                    message: `The file ${name} already exists in here. Do you want to replace it?`
                 },
                 resolve,
             );
@@ -515,7 +500,7 @@ function updateProxyView() {
 
 /* HISTORY MENU */
 const downloadsHistoryView = MenusViews[Menus.HISTORY].querySelector('.prompt_content');
-document.querySelector('#history-button').addEventListener('click', (e) => {
+[...document.querySelectorAll('.history-button')].forEach(i => i.addEventListener('click', (e) => {
     while (downloadsHistoryView.firstChild) {
         downloadsHistoryView.removeChild(downloadsHistoryView.firstChild);
     }
@@ -549,7 +534,7 @@ document.querySelector('#history-button').addEventListener('click', (e) => {
         downloadsHistoryView.prepend(element);
     });
     changeMenu(Menus.HISTORY);
-});
+}));
 document.querySelector('#clear-all-saved-downloads').addEventListener('click', () => {
     downloadsHistory.items = [];
     downloadsHistory.saveDownloadHistory();

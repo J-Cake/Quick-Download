@@ -20,7 +20,7 @@ module.exports = function (elements) {
                     callbacks.push(i.content);
                     output.push(`<div data-callback-index="${callbacks.length - 1}" class="menu-item action">
                             ${i.label}
-                            <span class="shortcut">${i.shortcut || ""}</span>
+                            <span class="shortcut">${(i.shortcut instanceof Array ? i.shortcut.join(", ") : i.shortcut || "")}</span>
                         </div>`);
                 } else if (i.content === "separator") {
                     output.push(`<hr/>`)

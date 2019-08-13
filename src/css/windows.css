@@ -22,23 +22,28 @@
 }
 
 .button-container {
-    min-width: calc(3 * 46px);
-    font-family: "Segoe MDL2 Assets";
+    min-width: 150px;
 }
+
 .button-container button {
     min-width: 46px;
     min-height: 30px;
     max-width: 46px;
     max-height: 30px;
     border-radius: 0;
+    display: inline-block;
     margin: 0;
     padding: 0;
-    font-family: "Segoe MDL2 Assets";
+    font-family: "Segoe MDL2 Assets", "Segoe UI", sans-serif;
     font-size: 10px;
     line-height: 26px;
 }
 .button-container button:focus {
     background: initial;
+}
+
+.button-container button:hover {
+    background: rgba(102, 112, 123, 0.55);
 }
 
 .drag-region {
@@ -48,11 +53,12 @@
 /* I'm not gonna add the red to the close button cause it already looks nice as-is */
 
 .leave-full-screen-btn {
-    position: fixed !important; /* shhhh */
+    position: fixed;
     top: 4px;
     right: 12px;
+    display: none;
 }
 
-.leave-full-screen-btn.hidden {
-    display: none;
+.leave-full-screen-btn:not(.hidden) {
+    display: block; /* I'm using this to ensure the button is initially invisible. It's backwards, I know, but it hides it as it renders it*/
 }
