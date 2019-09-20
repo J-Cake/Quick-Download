@@ -22,7 +22,13 @@
 }
 
 .button-container {
-    min-width: 150px;
+    min-width: 138px;
+    max-width: 138px;
+    height: 36px;
+    /*flex-wrap: nowrap;*/
+    /*position: absolute;*/
+    /*right: 0;*/
+    margin-right: 3px;
 }
 
 .button-container button {
@@ -32,10 +38,10 @@
     max-height: 30px;
     border-radius: 0;
     display: inline-block;
-    margin: 0;
+    margin: 0 -3px 0 0;
     padding: 0;
     font-family: "Segoe MDL2 Assets", "Segoe UI", sans-serif;
-    font-size: 10px;
+    font-size: 9px;
     line-height: 26px;
 }
 .button-container button:focus {

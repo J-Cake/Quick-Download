@@ -12,6 +12,22 @@ const request = require('request');
 
 const platform = process.platform;
 
+const headers_el = document.querySelector('#dl-headers');
+headers_el.setAttribute('style', 'overflow-y:hidden;');
+headers_el.addEventListener('input', () => {
+    headers_el.style.height = 'auto';
+    headers_el.style.height = (headers_el.scrollHeight) + 'px';
+});
+
+function isJSON(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 if (platform === "win32") {
     const titlebar = document.querySelector(".window-titlebar");
 
@@ -67,22 +83,6 @@ if (platform === "win32") {
     document.querySelector(".window-titlebar").outerHTML = "";
 }
 
-const headers_el = document.querySelector('#dl-headers');
-headers_el.setAttribute('style', 'overflow-y:hidden;');
-headers_el.addEventListener('input', () => {
-    headers_el.style.height = 'auto';
-    headers_el.style.height = (headers_el.scrollHeight) + 'px';
-});
-
-function isJSON(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-}
-
 document.querySelectorAll('a').forEach(element => element.addEventListener('click', e => {
     shell.openExternal(element.getAttribute('data-href'));
 }));
@@ -90,54 +90,55 @@ const version = require('../package.json').version;
 
 console.log('Version: ' + version);
 
-checkUpdate(true);
-
+checkUpdate(false);
 
 ipcRenderer.on('check-update', () => {
     checkUpdate(true);
 });
 
-function checkUpdate(displayFailPrompt) {
-    request({
-        method: 'GET',
-        url: 'https://raw.githubusercontent.com/jbis9051/quick_download/master/package.json',
-    }, (error, response, body) => {
-        if (error) {
-            console.error("Error checking for update: " + error.toString());
-            if (displayFailPrompt) {
-                dialog.showMessageBox({
-                    type: 'error',
-                    title: 'Error Checking For Update',
-                    buttons: ['Ok'],
-                    message: `An error occurred while checking for an update. Check your network settings and try again. More details in the console.`
-                });
-            }
-            return;
-        }
-        const currentVersion = JSON.parse(body).version;
-        console.log('Current Version: ' + currentVersion);
-        if (currentVersion !== version) {
-            dialog.showMessageBox({
-                type: 'info',
-                title: 'Update Available',
-                buttons: ['Update', 'Cancel'],
-                message: `An update is available. The current version is ${currentVersion}. This version is ${version}. Click "Update" and follow instructions to install the latest version of Quick Downloader.`
-            }, response1 => {
-                if (response1 === 0) {
-                    shell.openExternal('https://jbis9051.github.io/quick_download/');
+async function checkUpdate(displayFailPrompt) {
+    setTimeout(function () {
+        request({
+            method: 'GET',
+            url: 'https://raw.githubusercontent.com/jbis9051/quick_download/master/package.json',
+        }, (error, response, body) => {
+            if (error) {
+                console.error("Error checking for update: " + error.toString());
+                if (displayFailPrompt) {
+                    dialog.showMessageBox({
+                        type: 'error',
+                        title: 'Error Checking For Update',
+                        buttons: ['Ok'],
+                        message: `An error occurred while checking for an update. Check your network settings and try again. More details in the console.`
+                    });
                 }
-            });
-        } else if (displayFailPrompt) {
-            if (displayFailPrompt) {
+                return;
+            }
+            const currentVersion = JSON.parse(body).version;
+            console.log('Current Version: ' + currentVersion);
+            if (currentVersion !== version) {
                 dialog.showMessageBox({
                     type: 'info',
-                    title: 'Up To Date',
-                    buttons: ['Ok'],
-                    message: `You currently have the most recent version of Quick Downloader: ${version}`
+                    title: 'Update Available',
+                    buttons: ['Update', 'Cancel'],
+                    message: `An update is available. The current version is ${currentVersion}. This version is ${version}. Click "Update" and follow instructions to install the latest version of Quick Downloader.`
+                }, response1 => {
+                    if (response1 === 0) {
+                        shell.openExternal('https://jbis9051.github.io/quick_download/');
+                    }
                 });
+            } else if (displayFailPrompt) {
+                if (displayFailPrompt) {
+                    dialog.showMessageBox({
+                        type: 'info',
+                        title: 'Up To Date',
+                        buttons: ['Ok'],
+                        message: `You currently have the most recent version of Quick Downloader: ${version}`
+                    });
+                }
             }
-        }
-    });
+        });
+    }, 0); // run as microtask. I.E. Spin off JS pseudothread
 }
 
 

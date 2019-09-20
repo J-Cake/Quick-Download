@@ -18,8 +18,12 @@
     <link rel="stylesheet" href="./css/AboutMenu.css">
     <link rel="stylesheet" href="./css/menu.css">
     <script>
-        if (process.platform === "win32")
-            document.write(`<link rel="stylesheet" href="./css/windows.css">`)
+        if (process.platform === "win32") {
+            const link = document.createElement("link");
+            link.setAttribute("rel", "stylesheet");
+            link.setAttribute("href", "./css/windows.css");
+            document.head.appendChild(link);
+        }
     </script>
 
     <link rel="stylesheet" href="./assets/fonts/fa.css">
@@ -37,7 +41,7 @@
         <div class="button-container">
             <button id="minimise-button"></button>
             <button id="maximise-button">
-                <script>document.write(require('electron').remote.getCurrentWindow().isMaximized() ? "" : "");</script>
+                <script>document.querySelector("#maximise-button").innerHTML = require('electron').remote.getCurrentWindow().isMaximized() ? "" : "";</script>
             </button>
             <button id="close-button"></button>
         </div>
